@@ -1,0 +1,304 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// USERS & TEAMS
+// ============================================
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  avatarUrl    String?
+  role         Role     @default(MEMBER)
+  teamId       String?
+  team         Team?    @relation(fields: [teamId], references: [id])
+  position     String?
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  ideasCreated       KaizenIdea[]
+  votes              KaizenVote[]
+  comments           KaizenComment[]
+  kudosSent          Kudos[]           @relation("KudosSender")
+  kudosReceived      Kudos[]           @relation("KudosReceiver")
+  kudosLikes         KudosLike[]
+  pointTransactions  PointTransaction[]
+  userBadges         UserBadge[]
+  userMissions       UserMission[]
+  redemptionRequests RedemptionRequest[]
+  processedRedemptions RedemptionRequest[] @relation("ProcessedBy")
+}
+
+model Team {
+  id           String   @id @default(uuid())
+  name         String
+  parentTeamId String?
+  parentTeam   Team?    @relation("TeamHierarchy", fields: [parentTeamId], references: [id])
+  childTeams   Team[]   @relation("TeamHierarchy")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  users  User[]
+  ideas  KaizenIdea[]
+}
+
+enum Role {
+  MEMBER
+  LEADER
+  ADMIN
+}
+
+// ============================================
+// KAIZEN IDEAS
+// ============================================
+
+model KaizenIdea {
+  id           String      @id @default(uuid())
+  creatorId    String
+  creator      User        @relation(fields: [creatorId], references: [id])
+  title        String
+  problemText  String
+  proposalText String
+  impactType   ImpactType  @default(OTHER)
+  status       IdeaStatus  @default(NEW)
+  teamId       String?
+  team         Team?       @relation(fields: [teamId], references: [id])
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  votes    KaizenVote[]
+  comments KaizenComment[]
+}
+
+enum ImpactType {
+  COST
+  SPEED
+  QUALITY
+  SAFETY
+  OTHER
+}
+
+enum IdeaStatus {
+  NEW
+  IN_REVIEW
+  APPROVED
+  IMPLEMENTED
+  REJECTED
+}
+
+model KaizenVote {
+  id        String   @id @default(uuid())
+  ideaId    String
+  idea      KaizenIdea @relation(fields: [ideaId], references: [id], onDelete: Cascade)
+  voterId   String
+  voter     User     @relation(fields: [voterId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@unique([ideaId, voterId])
+}
+
+model KaizenComment {
+  id          String   @id @default(uuid())
+  ideaId      String
+  idea        KaizenIdea @relation(fields: [ideaId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  commentText String
+  createdAt   DateTime @default(now())
+}
+
+// ============================================
+// KUDOS
+// ============================================
+
+model Kudos {
+  id            String    @id @default(uuid())
+  senderId      String
+  sender        User      @relation("KudosSender", fields: [senderId], references: [id])
+  receiverId    String
+  receiver      User      @relation("KudosReceiver", fields: [receiverId], references: [id])
+  coreValue     CoreValue
+  message       String
+  pointsAwarded Int       @default(10)
+  createdAt     DateTime  @default(now())
+
+  likes KudosLike[]
+}
+
+model KudosLike {
+  id        String   @id @default(uuid())
+  kudosId   String
+  kudos     Kudos    @relation(fields: [kudosId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@unique([kudosId, userId])
+}
+
+enum CoreValue {
+  KAIZEN
+  COLLABORATION
+  OWNERSHIP
+  EXCELLENCE
+  INTEGRITY
+}
+
+// ============================================
+// GAMIFICATION
+// ============================================
+
+model PointTransaction {
+  id          String          @id @default(uuid())
+  userId      String
+  user        User            @relation(fields: [userId], references: [id])
+  amount      Int             // positive = earn, negative = spend
+  type        TransactionType
+  source      PointSource
+  referenceId String?
+  createdAt   DateTime        @default(now())
+}
+
+enum TransactionType {
+  EARN
+  SPEND
+}
+
+enum PointSource {
+  IDEA_CREATED
+  IDEA_APPROVED
+  IDEA_IMPLEMENTED
+  KUDOS_SENT
+  KUDOS_RECEIVED
+  ADMIN_ADJUST
+  REDEEM
+  MISSION_COMPLETED
+  STREAK_BONUS
+}
+
+model Badge {
+  id           String   @id @default(uuid())
+  name         String
+  code         String   @unique
+  description  String
+  iconUrl      String?
+  criteriaJson String?
+  createdAt    DateTime @default(now())
+
+  userBadges UserBadge[]
+}
+
+model UserBadge {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  badgeId   String
+  badge     Badge    @relation(fields: [badgeId], references: [id])
+  awardedAt DateTime @default(now())
+  reason    String?
+
+  @@unique([userId, badgeId])
+}
+
+model Mission {
+  id           String      @id @default(uuid())
+  name         String
+  description  String
+  triggerType  TriggerType
+  rulesJson    String?
+  rewardPoints Int
+  isActive     Boolean     @default(true)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  userMissions UserMission[]
+}
+
+enum TriggerType {
+  DAILY
+  WEEKLY
+  EVENT
+}
+
+model UserMission {
+  id            String        @id @default(uuid())
+  userId        String
+  user          User          @relation(fields: [userId], references: [id])
+  missionId     String
+  mission       Mission       @relation(fields: [missionId], references: [id])
+  status        MissionStatus @default(ACTIVE)
+  progressValue Int           @default(0)
+  periodStart   DateTime
+  periodEnd     DateTime
+  updatedAt     DateTime      @updatedAt
+
+  @@unique([userId, missionId, periodStart])
+}
+
+enum MissionStatus {
+  ACTIVE
+  COMPLETED
+  EXPIRED
+  CLAIMED
+}
+
+// ============================================
+// REWARDS
+// ============================================
+
+model Reward {
+  id           String     @id @default(uuid())
+  name         String
+  description  String?
+  imageUrl     String?
+  pointsCost   Int
+  stock        Int
+  type         RewardType
+  isActive     Boolean    @default(true)
+  metadataJson String?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  redemptionRequests RedemptionRequest[]
+}
+
+enum RewardType {
+  VOUCHER
+  DAY_OFF
+  MERCHANDISE
+  OTHER
+}
+
+model RedemptionRequest {
+  id            String            @id @default(uuid())
+  userId        String
+  user          User              @relation(fields: [userId], references: [id])
+  rewardId      String
+  reward        Reward            @relation(fields: [rewardId], references: [id])
+  status        RedemptionStatus  @default(PENDING)
+  requestedAt   DateTime          @default(now())
+  processedById String?
+  processedBy   User?             @relation("ProcessedBy", fields: [processedById], references: [id])
+  processedAt   DateTime?
+  note          String?
+}
+
+enum RedemptionStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  FULFILLED
+}

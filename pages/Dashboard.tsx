@@ -1,229 +1,270 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
-import { Target, TrendingUp, Award, Flame, CheckCircle2, Lightbulb, ChevronRight, Zap, Check } from 'lucide-react';
-import { CURRENT_USER, MOCK_MISSIONS, MOCK_IDEAS } from '../constants';
-import { Link } from 'react-router-dom';
+import { Target, TrendingUp, Award, Flame, CheckCircle2, Lightbulb, ChevronRight, Zap, Check, Loader2 } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import {
+   getCurrentUser as apiGetCurrentUser,
+   getMissions as apiGetMissions,
+   getIdeas as apiGetIdeas,
+   claimMission,
+   User,
+   Mission,
+   Idea
+} from '../services/apiService';
 
 const Dashboard: React.FC = () => {
-  // Local state to simulate point updates and claiming rewards without a backend
-  const [currentUserPoints, setCurrentUserPoints] = useState(CURRENT_USER.points);
-  const [missions, setMissions] = useState(MOCK_MISSIONS);
+   const navigate = useNavigate();
+   const [currentUser, setCurrentUser] = useState<User | null>(null);
+   const [missions, setMissions] = useState<Mission[]>([]);
+   const [ideas, setIdeas] = useState<Idea[]>([]);
+   const [loading, setLoading] = useState(true);
+   const [claimingId, setClaimingId] = useState<string | null>(null);
 
-  const progressToNextLevel = (currentUserPoints / CURRENT_USER.nextLevelPoints) * 100;
-  
-  const data = [
-    { name: 'Completed', value: currentUserPoints },
-    { name: 'Remaining', value: CURRENT_USER.nextLevelPoints - currentUserPoints },
-  ];
-  // Indigo primary, Light gray secondary for chart
-  const COLORS = ['#4f46e5', '#e2e8f0'];
+   useEffect(() => {
+      loadData();
+   }, []);
 
-  const handleClaimReward = (missionId: string, reward: number) => {
-    setMissions(prev => prev.map(m => 
-      m.id === missionId ? { ...m, claimed: true } : m
-    ));
-    setCurrentUserPoints(prev => prev + reward);
-  };
+   const loadData = async () => {
+      try {
+         const [user, missionsData, ideasData] = await Promise.all([
+            apiGetCurrentUser(),
+            apiGetMissions(),
+            apiGetIdeas(),
+         ]);
+         setCurrentUser(user);
+         setMissions(missionsData);
+         setIdeas(ideasData);
+      } catch (error) {
+         console.error('Failed to load data:', error);
+      } finally {
+         setLoading(false);
+      }
+   };
 
-  return (
-    <div className="space-y-6 md:space-y-8 px-4 pt-4 md:px-0 md:pt-0 pb-6">
-      {/* Welcome Section */}
-      <div className="flex flex-col gap-2">
-        <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold text-slate-800 tracking-tight">Welcome back, {CURRENT_USER.name.split(' ')[0]}!</h2>
-            <div className="flex items-center gap-2 bg-gradient-to-r from-orange-50 to-red-50 text-orange-600 px-3 py-1.5 rounded-full border border-orange-100 shadow-sm">
-                <Flame size={16} className="fill-orange-500 text-orange-500" />
-                <span className="font-bold text-sm">{CURRENT_USER.streak} Day Streak</span>
-            </div>
-        </div>
-        <p className="text-slate-500 text-sm">The war for improvement never ends. Ready to deploy?</p>
-      </div>
+   const handleClaimReward = async (missionId: string) => {
+      setClaimingId(missionId);
+      try {
+         await claimMission(missionId);
+         // Reload data to get updated points and missions
+         await loadData();
+      } catch (error) {
+         console.error('Failed to claim mission:', error);
+      } finally {
+         setClaimingId(null);
+      }
+   };
 
-      {/* Horizontal Scroll Stats */}
-      <div className="flex overflow-x-auto gap-4 pb-4 -mx-4 px-4 snap-x no-scrollbar">
-        {/* Main Stats Card - Glass */}
-        <div className="min-w-[85vw] md:min-w-0 md:w-full bg-white/60 backdrop-blur-xl p-5 rounded-3xl border border-white/60 shadow-xl shadow-indigo-100/40 relative overflow-hidden snap-center group">
-          <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-          
-          <div className="flex justify-between items-start mb-4 relative z-10">
-            <div>
-              <p className="text-xs text-indigo-600 font-bold uppercase tracking-wider mb-1 flex items-center gap-1">
-                 <Zap size={12} /> Rank Level
-              </p>
-              <h3 className="text-4xl font-extrabold text-slate-800 tracking-tighter">{currentUserPoints} <span className="text-sm font-bold text-slate-400">XP</span></h3>
-            </div>
-            
-            <div className="h-16 w-16 relative">
-               <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={data}
-                    innerRadius={22}
-                    outerRadius={32}
-                    paddingAngle={0}
-                    dataKey="value"
-                    stroke="none"
-                  >
-                    {data.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                </PieChart>
-              </ResponsiveContainer>
-              <div className="absolute inset-0 flex items-center justify-center font-bold text-lg text-indigo-600">
-                  {CURRENT_USER.level}
-              </div>
-            </div>
-          </div>
-          
-          <div className="space-y-2 relative z-10">
-            <div className="flex justify-between text-xs text-slate-500 font-bold uppercase">
-              <span>Next: Level {CURRENT_USER.level + 1}</span>
-              <span>{Math.round(progressToNextLevel)}%</span>
-            </div>
-            <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden border border-slate-200">
-              <div 
-                className="h-full bg-indigo-600 rounded-full transition-all duration-1000 ease-out shadow-[0_0_10px_rgba(79,70,229,0.3)]"
-                style={{ width: `${progressToNextLevel}%` }}
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Badges Preview Card */}
-        <div className="min-w-[70vw] md:min-w-0 md:w-full bg-white/60 backdrop-blur-xl p-5 rounded-3xl border border-white/60 shadow-xl shadow-purple-100/40 snap-center flex flex-col justify-between">
-          <div className="flex justify-between items-center mb-3">
-            <h3 className="font-bold text-slate-800 flex items-center gap-2">
-              <Award size={18} className="text-purple-600" /> Medals
-            </h3>
-            <Link to="/badges" className="text-xs text-white font-bold bg-indigo-600 px-2 py-1 rounded hover:bg-indigo-700 transition-colors shadow-sm">View All</Link>
-          </div>
-          <div className="flex gap-3">
-            {CURRENT_USER.badges.slice(0,3).map(badge => (
-              <div key={badge.id} className={`h-12 w-12 rounded-xl flex items-center justify-center text-xl bg-white border border-slate-100 shadow-md flex-shrink-0`}>
-                {badge.icon}
-              </div>
-            ))}
-             <div className="h-12 w-12 rounded-xl bg-white/50 border border-dashed border-slate-300 flex items-center justify-center text-slate-400 text-xs font-bold">
-              +{CURRENT_USER.badges.length > 3 ? CURRENT_USER.badges.length - 3 : 0}
-            </div>
-          </div>
-        </div>
-
-        {/* Impact Card */}
-        <div className="min-w-[60vw] md:min-w-0 md:w-full bg-white/60 backdrop-blur-xl p-5 rounded-3xl border border-white/60 shadow-xl shadow-emerald-100/40 snap-center">
-          <h3 className="font-bold text-slate-800 flex items-center gap-2 mb-4">
-            <TrendingUp size={18} className="text-emerald-500" /> War Stats
-          </h3>
-          <div className="grid grid-cols-2 gap-3">
-             <div className="text-center p-3 bg-white/50 rounded-xl border border-white/80 shadow-sm">
-                <p className="text-xl font-bold text-slate-800">5</p>
-                <p className="text-[10px] text-slate-500 font-bold uppercase">Tactics</p>
-             </div>
-             <div className="text-center p-3 bg-white/50 rounded-xl border border-white/80 shadow-sm">
-                <p className="text-xl font-bold text-slate-800">12</p>
-                <p className="text-[10px] text-slate-500 font-bold uppercase">Honor</p>
-             </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Missions - Gradient Glass */}
-      <div className="relative rounded-3xl p-6 overflow-hidden border border-white/40 shadow-xl shadow-indigo-100/50 group">
-         <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 to-violet-700 backdrop-blur-xl opacity-90"></div>
-         <div className="absolute top-0 right-0 p-4 opacity-10">
-            <Target size={120} className="text-white" />
+   if (loading || !currentUser) {
+      return (
+         <div className="min-h-[50vh] flex items-center justify-center">
+            <Loader2 size={32} className="animate-spin text-indigo-600" />
          </div>
-         
-         <div className="relative z-10">
-            <div className="flex items-center justify-between mb-5">
-               <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                  <Target className="text-indigo-200" size={20} /> Daily Operations
-               </h3>
-               <span className="text-xs font-bold text-indigo-100 bg-white/10 px-2 py-1 rounded-lg border border-white/10">
-                  {missions.filter(m => m.completed && !m.claimed).length} Claimable
-               </span>
-            </div>
-            
-            <div className="space-y-3">
-               {missions.map(mission => {
-                  const percent = Math.min(100, (mission.progress / mission.total) * 100);
-                  const isClaimable = mission.completed && !mission.claimed;
-                  
-                  return (
-                    <div key={mission.id} className="bg-white/10 backdrop-blur-md rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between border border-white/10 hover:bg-white/20 transition-all gap-3">
-                       <div className="flex items-center gap-4">
-                          <div className={`flex-shrink-0 p-1.5 rounded-full ${mission.completed ? 'bg-emerald-400 text-white' : 'bg-white/20 text-indigo-100'}`}>
-                             {mission.completed ? <CheckCircle2 size={18} /> : <div className="w-4 h-4 rounded-full border-2 border-current" />}
-                          </div>
-                          <div>
-                             <p className={`font-semibold text-sm leading-tight ${mission.completed ? 'text-indigo-200 line-through' : 'text-white'}`}>
-                                {mission.title}
-                             </p>
-                             <div className="flex items-center gap-2 mt-2">
-                                <div className="h-1.5 w-24 bg-black/20 rounded-full overflow-hidden">
-                                   <div className="h-full bg-emerald-400 transition-all duration-500" style={{ width: `${percent}%` }} />
-                                </div>
-                                <span className="text-[10px] font-bold text-indigo-100">{mission.progress}/{mission.total}</span>
-                             </div>
-                          </div>
-                       </div>
-                       
-                       <div className="flex-shrink-0 self-end sm:self-center">
-                          {isClaimable ? (
-                             <button 
-                                onClick={() => handleClaimReward(mission.id, mission.reward)}
-                                className="text-xs font-bold bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-3 py-1.5 rounded-lg shadow-lg shadow-orange-500/30 animate-pulse hover:scale-105 transition-transform flex items-center gap-1"
-                             >
-                                Claim +{mission.reward} XP
-                             </button>
-                          ) : mission.claimed ? (
-                             <span className="text-xs font-bold text-indigo-200 flex items-center gap-1 opacity-70">
-                                <Check size={14} /> Collected
-                             </span>
-                          ) : (
-                             <span className="text-xs font-bold bg-white/20 text-white border border-white/20 px-2 py-1 rounded-md shadow-sm">
-                                +{mission.reward} XP
-                             </span>
-                          )}
-                       </div>
-                    </div>
-                  );
-               })}
-            </div>
-         </div>
-      </div>
+      );
+   }
 
-      {/* Recent Activity Feed */}
-      <div>
-         <div className="flex items-center justify-between mb-4 px-2">
-            <h3 className="font-bold text-slate-800 text-lg flex items-center gap-2">
-                <Zap size={18} className="text-indigo-600 fill-indigo-600" /> Field Activity
-            </h3>
-            <ChevronRight size={20} className="text-slate-400" />
+   const progressToNextLevel = ((currentUser.points || 0) / (currentUser.nextLevelPoints || 1000)) * 100;
+
+   const data = [
+      { name: 'Completed', value: currentUser.points || 0 },
+      { name: 'Remaining', value: Math.max(0, (currentUser.nextLevelPoints || 1000) - (currentUser.points || 0)) },
+   ];
+   const COLORS = ['#4f46e5', '#e2e8f0'];
+
+   const completedMissions = missions.filter(m => m.completed && !m.claimed).length;
+   const totalIdeas = ideas.filter(i => i.author.id === currentUser.id).length;
+   const totalKudosReceived = (currentUser.badges?.length || 0) * 4;
+
+   return (
+      <div className="max-w-4xl mx-auto px-4 pt-2 md:px-0 pb-20 space-y-6">
+         {/* Welcome Section */}
+         <div className="flex flex-col gap-2">
+            <div className="flex items-center justify-between">
+               <h2 className="text-2xl font-bold text-slate-800 dark:text-white tracking-tight">Welcome back, {currentUser.name.split(' ')[0]}!</h2>
+               <div className="flex items-center gap-2 bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-900/30 dark:to-red-900/30 text-orange-600 dark:text-orange-400 px-3 py-1.5 rounded-full border border-orange-100 dark:border-orange-800/50 shadow-sm">
+                  <Flame size={16} className="fill-orange-500 text-orange-500" />
+                  <span className="font-bold text-sm">{currentUser.streak || 0} Day Streak</span>
+               </div>
+            </div>
+            <p className="text-slate-500 dark:text-slate-400 text-sm">The war for improvement never ends. Ready to deploy?</p>
          </div>
-         <div className="space-y-3">
-            {MOCK_IDEAS.slice(0, 3).map(idea => (
-               <div key={idea.id} className="bg-white/60 backdrop-blur-md p-4 rounded-2xl border border-white/60 shadow-sm flex gap-4 active:bg-white/80 transition-colors">
-                  <div className="flex-shrink-0 mt-0.5">
-                     <div className="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center border border-indigo-100 shadow-sm">
-                        <Lightbulb size={20} />
+
+         {/* Horizontal Scroll Stats */}
+         <div className="flex overflow-x-auto gap-4 pb-4 -mx-4 px-4 snap-x no-scrollbar">
+            {/* Main Stats Card - Glass */}
+            <div className="min-w-[85vw] md:min-w-0 md:w-full bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl p-5 rounded-3xl border border-white/60 dark:border-slate-700/60 shadow-xl shadow-indigo-100/40 dark:shadow-none relative overflow-hidden snap-center group">
+               <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+
+               <div className="flex justify-between items-start mb-4 relative z-10">
+                  <div>
+                     <p className="text-xs text-indigo-600 dark:text-indigo-400 font-bold uppercase tracking-wider mb-1 flex items-center gap-1">
+                        <Zap size={12} /> Rank Level
+                     </p>
+                     <h3 className="text-4xl font-extrabold text-slate-800 dark:text-white tracking-tighter">{(currentUser.points || 0).toLocaleString()} <span className="text-sm font-bold text-slate-400">XP</span></h3>
+                  </div>
+                  <div className="w-20 h-20 relative">
+                     <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                           <Pie
+                              data={data}
+                              cx="50%"
+                              cy="50%"
+                              innerRadius={25}
+                              outerRadius={35}
+                              paddingAngle={2}
+                              dataKey="value"
+                           >
+                              {data.map((entry, index) => (
+                                 <Cell key={`cell-${index}`} fill={COLORS[index]} />
+                              ))}
+                           </Pie>
+                        </PieChart>
+                     </ResponsiveContainer>
+                     <div className="absolute inset-0 flex items-center justify-center">
+                        <span className="text-lg font-extrabold text-indigo-600 dark:text-indigo-400">{currentUser.level || 1}</span>
                      </div>
                   </div>
-                  <div className="min-w-0 flex-1">
-                     <p className="text-sm text-slate-600 leading-snug">
-                        <span className="font-bold text-slate-800">{idea.author.name}</span> deployed tactic <span className="font-medium text-indigo-600">"{idea.title}"</span>
-                     </p>
-                     <p className="text-xs text-slate-400 mt-2 font-medium flex items-center gap-2">
-                        {idea.createdAt} • <span className="text-slate-500 bg-slate-100 px-1.5 rounded">{idea.impact}</span>
-                     </p>
-                  </div>
                </div>
-            ))}
+
+               <div className="space-y-2 relative z-10">
+                  <div className="flex justify-between text-xs text-slate-500 dark:text-slate-400 font-medium">
+                     <span>Progress to Level {(currentUser.level || 1) + 1}</span>
+                     <span className="text-indigo-600 dark:text-indigo-400 font-bold">{Math.round(progressToNextLevel)}%</span>
+                  </div>
+                  <div className="bg-slate-100 dark:bg-slate-700 h-2.5 rounded-full overflow-hidden">
+                     <div
+                        className="bg-gradient-to-r from-indigo-500 to-purple-500 h-full rounded-full transition-all duration-500"
+                        style={{ width: `${Math.min(100, progressToNextLevel)}%` }}
+                     />
+                  </div>
+                  <p className="text-xs text-slate-400 dark:text-slate-500">{(currentUser.nextLevelPoints || 1000) - (currentUser.points || 0)} XP needed</p>
+               </div>
+            </div>
+         </div>
+
+         {/* Quick Stats Grid */}
+         <div className="grid grid-cols-3 gap-3">
+            <div className="bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/30 dark:to-teal-900/30 p-4 rounded-2xl border border-emerald-100 dark:border-emerald-800/50">
+               <Target size={20} className="text-emerald-600 dark:text-emerald-400 mb-2" />
+               <p className="text-2xl font-bold text-emerald-700 dark:text-emerald-300">{completedMissions}</p>
+               <p className="text-xs text-emerald-600/70 dark:text-emerald-400/70">Missions Ready</p>
+            </div>
+            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 p-4 rounded-2xl border border-blue-100 dark:border-blue-800/50">
+               <TrendingUp size={20} className="text-blue-600 dark:text-blue-400 mb-2" />
+               <p className="text-2xl font-bold text-blue-700 dark:text-blue-300">{totalIdeas}</p>
+               <p className="text-xs text-blue-600/70 dark:text-blue-400/70">Ideas Posted</p>
+            </div>
+            <div className="bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/30 dark:to-orange-900/30 p-4 rounded-2xl border border-amber-100 dark:border-amber-800/50">
+               <Award size={20} className="text-amber-600 dark:text-amber-400 mb-2" />
+               <p className="text-2xl font-bold text-amber-700 dark:text-amber-300">{totalKudosReceived}</p>
+               <p className="text-xs text-amber-600/70 dark:text-amber-400/70">Kudos Received</p>
+            </div>
+         </div>
+
+         {/* Daily Operations */}
+         <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm border border-slate-100 dark:border-slate-700">
+            <div className="flex items-center justify-between mb-4">
+               <h3 className="font-bold text-lg text-slate-800 dark:text-white flex items-center gap-2">
+                  <CheckCircle2 size={20} className="text-indigo-600 dark:text-indigo-400" />
+                  Daily Operations
+               </h3>
+               <span className="text-sm text-slate-500 dark:text-slate-400">{missions.filter(m => m.claimed).length}/{missions.length}</span>
+            </div>
+
+            <div className="space-y-3">
+               {missions.slice(0, 4).map((mission) => (
+                  <div
+                     key={mission.id}
+                     className={`p-4 rounded-xl border transition-all ${mission.completed
+                        ? 'bg-emerald-50/50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800/50'
+                        : 'bg-slate-50/50 dark:bg-slate-700/50 border-slate-100 dark:border-slate-700'
+                        }`}
+                  >
+                     <div className="flex items-start justify-between mb-2">
+                        <div className="flex items-center gap-3">
+                           <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${mission.completed
+                              ? 'bg-emerald-500 text-white'
+                              : 'bg-slate-100 dark:bg-slate-600 text-slate-400 dark:text-slate-300'
+                              }`}>
+                              {mission.completed ? <Check size={16} /> : <Target size={16} />}
+                           </div>
+                           <div>
+                              <p className={`font-medium ${mission.completed ? 'text-emerald-700 dark:text-emerald-300' : 'text-slate-700 dark:text-slate-200'}`}>
+                                 {mission.name}
+                              </p>
+                              <p className="text-xs text-slate-500 dark:text-slate-400">{mission.description}</p>
+                           </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                           <span className="text-sm font-bold text-indigo-600 dark:text-indigo-400">+{mission.reward}</span>
+                           {mission.completed && !mission.claimed && (
+                              <button
+                                 onClick={() => handleClaimReward(mission.id)}
+                                 disabled={claimingId === mission.id}
+                                 className="px-3 py-1 bg-emerald-500 text-white text-xs font-bold rounded-full hover:bg-emerald-600 transition-colors disabled:opacity-50"
+                              >
+                                 {claimingId === mission.id ? <Loader2 size={12} className="animate-spin" /> : 'Claim'}
+                              </button>
+                           )}
+                           {mission.claimed && (
+                              <span className="text-xs text-slate-400 dark:text-slate-500">Claimed</span>
+                           )}
+                        </div>
+                     </div>
+                     <div className="bg-slate-100 dark:bg-slate-700 h-1.5 rounded-full overflow-hidden">
+                        <div
+                           className={`h-full rounded-full transition-all ${mission.completed
+                              ? 'bg-emerald-500'
+                              : 'bg-indigo-500'
+                              }`}
+                           style={{ width: `${Math.min(100, (mission.progress / mission.target) * 100)}%` }}
+                        />
+                     </div>
+                     <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">{mission.progress}/{mission.target}</p>
+                  </div>
+               ))}
+            </div>
+         </div>
+
+         {/* Recent Field Activity */}
+         <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm border border-slate-100 dark:border-slate-700">
+            <div className="flex items-center justify-between mb-4">
+               <h3 className="font-bold text-lg text-slate-800 dark:text-white flex items-center gap-2">
+                  <Lightbulb size={20} className="text-amber-500" />
+                  Recent Ideas
+               </h3>
+               <Link to="/ideas" className="text-indigo-600 dark:text-indigo-400 text-sm font-medium flex items-center gap-1 hover:gap-2 transition-all">
+                  View All <ChevronRight size={16} />
+               </Link>
+            </div>
+
+            <div className="space-y-3">
+               {ideas.slice(0, 3).map((idea) => (
+                  <div
+                     key={idea.id}
+                     onClick={() => navigate(`/ideas/${idea.id}`)}
+                     className="p-4 bg-slate-50/50 dark:bg-slate-700/50 rounded-xl border border-slate-100 dark:border-slate-600 hover:border-indigo-200 dark:hover:border-indigo-700 transition-all cursor-pointer"
+                  >
+                     <div className="flex items-start gap-3">
+                        <img
+                           src={idea.author.avatar}
+                           alt={idea.author.name}
+                           className="w-10 h-10 rounded-full object-cover"
+                        />
+                        <div className="flex-1 min-w-0">
+                           <p className="font-medium text-slate-800 dark:text-white truncate">{idea.title}</p>
+                           <p className="text-xs text-slate-500 dark:text-slate-400">{idea.author.name} · {idea.createdAt}</p>
+                        </div>
+                        <div className="flex items-center gap-1 text-indigo-600 dark:text-indigo-400">
+                           <span className="text-sm font-bold">{idea.votes}</span>
+                           <TrendingUp size={14} />
+                        </div>
+                     </div>
+                  </div>
+               ))}
+            </div>
          </div>
       </div>
-    </div>
-  );
+   );
 };
 
 export default Dashboard;

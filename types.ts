@@ -6,7 +6,7 @@ export interface User {
   team: string;
   points: number;
   monthlyPoints: number;
-  quarterlyPoints: number; // Added for leaderboard filtering
+  quarterlyPoints: number;
   level: number;
   nextLevelPoints: number;
   streak: number;
@@ -28,8 +28,17 @@ export interface Mission {
   total: number;
   reward: number;
   completed: boolean;
-  claimed: boolean; // Added to track if points have been collected
+  claimed: boolean;
   type: 'daily' | 'weekly';
+}
+
+export interface Comment {
+  id: string;
+  userId: string;
+  userName: string;
+  userAvatar: string;
+  text: string;
+  createdAt: string;
 }
 
 export interface KaizenIdea {
@@ -40,6 +49,9 @@ export interface KaizenIdea {
   impact: 'Cost' | 'Quality' | 'Speed' | 'Safety';
   status: 'New' | 'In Review' | 'Approved' | 'Implemented';
   votes: number;
+  votedBy?: string[];
+  followedBy?: string[];
+  comments?: Comment[];
   author: User;
   createdAt: string;
 }
@@ -52,12 +64,14 @@ export interface Kudos {
   message: string;
   createdAt: string;
   likes: number;
+  likedBy?: string[];
 }
 
 export interface Reward {
   id: string;
   name: string;
   image: string;
+  description?: string;
   cost: number;
   type: 'Voucher' | 'DayOff' | 'Merch';
   stock: number;
@@ -69,4 +83,15 @@ export interface PointTransaction {
   amount: number;
   type: 'earn' | 'spend';
   date: string;
+}
+
+export interface RedemptionRequest {
+  id: string;
+  rewardId: string;
+  rewardName: string;
+  rewardImage: string;
+  pointsCost: number;
+  status: 'pending' | 'approved' | 'rejected' | 'fulfilled';
+  requestedAt: string;
+  processedAt?: string;
 }
