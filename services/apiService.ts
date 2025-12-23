@@ -72,6 +72,7 @@ export interface User {
 export interface Badge {
     id: string;
     name: string;
+    code?: string;
     icon: string;
     description: string;
     unlocked: boolean;
@@ -549,4 +550,43 @@ export async function adminGetStats(): Promise<any> {
     const response = await fetchWithAuth('/admin/stats');
     if (!response.ok) throw new Error('Failed to fetch system stats');
     return response.json();
+}
+
+// ============================================
+// ADMIN BADGE MANAGEMENT
+// ============================================
+
+export async function adminGetBadges(): Promise<Badge[]> {
+    const response = await fetchWithAuth('/admin/badges');
+    if (!response.ok) throw new Error('Failed to fetch badges');
+    return response.json();
+}
+
+export async function adminCreateBadge(data: { name: string; code: string; description: string; iconUrl?: string; criteriaJson?: string }): Promise<Badge> {
+    const response = await fetchWithAuth('/admin/badges', {
+        method: 'POST',
+        body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to create badge');
+    }
+    return response.json();
+}
+
+export async function adminUpdateBadge(id: string, data: Partial<{ name: string; code: string; description: string; iconUrl?: string; criteriaJson?: string }>): Promise<Badge> {
+    const response = await fetchWithAuth(`/admin/badges/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to update badge');
+    }
+    return response.json();
+}
+
+export async function adminDeleteBadge(id: string): Promise<void> {
+    const response = await fetchWithAuth(`/admin/badges/${id}`, { method: 'DELETE' });
+    if (!response.ok) throw new Error('Failed to delete badge');
 }

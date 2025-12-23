@@ -154,6 +154,79 @@ router.delete('/rewards/:id', async (req: AuthRequest, res: Response) => {
 });
 
 // ============================================
+// BADGE MANAGEMENT
+// ============================================
+
+// GET /api/admin/badges
+router.get('/badges', async (req: AuthRequest, res: Response) => {
+    try {
+        const badges = await prisma.badge.findMany({
+            orderBy: { createdAt: 'desc' },
+            include: {
+                _count: {
+                    select: { userBadges: true }
+                }
+            }
+        });
+        return res.json(badges);
+    } catch (error) {
+        console.error('Admin get badges error:', error);
+        return res.status(500).json({ error: 'Failed to fetch badges' });
+    }
+});
+
+// POST /api/admin/badges
+router.post('/badges', async (req: AuthRequest, res: Response) => {
+    try {
+        const { name, code, description, iconUrl, criteriaJson } = req.body;
+
+        if (!name || !code || !description) {
+            return res.status(400).json({ error: 'Name, code, and description are required' });
+        }
+
+        const badge = await prisma.badge.create({
+            data: { name, code, description, iconUrl, criteriaJson }
+        });
+        return res.status(201).json(badge);
+    } catch (error: any) {
+        if (error.code === 'P2002') {
+            return res.status(400).json({ error: 'Badge code already exists' });
+        }
+        console.error('Admin create badge error:', error);
+        return res.status(500).json({ error: 'Failed to create badge' });
+    }
+});
+
+// PATCH /api/admin/badges/:id
+router.patch('/badges/:id', async (req: AuthRequest, res: Response) => {
+    try {
+        const { name, code, description, iconUrl, criteriaJson } = req.body;
+        const badge = await prisma.badge.update({
+            where: { id: req.params.id },
+            data: { name, code, description, iconUrl, criteriaJson }
+        });
+        return res.json(badge);
+    } catch (error: any) {
+        if (error.code === 'P2002') {
+            return res.status(400).json({ error: 'Badge code already exists' });
+        }
+        console.error('Admin update badge error:', error);
+        return res.status(500).json({ error: 'Failed to update badge' });
+    }
+});
+
+// DELETE /api/admin/badges/:id
+router.delete('/badges/:id', async (req: AuthRequest, res: Response) => {
+    try {
+        await prisma.badge.delete({ where: { id: req.params.id } });
+        return res.json({ success: true });
+    } catch (error) {
+        console.error('Admin delete badge error:', error);
+        return res.status(500).json({ error: 'Failed to delete badge' });
+    }
+});
+
+// ============================================
 // SYSTEM STATS
 // ============================================
 

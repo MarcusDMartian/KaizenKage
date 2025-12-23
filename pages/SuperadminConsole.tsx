@@ -4,6 +4,7 @@ import {
     Users,
     Target,
     Gift,
+    Award,
     Settings,
     Plus,
     Edit2,
@@ -29,11 +30,16 @@ import {
     adminUpdateReward,
     adminDeleteReward,
     adminGetStats,
+    adminGetBadges,
+    adminCreateBadge,
+    adminUpdateBadge,
+    adminDeleteBadge,
     getSavedUser,
     getJoinRequests,
     approveJoinRequest,
     rejectJoinRequest,
-    User
+    User,
+    Badge
 } from '../services/apiService';
 import { useTranslation } from 'react-i18next';
 import EmptyState from '../components/EmptyState';
@@ -41,13 +47,14 @@ import EmptyState from '../components/EmptyState';
 const SuperadminConsole: React.FC = () => {
     const { t } = useTranslation();
     const currentUser = getSavedUser();
-    const [activeTab, setActiveTab] = useState<'stats' | 'users' | 'missions' | 'rewards' | 'requests'>('stats');
+    const [activeTab, setActiveTab] = useState<'stats' | 'users' | 'missions' | 'rewards' | 'requests' | 'badges'>('stats');
     const [loading, setLoading] = useState(true);
     const [stats, setStats] = useState<any>(null);
     const [users, setUsers] = useState<User[]>([]);
     const [missions, setMissions] = useState<any[]>([]);
     const [rewards, setRewards] = useState<any[]>([]);
     const [requests, setRequests] = useState<any[]>([]);
+    const [badges, setBadges] = useState<Badge[]>([]);
     const [showModal, setShowModal] = useState<boolean>(false);
     const [modalData, setModalData] = useState<any>({});
     const [saving, setSaving] = useState(false);
@@ -78,6 +85,10 @@ const SuperadminConsole: React.FC = () => {
                     const requestsRes = await getJoinRequests();
                     setRequests(Array.isArray(requestsRes) ? requestsRes : []);
                     break;
+                case 'badges':
+                    const badgesRes = await adminGetBadges();
+                    setBadges(Array.isArray(badgesRes) ? badgesRes : []);
+                    break;
             }
         } catch (error) {
             console.error('Failed to load admin data:', error);
@@ -102,12 +113,18 @@ const SuperadminConsole: React.FC = () => {
                 } else {
                     await adminCreateReward(modalData);
                 }
+            } else if (activeTab === 'badges') {
+                if (modalData.id) {
+                    await adminUpdateBadge(modalData.id, modalData);
+                } else {
+                    await adminCreateBadge(modalData);
+                }
             }
             setShowModal(false);
             loadTabData();
-        } catch (error) {
+        } catch (error: any) {
             console.error('Failed to save:', error);
-            alert('Failed to save changes');
+            alert(error.message || 'Failed to save changes');
         } finally {
             setSaving(false);
         }
@@ -118,6 +135,8 @@ const SuperadminConsole: React.FC = () => {
             setModalData({ name: '', description: '', triggerType: 'DAILY', rewardPoints: 100, isActive: true });
         } else if (activeTab === 'rewards' && !data.id) {
             setModalData({ name: '', description: '', imageUrl: '', pointsCost: 500, stock: 10, type: 'VOUCHER', isActive: true });
+        } else if (activeTab === 'badges' && !data.id) {
+            setModalData({ name: '', code: '', description: '', iconUrl: '' });
         } else {
             setModalData(data);
         }
@@ -190,6 +209,12 @@ const SuperadminConsole: React.FC = () => {
                     >
                         <Gift size={20} /> {t('management.rewards')}
                     </button>
+                    <button
+                        onClick={() => setActiveTab('badges')}
+                        className={`w-full flex items-center gap-3 px-5 py-4 rounded-2xl font-bold transition-all ${activeTab === 'badges' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200' : 'bg-white dark:bg-slate-800 text-slate-500 hover:bg-slate-50'}`}
+                    >
+                        <Award size={20} /> Badges
+                    </button>
                 </div>
 
                 <div className="lg:col-span-3">
@@ -206,6 +231,7 @@ const SuperadminConsole: React.FC = () => {
                                 {activeTab === 'requests' && <RequestsList requests={requests} onRefresh={loadTabData} />}
                                 {activeTab === 'missions' && <MissionsList missions={missions} onRefresh={loadTabData} onEdit={openModal} onAdd={() => openModal()} />}
                                 {activeTab === 'rewards' && <RewardsList rewards={rewards} onRefresh={loadTabData} onEdit={openModal} onAdd={() => openModal()} />}
+                                {activeTab === 'badges' && <BadgesList badges={badges} onRefresh={loadTabData} onEdit={openModal} onAdd={() => openModal()} />}
                             </div>
                         )}
                     </div>
@@ -218,7 +244,7 @@ const SuperadminConsole: React.FC = () => {
                     <div className="bg-white dark:bg-slate-800 w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden border border-white/20">
                         <div className="p-6 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50/50 dark:bg-slate-700/50">
                             <h3 className="text-xl font-black text-slate-800 dark:text-white">
-                                {modalData.id ? t('common.edit') : t('common.submit')} {activeTab === 'missions' ? t('management.missions') : t('management.rewards')}
+                                {modalData.id ? t('common.edit') : t('common.submit')} {activeTab === 'missions' ? t('management.missions') : activeTab === 'badges' ? 'Badge' : t('management.rewards')}
                             </h3>
                             <button onClick={() => setShowModal(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors">
                                 <X size={24} />
@@ -271,6 +297,30 @@ const SuperadminConsole: React.FC = () => {
                                         />
                                     </div>
                                 </div>
+                            ) : activeTab === 'badges' ? (
+                                <>
+                                    <div className="space-y-1">
+                                        <label className="text-xs font-black uppercase text-slate-400 tracking-widest">Badge Code</label>
+                                        <input
+                                            required
+                                            type="text"
+                                            value={modalData.code || ''}
+                                            onChange={(e) => setModalData({ ...modalData, code: e.target.value })}
+                                            className="w-full bg-slate-50 dark:bg-slate-700 border-none rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 transition-all font-mono"
+                                            placeholder="e.g., FIRST_IDEA, STREAK_MASTER"
+                                        />
+                                    </div>
+                                    <div className="space-y-1">
+                                        <label className="text-xs font-black uppercase text-slate-400 tracking-widest">Icon (Emoji or URL)</label>
+                                        <input
+                                            type="text"
+                                            value={modalData.iconUrl || ''}
+                                            onChange={(e) => setModalData({ ...modalData, iconUrl: e.target.value })}
+                                            className="w-full bg-slate-50 dark:bg-slate-700 border-none rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 transition-all"
+                                            placeholder="🏆 or https://..."
+                                        />
+                                    </div>
+                                </>
                             ) : (
                                 <>
                                     <div className="space-y-1">
@@ -308,16 +358,18 @@ const SuperadminConsole: React.FC = () => {
                                 </>
                             )}
 
-                            <div className="flex items-center gap-2 pt-2">
-                                <input
-                                    type="checkbox"
-                                    id="isActive"
-                                    checked={modalData.isActive}
-                                    onChange={(e) => setModalData({ ...modalData, isActive: e.target.checked })}
-                                    className="w-5 h-5 rounded border-none bg-slate-100 dark:bg-slate-700 text-indigo-600 focus:ring-indigo-500"
-                                />
-                                <label htmlFor="isActive" className="text-sm font-bold text-slate-600 dark:text-slate-300">{t('management.active')}</label>
-                            </div>
+                            {activeTab !== 'badges' && (
+                                <div className="flex items-center gap-2 pt-2">
+                                    <input
+                                        type="checkbox"
+                                        id="isActive"
+                                        checked={modalData.isActive}
+                                        onChange={(e) => setModalData({ ...modalData, isActive: e.target.checked })}
+                                        className="w-5 h-5 rounded border-none bg-slate-100 dark:bg-slate-700 text-indigo-600 focus:ring-indigo-500"
+                                    />
+                                    <label htmlFor="isActive" className="text-sm font-bold text-slate-600 dark:text-slate-300">{t('management.active')}</label>
+                                </div>
+                            )}
 
                             <button
                                 type="submit"
@@ -619,6 +671,78 @@ const RequestsList: React.FC<{ requests: any[], onRefresh: () => void }> = ({ re
                                     className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 text-rose-500 border border-rose-200 dark:border-rose-900/30 rounded-xl text-sm font-bold hover:bg-rose-50 transition-all"
                                 >
                                     <XCircle size={18} /> Reject
+                                </button>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+};
+
+// BadgesList Component
+const BadgesList: React.FC<{ badges: Badge[], onRefresh: () => void, onEdit: (badge?: any) => void, onAdd: () => void }> = ({ badges, onRefresh, onEdit, onAdd }) => {
+    const [deleting, setDeleting] = React.useState<string | null>(null);
+
+    const handleDelete = async (id: string) => {
+        if (!confirm('Are you sure you want to delete this badge?')) return;
+        setDeleting(id);
+        try {
+            await adminDeleteBadge(id);
+            onRefresh();
+        } catch (error) {
+            console.error('Failed to delete badge:', error);
+        } finally {
+            setDeleting(null);
+        }
+    };
+
+    return (
+        <div>
+            <div className="flex justify-between items-center mb-6">
+                <h3 className="text-xl font-black text-slate-800 dark:text-white">Badge Configuration</h3>
+                <button
+                    onClick={onAdd}
+                    className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-xl text-sm font-bold shadow-lg shadow-indigo-200 hover:bg-indigo-700 transition-all"
+                >
+                    <Plus size={18} /> Add Badge
+                </button>
+            </div>
+
+            {badges.length === 0 ? (
+                <EmptyState
+                    icon={Award}
+                    title="No Badges Configured"
+                    message="Create badges to recognize and motivate your team members."
+                />
+            ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {badges.map((badge) => (
+                        <div key={badge.id} className="p-4 bg-slate-50/80 dark:bg-slate-700/50 rounded-2xl border border-slate-100 dark:border-slate-600 hover:shadow-lg transition-all">
+                            <div className="flex items-start gap-4">
+                                <div className="w-14 h-14 rounded-2xl bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center text-3xl flex-shrink-0">
+                                    {badge.icon || '🏆'}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <h4 className="font-bold text-slate-800 dark:text-white truncate">{badge.name}</h4>
+                                    <p className="text-xs font-mono text-indigo-600 dark:text-indigo-400">{badge.code || 'N/A'}</p>
+                                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">{badge.description}</p>
+                                </div>
+                            </div>
+                            <div className="flex justify-end gap-2 mt-4 pt-3 border-t border-slate-200 dark:border-slate-600">
+                                <button
+                                    onClick={() => onEdit(badge)}
+                                    className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold text-indigo-600 bg-indigo-50 dark:bg-indigo-900/30 dark:text-indigo-400 hover:bg-indigo-100 transition-all"
+                                >
+                                    <Edit2 size={14} /> Edit
+                                </button>
+                                <button
+                                    onClick={() => handleDelete(badge.id)}
+                                    disabled={deleting === badge.id}
+                                    className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold text-rose-600 bg-rose-50 dark:bg-rose-900/30 dark:text-rose-400 hover:bg-rose-100 transition-all disabled:opacity-50"
+                                >
+                                    {deleting === badge.id ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />} Delete
                                 </button>
                             </div>
                         </div>
