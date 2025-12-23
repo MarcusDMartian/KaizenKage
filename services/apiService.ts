@@ -63,12 +63,13 @@ export interface User {
     organizationId?: string;
     orgRoleId?: string;
     orgRole?: OrgRole;
-    team?: string;
+    team?: any;
     position?: string;
     points?: number;
     level?: number;
     nextLevelPoints?: number;
     streak?: number;
+    isActive?: boolean;
     badges?: Badge[];
 }
 

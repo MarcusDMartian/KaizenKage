@@ -10,7 +10,7 @@ export interface User {
   organizationId?: string;
   orgRoleId?: string;
   orgRole?: OrgRole;
-  team?: string;
+  team?: any; // Can be string or Team object
   position?: string;
   points?: number;
   monthlyPoints?: number;
@@ -18,6 +18,7 @@ export interface User {
   level?: number;
   nextLevelPoints?: number;
   streak?: number;
+  isActive?: boolean;
   badges?: Badge[];
 }
 

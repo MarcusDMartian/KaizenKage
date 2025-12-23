@@ -490,7 +490,7 @@ const UserTable: React.FC<{ users: User[], onRefresh: () => void }> = ({ users, 
                             <tr key={user.id} className="group hover:bg-slate-50/50 dark:hover:bg-slate-700/20 transition-colors">
                                 <td className="py-5 pl-2">
                                     <div className="flex items-center gap-4">
-                                        <img src={user.avatarUrl} className="w-11 h-11 rounded-2xl border-2 border-white dark:border-slate-700 shadow-md" alt="" />
+                                        <img src={user.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=random`} className="w-11 h-11 rounded-2xl border-2 border-white dark:border-slate-700 shadow-md" alt="" />
                                         <div>
                                             <p className="font-black text-slate-800 dark:text-white">{user.name}</p>
                                             <p className="text-xs text-slate-500 font-medium">{user.email}</p>
@@ -499,7 +499,9 @@ const UserTable: React.FC<{ users: User[], onRefresh: () => void }> = ({ users, 
                                 </td>
                                 <td className="py-5">
                                     <div className="space-y-1">
-                                        <span className="text-sm font-bold text-slate-700 dark:text-slate-200 block">{user.team || 'Unassigned'}</span>
+                                        <span className="text-sm font-bold text-slate-700 dark:text-slate-200 block">
+                                            {typeof user.team === 'object' ? user.team?.name : (user.team || 'Unassigned')}
+                                        </span>
                                         <select
                                             value={user.role}
                                             onChange={(e) => handleUpdate(user.id, { role: e.target.value })}
@@ -514,10 +516,10 @@ const UserTable: React.FC<{ users: User[], onRefresh: () => void }> = ({ users, 
                                 </td>
                                 <td className="py-5">
                                     <button
-                                        onClick={() => handleUpdate(user.id, { isActive: !(user as any).isActive })}
-                                        className={`px-3 py-1 rounded-full text-[10px] font-black tracking-widest ${(user as any).isActive ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}
+                                        onClick={() => handleUpdate(user.id, { isActive: !user.isActive })}
+                                        className={`px-3 py-1 rounded-full text-[10px] font-black tracking-widest ${user.isActive ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}
                                     >
-                                        {(user as any).isActive ? t('management.active').toUpperCase() : t('management.inactive').toUpperCase()}
+                                        {user.isActive ? t('management.active').toUpperCase() : t('management.inactive').toUpperCase()}
                                     </button>
                                 </td>
                                 <td className="py-5 text-right pr-2">
