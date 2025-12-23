@@ -62,11 +62,11 @@
         "resetDataDesc": "Hành động này sẽ xóa tất cả dữ liệu đã lưu",
         "signOut": "Đăng xuất",
         "signOutDesc": "Kết thúc phiên làm việc",
-        "version": "KaizenHub v1.0.0"
+        "version": "Kaizenkage v1.0.0"
     },
     "onboarding": {
         "skip": "Bỏ qua",
-        "welcome": "Chào mừng đến với KaizenHub",
+        "welcome": "Chào mừng đến với Kaizenkage",
         "welcomeDesc": "Nền tảng cải tiến liên tục của bạn. Chia sẻ ý tưởng, ghi nhận đồng nghiệp và cùng nhau phát triển.",
         "kudos": "Ghi nhận đồng nghiệp",
         "kudosDesc": "Gửi Kudos cho những đồng nghiệp tạo nên sự khác biệt. Xây dựng văn hóa hỗ trợ và trân trọng.",

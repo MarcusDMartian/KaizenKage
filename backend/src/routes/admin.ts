@@ -177,4 +177,98 @@ router.get('/stats', async (req: AuthRequest, res: Response) => {
     }
 });
 
+// ============================================
+// JOIN REQUESTS
+// ============================================
+
+// GET /api/admin/join-requests
+router.get('/join-requests', async (req: AuthRequest, res: Response) => {
+    try {
+        // In a real multi-tenant system, filter by admin's organization
+        // For now, assuming Global Superadmin or we can add org filter if req.user has it.
+        // Let's rely on global list for now or filter if we can.
+        // Since we didn't strictly add organizationId to AuthRequest interface yet, 
+        // we might access it if we cast or fetch.
+        // But let's just fetch all for now, or filter if we query user.
+
+        // Let's assume the admin can see all requests if they are superadmin. 
+        // Or better:
+        const user = await prisma.user.findUnique({ where: { id: req.user!.userId } });
+        if (!user?.organizationId) {
+            return res.json([]); // No org, no requests
+        }
+
+        const requests = await prisma.joinRequest.findMany({
+            where: {
+                orgId: user.organizationId,
+                status: 'PENDING'
+            },
+            orderBy: { createdAt: 'desc' },
+            include: { organization: true }
+        });
+        return res.json(requests);
+    } catch (error) {
+        console.error('Fetch join requests error:', error);
+        return res.status(500).json({ error: 'Failed to fetch join requests' });
+    }
+});
+
+// POST /api/admin/join-requests/:id/approve
+router.post('/join-requests/:id/approve', async (req: AuthRequest, res: Response) => {
+    try {
+        const { id } = req.params;
+
+        const result = await prisma.$transaction(async (prisma) => {
+            const request = await prisma.joinRequest.findUnique({ where: { id } });
+            if (!request || request.status !== 'PENDING') {
+                throw new Error('Request not found or already processed');
+            }
+
+            // Create User
+            const newUser = await prisma.user.create({
+                data: {
+                    email: request.email,
+                    name: request.name,
+                    passwordHash: request.passwordHash,
+                    organizationId: request.orgId,
+                    role: 'MEMBER', // Default role
+                    avatarUrl: `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(request.name)}`
+                }
+            });
+
+            // Update Request
+            await prisma.joinRequest.update({
+                where: { id },
+                data: { status: 'APPROVED' }
+            });
+
+            return newUser;
+        });
+
+        return res.json({ message: 'Request approved', user: result });
+
+    } catch (error: any) {
+        console.error('Approve request error:', error);
+        return res.status(500).json({ error: error.message || 'Failed to approve request' });
+    }
+});
+
+// POST /api/admin/join-requests/:id/reject
+router.post('/join-requests/:id/reject', async (req: AuthRequest, res: Response) => {
+    try {
+        const { id } = req.params;
+
+        await prisma.joinRequest.update({
+            where: { id },
+            data: { status: 'REJECTED' }
+        });
+
+        return res.json({ message: 'Request rejected' });
+
+    } catch (error) {
+        console.error('Reject request error:', error);
+        return res.status(500).json({ error: 'Failed to reject request' });
+    }
+});
+
 export default router;

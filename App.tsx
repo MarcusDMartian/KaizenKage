@@ -22,13 +22,8 @@ import SuperadminConsole from './pages/SuperadminConsole';
 // Wrapper component to handle routing logic
 const AppRoutes: React.FC = () => {
   const location = useLocation();
-  const [onboardingComplete, setOnboardingComplete] = useState(() => isOnboardingCompleted());
-
-  // Re-check onboarding status when location changes
-  useEffect(() => {
-    const completed = isOnboardingCompleted();
-    setOnboardingComplete(completed);
-  }, [location.pathname]);
+  // Read onboarding status directly to avoid race conditions with navigation
+  const onboardingComplete = isOnboardingCompleted();
 
   // Public routes (no auth required)
   if (location.pathname === '/login') {

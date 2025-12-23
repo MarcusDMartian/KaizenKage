@@ -69,7 +69,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   }
 
   return (
-    <div className={`min-h-screen relative overflow-hidden ${isDarkMode ? 'dark bg-slate-900 text-slate-100' : 'bg-slate-50 text-slate-800'}`}>
+    <div className={`min-h-screen relative overflow-hidden transition-colors duration-300`}>
 
       {/* --- LIQUID BACKGROUND --- */}
       <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
@@ -88,7 +88,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             <div className="w-9 h-9 bg-gradient-to-br from-indigo-600 to-violet-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/30">
               <span className="text-white font-bold text-lg">K</span>
             </div>
-            <span className={`text-xl font-bold ${isDarkMode ? 'text-white' : 'text-slate-800'} tracking-tight`}>KaizenHub</span>
+            <span className={`text-xl font-bold ${isDarkMode ? 'text-white' : 'text-slate-800'} tracking-tight`}>Kaizenkage</span>
           </div>
 
           {/* Navigation Links - Center */}
@@ -159,7 +159,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-violet-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/30">
                 <span className="text-white font-bold">K</span>
               </div>
-              <span className={`font-bold ${isDarkMode ? 'text-white' : 'text-slate-800'} text-lg tracking-tight`}>KaizenHub</span>
+              <span className={`font-bold ${isDarkMode ? 'text-white' : 'text-slate-800'} text-lg tracking-tight`}>Kaizenkage</span>
             </div>
 
             <div className="flex items-center gap-4">

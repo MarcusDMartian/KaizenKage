@@ -404,6 +404,68 @@ export async function markAllNotificationsRead(): Promise<void> {
     if (!response.ok) throw new Error('Failed to mark all read');
 }
 // ============================================
+// MULTI-TENANCY API
+// ============================================
+
+export async function checkDomain(email: string): Promise<{ exists: boolean; organization?: any; domain: string }> {
+    const response = await fetch(`${API_BASE}/auth/check-domain`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+    });
+    if (!response.ok) throw new Error('Failed to check domain');
+    return response.json();
+}
+
+export async function registerOrg(data: { email: string; password: string; name: string; orgName: string }): Promise<{ token: string; user: User }> {
+    const response = await fetch(`${API_BASE}/auth/register-org`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Registration failed');
+    }
+
+    const resData = await response.json();
+    saveAuth(resData.token, resData.user);
+    return resData;
+}
+
+export async function joinRequest(data: { email: string; password: string; name: string; orgId: string }): Promise<{ message: string; requestId: string }> {
+    const response = await fetch(`${API_BASE}/auth/join-request`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to submit join request');
+    }
+
+    return response.json();
+}
+
+export async function getJoinRequests(): Promise<any[]> {
+    const response = await fetchWithAuth('/admin/join-requests');
+    if (!response.ok) throw new Error('Failed to fetch join requests');
+    return response.json();
+}
+
+export async function approveJoinRequest(id: string): Promise<void> {
+    const response = await fetchWithAuth(`/admin/join-requests/${id}/approve`, { method: 'POST' });
+    if (!response.ok) throw new Error('Failed to approve request');
+}
+
+export async function rejectJoinRequest(id: string): Promise<void> {
+    const response = await fetchWithAuth(`/admin/join-requests/${id}/reject`, { method: 'POST' });
+    if (!response.ok) throw new Error('Failed to reject request');
+}
+
+// ============================================
 // ADMIN (SUPERADMIN) API
 // ============================================
 

@@ -9,18 +9,25 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-    const [isDarkMode, setIsDarkMode] = useState(false);
-
-    useEffect(() => {
+    const [isDarkMode, setIsDarkMode] = useState(() => {
         const savedTheme = getTheme();
-        setIsDarkMode(savedTheme === 'dark');
+        const initialMode = savedTheme === 'dark';
 
-        // Apply theme to document
-        if (savedTheme === 'dark') {
+        // Sync DOM immediately to match state
+        if (initialMode) {
             document.documentElement.classList.add('dark');
         } else {
             document.documentElement.classList.remove('dark');
         }
+
+        return initialMode;
+    });
+
+    useEffect(() => {
+        // This effect now only handles changes if needed, but the init handled the first render.
+        // We can keep it to ensure sync or remove if we trust the toggle.
+        // Let's keep a simplified sync just in case external storage changes, 
+        // but for now the specific requirement is the Initial Flash.
     }, []);
 
     const toggleDarkMode = () => {

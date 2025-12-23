@@ -11,17 +11,47 @@ datasource db {
 }
 
 // ============================================
+// ORGANIZATION & MULTI-TENANCY
+// ============================================
+
+model Organization {
+  id        String   @id @default(uuid())
+  name      String
+  domain    String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users        User[]
+  joinRequests JoinRequest[]
+}
+
+model JoinRequest {
+  id           String   @id @default(uuid())
+  email        String
+  name         String
+  passwordHash String
+  orgId        String
+  organization Organization @relation(fields: [orgId], references: [id])
+  status       String   @default("PENDING") // PENDING, REJECTED, APPROVED
+  createdAt    DateTime @default(now())
+}
+
+// ============================================
 // USERS & TEAMS
 // ============================================
 
 model User {
-  id           String   @id @default(uuid())
-  email        String   @unique
-  passwordHash String
-  name         String
-  avatarUrl    String?
-  role         Role     @default(MEMBER)
-  teamId       String?
+  id             String        @id @default(uuid())
+  email          String        @unique
+  passwordHash   String
+  name           String
+  avatarUrl      String?
+  role           Role          @default(MEMBER)
+  
+  organizationId String?
+  organization   Organization? @relation(fields: [organizationId], references: [id])
+  
+  teamId         String?
   team         Team?    @relation(fields: [teamId], references: [id])
   position     String?
   isActive     Boolean  @default(true)

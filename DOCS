@@ -1,4 +1,4 @@
-KaizenHub – Internal Reward & Feedback Platform (Kaizen – Loyalty – Gamification)
+Kaizenkage – Internal Reward & Feedback Platform (Kaizen – Loyalty – Gamification)
 Ứng dụng nội bộ được thiết kế như một "Kaizen – Loyalty & Gamification Hub" cho nhân viên: nơi mọi người đề xuất cải tiến, ghi nhận lẫn nhau, nhận điểm/thưởng và tham gia các "mini game" thành tích, tất cả đều bám vào văn hoá cải tiến liên tục.
 
 ===============================================================================
@@ -16,7 +16,7 @@ Hệ thống thưởng – công nhận – feedback ẩn danh kết hợp gamif
 
 2. Khái niệm sản phẩm & use case chính
 2.1. Tổng quan sản phẩm
-Tên gợi ý: KaizenHub – Internal Reward & Feedback Platform
+Tên gợi ý: Kaizenkage – Internal Reward & Feedback Platform
 Mục tiêu:
 - Xây dựng văn hoá Kaizen: cải tiến liên tục, mọi người cùng tham gia.
 - Tăng mức độ gắn kết và công nhận giữa các nhân viên.
@@ -101,6 +101,16 @@ Routes đã triển khai:
 - /onboarding – Onboarding flow (4 slides) cho first-time users
 
 3.3. Chi tiết từng page hiện tại
+
+3.3.0. Login & Registration (Multi-tenant)
+- **Multi-step Flow**:
+  - Step 1: User enters email. System checks domain (e.g., `@company.com`).
+  - Step 2a (New Domain): User prompted to "setup Organization" (becomes Superadmin).
+  - Step 2b (Existing Domain): User prompted to "Join Request".
+  - Step 2c (Invited/Normal): Standard password login.
+- **UI Elements**:
+  - Domain status badges (Green: Found, Blue: New).
+  - Dynamic form fields based on registration type.
 
 3.3.1. Dashboard (/)
 Layout:
@@ -318,6 +328,11 @@ Navigation Items:
 - Kudos prompt: warm, encouraging, enthusiastic, under 40 words.
 - Error handling: fallback về text gốc nếu API fail.
 
+3.6. Superadmin Console
+- **Member Requests**: Tab quản lý các yêu cầu gia nhập (Join Requests) từ domain của tổ chức.
+  - Approve: Tạo user account, link tới Org.
+  - Reject: Từ chối yêu cầu.
+
 4. Data Models (Types) hiện tại
 
 4.1. User
@@ -400,6 +415,24 @@ Navigation Items:
   date: string;
 }
 
+4.8. Organization
+{
+  id: string;
+  name: string;
+  domain: string;
+  createdAt: string;
+}
+
+4.9. JoinRequest
+{
+  id: string;
+  email: string;
+  name: string;
+  orgId: string;
+  status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  createdAt: string;
+}
+
 5. Tech Stack hiện tại
 5.1. Frontend
 - Framework: React 18 + TypeScript.
@@ -471,7 +504,10 @@ Others:
 Auth:
 - POST /auth/login – login, trả về access token.
 - POST /auth/refresh – refresh token.
-- POST /auth/logout – revoke token (nếu lưu blacklist).
+- POST /auth/logout – revoke token.
+- POST /auth/check-domain – kiểm tra domain email có thuộc org nào không.
+- POST /auth/register-org – đăng ký org mới + superadmin.
+- POST /auth/join-request – gửi yêu cầu tham gia org.
 
 Users & Teams:
 - GET /me – thông tin user hiện tại.
@@ -515,6 +551,9 @@ Leader/Admin:
 - GET/POST/PATCH /admin/rules – rules points/badge/missions.
 - GET/POST/PATCH /admin/rewards – CRUD reward.
 - GET/POST/PATCH /admin/users – quản lý user.
+- GET /admin/join-requests – danh sách yêu cầu tham gia (Superadmin Only).
+- POST /admin/join-requests/:id/approve – duyệt yêu cầu.
+- POST /admin/join-requests/:id/reject – từ chối yêu cầu.
 
 6.4. Business rules (mẫu)
 Điểm từ hành động:
@@ -605,7 +644,23 @@ user_profiles (optional)
 - locale
 - timezone
 - created_at
+  updated_at
+
+organizations
+- id (PK)
+- name
+- domain (unique)
+- created_at
 - updated_at
+
+join_requests
+- id (PK)
+- email
+- name
+- password_hash
+- org_id (FK -> organizations.id)
+- status (enum: PENDING, APPROVED, REJECTED)
+- created_at
 
 8.2. Recognition & Kaizen
 kudos
@@ -788,6 +843,8 @@ PHẦN E: ROADMAP & TODO
 ✅ Profile page với stats và navigation.
 ✅ Responsive design (mobile + desktop).
 ✅ Gemini AI integration cho text polishing.
+✅ Multi-tenancy Architecture (Organization & JoinRequests).
+✅ Owner Dashboard (Member Requests management).
 ✅ Claim mission rewards với point updates.
 ✅ LocalStorage data persistence (storageService.ts).
 ✅ Idea detail page (/ideas/:id) với chi tiết, status timeline.
@@ -797,7 +854,8 @@ PHẦN E: ROADMAP & TODO
 ✅ Kudos like/react (persist likes vào localStorage).
 ✅ User search/select for kudos recipient (UserSelectModal).
 ✅ Reward redemption flow (RedeemModal, confirmation, points deduction).
-✅ Dark mode toggle (Settings page, ThemeContext).
+
+✅ Data Reset functionality (Settings page).
 ✅ Language selection UI (Settings page - UI ready, i18n chưa implement).
 ✅ Onboarding flow (4 slides cho first-time users).
 ✅ Data Reset functionality (Settings page).

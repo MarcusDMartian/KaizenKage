@@ -64,12 +64,12 @@
         "signOutDesc": "End your session",
         "resetConfirmTitle": "Reset All Data?",
         "resetConfirmDesc": "This will reset all your preferences and local data. This action cannot be undone.",
-        "version": "KaizenHub v1.0.0"
+        "version": "Kaizenkage v1.0.0"
     },
     "onboarding": {
         "skip": "Skip",
-        "welcome": "Welcome to KaizenHub",
-        "welcomeDesc": "Your platform for continuous improvement. Share ideas, recognize colleagues, and grow together.",
+        "welcome": "Welcome to Kaizenkage",
+        "welcomeDesc": "Welcome to Kaizenkage, the continuous improvement platform.",
         "kudos": "Recognize Your Peers",
         "kudosDesc": "Send Kudos to colleagues who make a difference. Build a culture of appreciation and support.",
         "rewards": "Earn & Redeem Points",

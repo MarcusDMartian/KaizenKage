@@ -62,11 +62,11 @@
         "resetDataDesc": "保存されたすべてのデータが消去されます",
         "signOut": "サインアウト",
         "signOutDesc": "セッションを終了する",
-        "version": "KaizenHub v1.0.0"
+        "version": "Kaizenkage v1.0.0"
     },
     "onboarding": {
         "skip": "スキップ",
-        "welcome": "KaizenHub へようこそ",
+        "welcome": "Kaizenkage へようこそ",
         "welcomeDesc": "継続的改善のためのプラットフォームです。アイデアを共有し、仲間を称え、共に成長しましょう。",
         "kudos": "仲間を称える",
         "kudosDesc": "仲間の素晴らしい行動に Kudos（賞賛）を送りましょう。感謝し合える文化を創ります。",

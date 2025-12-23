@@ -12,7 +12,10 @@ import {
     X,
     Loader2,
     ShieldAlert,
-    BarChart3
+    BarChart3,
+    UserPlus,
+    Check,
+    XCircle
 } from 'lucide-react';
 import {
     adminGetUsers,
@@ -27,6 +30,9 @@ import {
     adminDeleteReward,
     adminGetStats,
     getSavedUser,
+    getJoinRequests,
+    approveJoinRequest,
+    rejectJoinRequest,
     User
 } from '../services/apiService';
 import { useTranslation } from 'react-i18next';
@@ -35,12 +41,13 @@ import EmptyState from '../components/EmptyState';
 const SuperadminConsole: React.FC = () => {
     const { t } = useTranslation();
     const currentUser = getSavedUser();
-    const [activeTab, setActiveTab] = useState<'stats' | 'users' | 'missions' | 'rewards'>('stats');
+    const [activeTab, setActiveTab] = useState<'stats' | 'users' | 'missions' | 'rewards' | 'requests'>('stats');
     const [loading, setLoading] = useState(true);
     const [stats, setStats] = useState<any>(null);
     const [users, setUsers] = useState<User[]>([]);
     const [missions, setMissions] = useState<any[]>([]);
     const [rewards, setRewards] = useState<any[]>([]);
+    const [requests, setRequests] = useState<any[]>([]);
     const [showModal, setShowModal] = useState<boolean>(false);
     const [modalData, setModalData] = useState<any>({});
     const [saving, setSaving] = useState(false);
@@ -66,6 +73,10 @@ const SuperadminConsole: React.FC = () => {
                 case 'rewards':
                     const rewardsRes = await adminGetRewards();
                     setRewards(Array.isArray(rewardsRes) ? rewardsRes : []);
+                    break;
+                case 'requests':
+                    const requestsRes = await getJoinRequests();
+                    setRequests(Array.isArray(requestsRes) ? requestsRes : []);
                     break;
             }
         } catch (error) {
@@ -161,6 +172,13 @@ const SuperadminConsole: React.FC = () => {
                         <Users size={20} /> {t('management.users')}
                     </button>
                     <button
+                        onClick={() => setActiveTab('requests')}
+                        className={`w-full flex items-center gap-3 px-5 py-4 rounded-2xl font-bold transition-all ${activeTab === 'requests' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200' : 'bg-white dark:bg-slate-800 text-slate-500 hover:bg-slate-50'}`}
+                    >
+                        <UserPlus size={20} /> Member Requests
+                        {requests.length > 0 && <span className="bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full">{requests.length}</span>}
+                    </button>
+                    <button
                         onClick={() => setActiveTab('missions')}
                         className={`w-full flex items-center gap-3 px-5 py-4 rounded-2xl font-bold transition-all ${activeTab === 'missions' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200' : 'bg-white dark:bg-slate-800 text-slate-500 hover:bg-slate-50'}`}
                     >
@@ -185,6 +203,7 @@ const SuperadminConsole: React.FC = () => {
                             <div className="p-6">
                                 {activeTab === 'stats' && <StatsOverview stats={stats} />}
                                 {activeTab === 'users' && <UserTable users={users} onRefresh={loadTabData} />}
+                                {activeTab === 'requests' && <RequestsList requests={requests} onRefresh={loadTabData} />}
                                 {activeTab === 'missions' && <MissionsList missions={missions} onRefresh={loadTabData} onEdit={openModal} onAdd={() => openModal()} />}
                                 {activeTab === 'rewards' && <RewardsList rewards={rewards} onRefresh={loadTabData} onEdit={openModal} onAdd={() => openModal()} />}
                             </div>
@@ -536,6 +555,70 @@ const RewardsList: React.FC<{ rewards: any[], onRefresh: () => void, onEdit: (r:
                                     className="p-2 text-slate-400 hover:text-red-600 transition-colors"
                                 >
                                     <Trash2 size={14} />
+                                </button>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+};
+
+const RequestsList: React.FC<{ requests: any[], onRefresh: () => void }> = ({ requests, onRefresh }) => {
+    const handleAction = async (id: string, action: 'approve' | 'reject') => {
+        try {
+            if (action === 'approve') {
+                await approveJoinRequest(id);
+            } else {
+                await rejectJoinRequest(id);
+            }
+            onRefresh();
+        } catch (e) {
+            console.error(e);
+            alert('Failed to process request');
+        }
+    };
+
+    return (
+        <div className="space-y-4">
+            <div className="flex justify-between items-center mb-6">
+                <h3 className="text-xl font-black text-slate-800 dark:text-white">Member Requests</h3>
+            </div>
+            {requests.length === 0 ? (
+                <EmptyState
+                    icon={UserPlus}
+                    title="No Pending Requests"
+                    message="All join requests have been processed. The gates are clear."
+                />
+            ) : (
+                <div className="grid grid-cols-1 gap-4">
+                    {requests.map(req => (
+                        <div key={req.id} className="p-5 rounded-2xl border border-slate-100 dark:border-slate-600 bg-slate-50 dark:bg-slate-700/50 flex flex-col md:flex-row justify-between items-center gap-4">
+                            <div className="flex items-center gap-4">
+                                <div className="w-12 h-12 rounded-xl bg-orange-100 flex items-center justify-center text-orange-600">
+                                    <UserPlus size={24} />
+                                </div>
+                                <div>
+                                    <h4 className="font-bold text-slate-800 dark:text-white">{req.name}</h4>
+                                    <p className="text-sm text-slate-500">{req.email}</p>
+                                    <p className="text-xs font-bold text-slate-400 mt-1">
+                                        Requested: {new Date(req.createdAt).toLocaleDateString()}
+                                    </p>
+                                </div>
+                            </div>
+                            <div className="flex gap-3">
+                                <button
+                                    onClick={() => handleAction(req.id, 'approve')}
+                                    className="flex items-center gap-2 px-4 py-2 bg-emerald-500 text-white rounded-xl text-sm font-bold shadow-lg shadow-emerald-200 hover:bg-emerald-600 transition-all"
+                                >
+                                    <Check size={18} /> Approve
+                                </button>
+                                <button
+                                    onClick={() => handleAction(req.id, 'reject')}
+                                    className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 text-rose-500 border border-rose-200 dark:border-rose-900/30 rounded-xl text-sm font-bold hover:bg-rose-50 transition-all"
+                                >
+                                    <XCircle size={18} /> Reject
                                 </button>
                             </div>
                         </div>
