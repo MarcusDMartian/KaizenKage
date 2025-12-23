@@ -75,6 +75,7 @@ export interface Badge {
     icon: string;
     description: string;
     unlocked: boolean;
+    color?: string;
 }
 
 export interface Notification {
@@ -140,9 +141,11 @@ export interface Reward {
 export interface Mission {
     id: string;
     name: string;
+    title?: string; // Alias for name
     description: string;
     progress: number;
     target: number;
+    total?: number; // Alias for target
     reward: number;
     completed: boolean;
     claimed: boolean;

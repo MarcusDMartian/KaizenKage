@@ -1,35 +1,43 @@
+// Aligned with backend API types from apiService.ts
+
 export interface User {
   id: string;
+  email?: string;
   name: string;
-  avatar: string;
-  role: 'Member' | 'Leader' | 'Admin';
-  team: string;
-  points: number;
-  monthlyPoints: number;
-  quarterlyPoints: number;
-  level: number;
-  nextLevelPoints: number;
-  streak: number;
-  badges: Badge[];
+  avatarUrl?: string;
+  avatar?: string; // Legacy alias for avatarUrl
+  role: string;
+  team?: string;
+  position?: string;
+  points?: number;
+  monthlyPoints?: number;
+  quarterlyPoints?: number;
+  level?: number;
+  nextLevelPoints?: number;
+  streak?: number;
+  badges?: Badge[];
 }
 
 export interface Badge {
   id: string;
   name: string;
   icon: string;
-  color: string;
+  color?: string;
   description: string;
 }
 
 export interface Mission {
   id: string;
-  title: string;
+  name?: string;
+  title?: string; // Legacy alias for name
+  description?: string;
   progress: number;
-  total: number;
+  target?: number;
+  total?: number; // Legacy alias for target
   reward: number;
   completed: boolean;
   claimed: boolean;
-  type: 'daily' | 'weekly';
+  type?: string;
 }
 
 export interface Comment {
@@ -46,21 +54,40 @@ export interface KaizenIdea {
   title: string;
   problem: string;
   proposal: string;
-  impact: 'Cost' | 'Quality' | 'Speed' | 'Safety';
-  status: 'New' | 'In Review' | 'Approved' | 'Implemented';
+  impact: string;
+  status: string;
   votes: number;
   votedBy?: string[];
   followedBy?: string[];
   comments?: Comment[];
-  author: User;
+  author: {
+    id: string;
+    name: string;
+    avatar?: string;
+    avatarUrl?: string;
+    team?: string;
+  };
   createdAt: string;
 }
 
 export interface Kudos {
   id: string;
-  sender: User;
-  receiver: User;
-  coreValue: 'Kaizen' | 'Collaboration' | 'Ownership' | 'Customer First';
+  sender: {
+    id: string;
+    name: string;
+    avatarUrl?: string;
+    avatar?: string;
+    team?: string;
+  };
+  receiver: {
+    id: string;
+    name: string;
+    avatarUrl?: string;
+    avatar?: string;
+    team?: string;
+  };
+  coreValue?: string;
+  value?: string;
   message: string;
   createdAt: string;
   likes: number;
@@ -70,10 +97,12 @@ export interface Kudos {
 export interface Reward {
   id: string;
   name: string;
-  image: string;
+  image?: string;
+  imageUrl?: string;
   description?: string;
-  cost: number;
-  type: 'Voucher' | 'DayOff' | 'Merch';
+  cost?: number;
+  pointsCost?: number;
+  type: string;
   stock: number;
 }
 
@@ -81,7 +110,7 @@ export interface PointTransaction {
   id: string;
   description: string;
   amount: number;
-  type: 'earn' | 'spend';
+  type: string;
   date: string;
 }
 
@@ -89,9 +118,12 @@ export interface RedemptionRequest {
   id: string;
   rewardId: string;
   rewardName: string;
-  rewardImage: string;
+  rewardImage?: string;
   pointsCost: number;
-  status: 'pending' | 'approved' | 'rejected' | 'fulfilled';
+  status: string;
   requestedAt: string;
   processedAt?: string;
 }
+
+// Type alias for Transaction from API
+export type Transaction = PointTransaction;

@@ -100,7 +100,7 @@ const Badges: React.FC = () => {
 
                         <div className="flex justify-center mb-4">
                            <div className={`w-20 h-20 rounded-2xl flex items-center justify-center text-4xl shadow-sm transition-transform duration-300 ${isUnlocked
-                              ? `${badge.color} group-hover:scale-110`
+                              ? `${badge.color || 'bg-indigo-100'} group-hover:scale-110`
                               : 'bg-slate-200 dark:bg-slate-700 text-slate-400 grayscale'
                               }`}>
                               {badge.icon}

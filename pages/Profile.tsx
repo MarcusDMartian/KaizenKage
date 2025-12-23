@@ -214,10 +214,10 @@ const Profile: React.FC = () => {
                         </div>
                         <div className="flex-1">
                            <p className={`text-sm font-medium ${mission.completed ? 'text-slate-500 dark:text-slate-400 line-through' : 'text-slate-800 dark:text-white'}`}>
-                              {mission.title}
+                              {mission.title || mission.name}
                            </p>
                            <div className="w-full bg-slate-200 dark:bg-slate-600 h-1 rounded-full mt-2 overflow-hidden">
-                              <div className="bg-indigo-500 h-full transition-all duration-300" style={{ width: `${(mission.progress / mission.total) * 100}%` }}></div>
+                              <div className="bg-indigo-500 h-full transition-all duration-300" style={{ width: `${(mission.progress / (mission.total || mission.target || 1)) * 100}%` }}></div>
                            </div>
                         </div>
                         <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400">+{mission.reward}pts</span>
@@ -240,7 +240,7 @@ const Profile: React.FC = () => {
                <div className="grid grid-cols-3 sm:grid-cols-4 gap-4">
                   {currentUser.badges.map(badge => (
                      <div key={badge.id} className="flex flex-col items-center gap-2 p-3 bg-white/50 dark:bg-slate-700/50 rounded-xl border border-white/80 dark:border-slate-600 shadow-sm group hover:scale-105 transition-transform">
-                        <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl ${badge.color} shadow-sm`}>
+                        <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl ${badge.color || 'bg-indigo-100'} shadow-sm`}>
                            {badge.icon}
                         </div>
                         <span className="text-[10px] text-center font-bold text-slate-600 dark:text-slate-300 leading-tight line-clamp-2">
