@@ -16,7 +16,8 @@ import {
     BarChart3,
     UserPlus,
     Check,
-    XCircle
+    XCircle,
+    Briefcase
 } from 'lucide-react';
 import {
     adminGetUsers,
@@ -34,12 +35,18 @@ import {
     adminCreateBadge,
     adminUpdateBadge,
     adminDeleteBadge,
+    adminGetOrganizations,
+    adminGetRoles,
+    adminCreateRole,
+    adminUpdateRole,
+    adminDeleteRole,
     getSavedUser,
     getJoinRequests,
     approveJoinRequest,
     rejectJoinRequest,
     User,
-    Badge
+    Badge,
+    OrgRole
 } from '../services/apiService';
 import { useTranslation } from 'react-i18next';
 import EmptyState from '../components/EmptyState';
@@ -47,7 +54,7 @@ import EmptyState from '../components/EmptyState';
 const SuperadminConsole: React.FC = () => {
     const { t } = useTranslation();
     const currentUser = getSavedUser();
-    const [activeTab, setActiveTab] = useState<'stats' | 'users' | 'missions' | 'rewards' | 'requests' | 'badges'>('stats');
+    const [activeTab, setActiveTab] = useState<'stats' | 'users' | 'missions' | 'rewards' | 'requests' | 'badges' | 'roles'>('stats');
     const [loading, setLoading] = useState(true);
     const [stats, setStats] = useState<any>(null);
     const [users, setUsers] = useState<User[]>([]);
@@ -55,6 +62,9 @@ const SuperadminConsole: React.FC = () => {
     const [rewards, setRewards] = useState<any[]>([]);
     const [requests, setRequests] = useState<any[]>([]);
     const [badges, setBadges] = useState<Badge[]>([]);
+    const [roles, setRoles] = useState<OrgRole[]>([]);
+    const [organizations, setOrganizations] = useState<any[]>([]);
+    const [selectedOrgId, setSelectedOrgId] = useState<string>('');
     const [showModal, setShowModal] = useState<boolean>(false);
     const [modalData, setModalData] = useState<any>({});
     const [saving, setSaving] = useState(false);
@@ -89,6 +99,16 @@ const SuperadminConsole: React.FC = () => {
                     const badgesRes = await adminGetBadges();
                     setBadges(Array.isArray(badgesRes) ? badgesRes : []);
                     break;
+                case 'roles':
+                    const orgs = await adminGetOrganizations();
+                    setOrganizations(orgs);
+                    if (orgs.length > 0) {
+                        const targetOrgId = selectedOrgId || orgs[0].id;
+                        if (!selectedOrgId) setSelectedOrgId(targetOrgId);
+                        const rolesRes = await adminGetRoles(targetOrgId);
+                        setRoles(Array.isArray(rolesRes) ? rolesRes : []);
+                    }
+                    break;
             }
         } catch (error) {
             console.error('Failed to load admin data:', error);
@@ -119,6 +139,12 @@ const SuperadminConsole: React.FC = () => {
                 } else {
                     await adminCreateBadge(modalData);
                 }
+            } else if (activeTab === 'roles') {
+                if (modalData.id) {
+                    await adminUpdateRole(modalData.id, modalData);
+                } else {
+                    await adminCreateRole({ ...modalData, organizationId: selectedOrgId });
+                }
             }
             setShowModal(false);
             loadTabData();
@@ -137,6 +163,8 @@ const SuperadminConsole: React.FC = () => {
             setModalData({ name: '', description: '', imageUrl: '', pointsCost: 500, stock: 10, type: 'VOUCHER', isActive: true });
         } else if (activeTab === 'badges' && !data.id) {
             setModalData({ name: '', code: '', description: '', iconUrl: '' });
+        } else if (activeTab === 'roles' && !data.id) {
+            setModalData({ name: '', description: '' });
         } else {
             setModalData(data);
         }
@@ -215,6 +243,12 @@ const SuperadminConsole: React.FC = () => {
                     >
                         <Award size={20} /> Badges
                     </button>
+                    <button
+                        onClick={() => setActiveTab('roles')}
+                        className={`w-full flex items-center gap-3 px-5 py-4 rounded-2xl font-bold transition-all ${activeTab === 'roles' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200' : 'bg-white dark:bg-slate-800 text-slate-500 hover:bg-slate-50'}`}
+                    >
+                        <Briefcase size={20} /> Roles
+                    </button>
                 </div>
 
                 <div className="lg:col-span-3">
@@ -232,6 +266,17 @@ const SuperadminConsole: React.FC = () => {
                                 {activeTab === 'missions' && <MissionsList missions={missions} onRefresh={loadTabData} onEdit={openModal} onAdd={() => openModal()} />}
                                 {activeTab === 'rewards' && <RewardsList rewards={rewards} onRefresh={loadTabData} onEdit={openModal} onAdd={() => openModal()} />}
                                 {activeTab === 'badges' && <BadgesList badges={badges} onRefresh={loadTabData} onEdit={openModal} onAdd={() => openModal()} />}
+                                {activeTab === 'roles' && (
+                                    <RolesManager
+                                        roles={roles}
+                                        orgs={organizations}
+                                        selectedOrgId={selectedOrgId}
+                                        onOrgChange={setSelectedOrgId}
+                                        onRefresh={loadTabData}
+                                        onEdit={openModal}
+                                        onAdd={() => openModal()}
+                                    />
+                                )}
                             </div>
                         )}
                     </div>
@@ -310,17 +355,13 @@ const SuperadminConsole: React.FC = () => {
                                             placeholder="e.g., FIRST_IDEA, STREAK_MASTER"
                                         />
                                     </div>
-                                    <div className="space-y-1">
-                                        <label className="text-xs font-black uppercase text-slate-400 tracking-widest">Icon (Emoji or URL)</label>
-                                        <input
-                                            type="text"
-                                            value={modalData.iconUrl || ''}
-                                            onChange={(e) => setModalData({ ...modalData, iconUrl: e.target.value })}
-                                            className="w-full bg-slate-50 dark:bg-slate-700 border-none rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 transition-all"
-                                            placeholder="🏆 or https://..."
-                                        />
-                                    </div>
                                 </>
+                            ) : activeTab === 'roles' ? (
+                                <div className="bg-indigo-50 dark:bg-indigo-900/20 p-4 rounded-2xl border border-indigo-100 dark:border-indigo-900/30">
+                                    <p className="text-sm font-bold text-indigo-800 dark:text-indigo-400">
+                                        {modalData.id ? 'Editing existing role.' : 'Creating a new role for the selected organization.'}
+                                    </p>
+                                </div>
                             ) : (
                                 <>
                                     <div className="space-y-1">
@@ -358,7 +399,7 @@ const SuperadminConsole: React.FC = () => {
                                 </>
                             )}
 
-                            {activeTab !== 'badges' && (
+                            {activeTab !== 'badges' && activeTab !== 'roles' && (
                                 <div className="flex items-center gap-2 pt-2">
                                     <input
                                         type="checkbox"
@@ -382,8 +423,9 @@ const SuperadminConsole: React.FC = () => {
                         </form>
                     </div>
                 </div>
-            )}
-        </div>
+            )
+            }
+        </div >
     );
 };
 
@@ -743,6 +785,103 @@ const BadgesList: React.FC<{ badges: Badge[], onRefresh: () => void, onEdit: (ba
                                     className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold text-rose-600 bg-rose-50 dark:bg-rose-900/30 dark:text-rose-400 hover:bg-rose-100 transition-all disabled:opacity-50"
                                 >
                                     {deleting === badge.id ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />} Delete
+                                </button>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+};
+
+// RolesManager Component
+const RolesManager: React.FC<{
+    roles: OrgRole[],
+    orgs: any[],
+    selectedOrgId: string,
+    onOrgChange: (id: string) => void,
+    onRefresh: () => void,
+    onEdit: (role?: any) => void,
+    onAdd: () => void
+}> = ({ roles, orgs, selectedOrgId, onOrgChange, onRefresh, onEdit, onAdd }) => {
+    const [deleting, setDeleting] = React.useState<string | null>(null);
+
+    const handleDelete = async (id: string) => {
+        if (!confirm('Are you sure you want to delete this role?')) return;
+        setDeleting(id);
+        try {
+            await adminDeleteRole(id);
+            onRefresh();
+        } catch (error) {
+            console.error('Failed to delete role:', error);
+        } finally {
+            setDeleting(null);
+        }
+    };
+
+    return (
+        <div className="space-y-6">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div className="space-y-1">
+                    <h3 className="text-xl font-black text-slate-800 dark:text-white">Role Management</h3>
+                    <p className="text-sm text-slate-500 dark:text-slate-400">Manage organization-specific roles for team members.</p>
+                </div>
+                <button
+                    onClick={onAdd}
+                    className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-xl text-sm font-bold shadow-lg shadow-indigo-200 hover:bg-indigo-700 transition-all shrink-0"
+                >
+                    <Plus size={18} /> Add Role
+                </button>
+            </div>
+
+            <div className="bg-slate-50 dark:bg-slate-700/30 p-4 rounded-2xl border border-slate-100 dark:border-slate-600 flex flex-col md:flex-row items-center gap-4">
+                <label className="text-sm font-bold text-slate-600 dark:text-slate-300 shrink-0">Select Organization:</label>
+                <select
+                    value={selectedOrgId}
+                    onChange={(e) => onOrgChange(e.target.value)}
+                    className="flex-1 min-w-[200px] bg-white dark:bg-slate-800 border-none rounded-xl px-4 py-2 focus:ring-2 focus:ring-indigo-500 font-bold transition-all shadow-sm"
+                >
+                    {orgs.map(org => (
+                        <option key={org.id} value={org.id}>{org.name}</option>
+                    ))}
+                </select>
+            </div>
+
+            {roles.length === 0 ? (
+                <EmptyState
+                    icon={Briefcase}
+                    title="No Roles Found"
+                    message="No roles have been created for this organization yet."
+                />
+            ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {roles.map((role) => (
+                        <div key={role.id} className="p-4 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 hover:shadow-lg transition-all">
+                            <div className="flex justify-between items-start">
+                                <div>
+                                    <h4 className="font-bold text-slate-800 dark:text-white">{role.name}</h4>
+                                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{role.description || 'No description provided.'}</p>
+                                    <div className="mt-2 flex items-center gap-2">
+                                        <span className="bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full">
+                                            {role._count?.users || 0} Members
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="flex justify-end gap-2 mt-4 pt-4 border-t border-slate-50 dark:border-slate-700">
+                                <button
+                                    onClick={() => onEdit(role)}
+                                    className="p-2 rounded-lg text-indigo-600 bg-indigo-50 dark:bg-indigo-900/30 dark:text-indigo-400 hover:bg-indigo-100 transition-all"
+                                >
+                                    <Edit2 size={16} />
+                                </button>
+                                <button
+                                    onClick={() => handleDelete(role.id)}
+                                    disabled={deleting === role.id}
+                                    className="p-2 rounded-lg text-rose-600 bg-rose-50 dark:bg-rose-900/30 dark:text-rose-400 hover:bg-rose-100 transition-all shadow-sm"
+                                >
+                                    {deleting === role.id ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}
                                 </button>
                             </div>
                         </div>

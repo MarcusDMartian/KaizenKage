@@ -227,6 +227,91 @@ router.delete('/badges/:id', async (req: AuthRequest, res: Response) => {
 });
 
 // ============================================
+// ORGANIZATION MANAGEMENT
+// ============================================
+
+// GET /api/admin/organizations
+router.get('/organizations', async (req: AuthRequest, res: Response) => {
+    try {
+        const organizations = await prisma.organization.findMany({
+            include: {
+                _count: {
+                    select: { users: true, roles: true }
+                }
+            },
+            orderBy: { name: 'asc' }
+        });
+        return res.json(organizations);
+    } catch (error) {
+        return res.status(500).json({ error: 'Failed to fetch organizations' });
+    }
+});
+
+// ============================================
+// ROLE MANAGEMENT
+// ============================================
+
+// GET /api/admin/roles
+router.get('/roles', async (req: AuthRequest, res: Response) => {
+    try {
+        const { orgId } = req.query;
+        const roles = await prisma.orgRole.findMany({
+            where: orgId ? { organizationId: String(orgId) } : {},
+            include: {
+                organization: true,
+                _count: {
+                    select: { users: true }
+                }
+            },
+            orderBy: { createdAt: 'desc' }
+        });
+        return res.json(roles);
+    } catch (error) {
+        return res.status(500).json({ error: 'Failed to fetch roles' });
+    }
+});
+
+// POST /api/admin/roles
+router.post('/roles', async (req: AuthRequest, res: Response) => {
+    try {
+        const { name, description, organizationId } = req.body;
+        if (!name || !organizationId) {
+            return res.status(400).json({ error: 'Name and organizationId are required' });
+        }
+        const role = await prisma.orgRole.create({
+            data: { name, description, organizationId }
+        });
+        return res.status(201).json(role);
+    } catch (error) {
+        return res.status(500).json({ error: 'Failed to create role' });
+    }
+});
+
+// PATCH /api/admin/roles/:id
+router.patch('/roles/:id', async (req: AuthRequest, res: Response) => {
+    try {
+        const { name, description } = req.body;
+        const role = await prisma.orgRole.update({
+            where: { id: req.params.id },
+            data: { name, description }
+        });
+        return res.json(role);
+    } catch (error) {
+        return res.status(500).json({ error: 'Failed to update role' });
+    }
+});
+
+// DELETE /api/admin/roles/:id
+router.delete('/roles/:id', async (req: AuthRequest, res: Response) => {
+    try {
+        await prisma.orgRole.delete({ where: { id: req.params.id } });
+        return res.json({ success: true });
+    } catch (error) {
+        return res.status(500).json({ error: 'Failed to delete role' });
+    }
+});
+
+// ============================================
 // SYSTEM STATS
 // ============================================
 

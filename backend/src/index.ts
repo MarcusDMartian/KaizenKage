@@ -10,6 +10,7 @@ import leaderboardRoutes from './routes/leaderboard.js';
 import badgesRoutes from './routes/badges.js';
 import notificationsRoutes from './routes/notifications.js';
 import adminRoutes from './routes/admin.js';
+import organizationsRoutes from './routes/organizations.js';
 
 const app = express();
 const PORT = process.env.PORT || 8000;
@@ -48,6 +49,7 @@ app.use('/api/leaderboard', leaderboardRoutes);
 app.use('/api/badges', badgesRoutes);
 app.use('/api/notifications', notificationsRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/organizations', organizationsRoutes);
 
 // 404 handler
 app.use((req, res) => {

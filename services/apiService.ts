@@ -60,6 +60,9 @@ export interface User {
     name: string;
     avatarUrl: string;
     role: string;
+    organizationId?: string;
+    orgRoleId?: string;
+    orgRole?: OrgRole;
     team?: string;
     position?: string;
     points?: number;
@@ -77,6 +80,16 @@ export interface Badge {
     description: string;
     unlocked: boolean;
     color?: string;
+}
+
+export interface OrgRole {
+    id: string;
+    name: string;
+    description?: string;
+    organizationId: string;
+    _count?: {
+        users: number;
+    };
 }
 
 export interface Notification {
@@ -590,3 +603,74 @@ export async function adminDeleteBadge(id: string): Promise<void> {
     const response = await fetchWithAuth(`/admin/badges/${id}`, { method: 'DELETE' });
     if (!response.ok) throw new Error('Failed to delete badge');
 }
+
+// ============================================
+// ADMIN ROLE & ORG MANAGEMENT
+// ============================================
+
+export async function adminGetOrganizations(): Promise<any[]> {
+    const response = await fetchWithAuth('/admin/organizations');
+    if (!response.ok) throw new Error('Failed to fetch organizations');
+    return response.json();
+}
+
+export async function adminGetRoles(orgId?: string): Promise<OrgRole[]> {
+    const response = await fetchWithAuth(`/admin/roles${orgId ? `?orgId=${orgId}` : ''}`);
+    if (!response.ok) throw new Error('Failed to fetch roles');
+    return response.json();
+}
+
+export async function adminCreateRole(data: { name: string; description?: string; organizationId: string }): Promise<OrgRole> {
+    const response = await fetchWithAuth('/admin/roles', {
+        method: 'POST',
+        body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to create role');
+    }
+    return response.json();
+}
+
+export async function adminUpdateRole(id: string, data: { name?: string; description?: string }): Promise<OrgRole> {
+    const response = await fetchWithAuth(`/admin/roles/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to update role');
+    }
+    return response.json();
+}
+
+export async function adminDeleteRole(id: string): Promise<void> {
+    const response = await fetchWithAuth(`/admin/roles/${id}`, { method: 'DELETE' });
+    if (!response.ok) throw new Error('Failed to delete role');
+}
+
+// ============================================
+// ORGANIZATION & PROFILE API
+// ============================================
+
+export async function getOrgRoles(orgId: string): Promise<OrgRole[]> {
+    const response = await fetchWithAuth(`/organizations/${orgId}/roles`);
+    if (!response.ok) throw new Error('Failed to fetch roles for organization');
+    return response.json();
+}
+
+export async function updateProfile(data: { orgRoleId?: string; position?: string; name?: string; avatarUrl?: string }): Promise<User> {
+    const response = await fetchWithAuth('/me', {
+        method: 'PATCH',
+        body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to update profile');
+    }
+    const updatedUser = await response.json();
+    // Update saved user in localStorage
+    localStorage.setItem('kaizenhub_user', JSON.stringify(updatedUser));
+    return updatedUser;
+}
+

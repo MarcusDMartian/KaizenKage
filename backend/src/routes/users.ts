@@ -12,6 +12,7 @@ router.get('/me', authMiddleware, async (req: AuthRequest, res: Response) => {
             where: { id: req.userId },
             include: {
                 team: true,
+                orgRole: true,
                 userBadges: {
                     include: { badge: true },
                 },
@@ -41,6 +42,9 @@ router.get('/me', authMiddleware, async (req: AuthRequest, res: Response) => {
             level,
             nextLevelPoints,
             streak,
+            organizationId: user.organizationId,
+            orgRoleId: user.orgRoleId,
+            orgRole: user.orgRole,
             badges: user.userBadges.map((ub) => ({
                 id: ub.badge.id,
                 name: ub.badge.name,
@@ -52,6 +56,30 @@ router.get('/me', authMiddleware, async (req: AuthRequest, res: Response) => {
     } catch (error) {
         console.error('Get me error:', error);
         return res.status(500).json({ error: 'Failed to get user' });
+    }
+});
+
+// PATCH /api/me - Update current user (Self-update)
+router.patch('/me', authMiddleware, async (req: AuthRequest, res: Response) => {
+    try {
+        const { name, avatarUrl, orgRoleId, position } = req.body;
+        const userId = req.userId;
+
+        const updatedUser = await prisma.user.update({
+            where: { id: userId },
+            data: {
+                ...(name ? { name } : {}),
+                ...(avatarUrl ? { avatarUrl } : {}),
+                ...(orgRoleId ? { orgRoleId } : {}),
+                ...(position ? { position } : {}),
+            },
+            include: { orgRole: true, team: true }
+        });
+
+        return res.json(updatedUser);
+    } catch (error) {
+        console.error('Update me error:', error);
+        return res.status(500).json({ error: 'Failed to update profile' });
     }
 });
 

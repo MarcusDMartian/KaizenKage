@@ -7,6 +7,9 @@ export interface User {
   avatarUrl?: string;
   avatar?: string; // Legacy alias for avatarUrl
   role: string;
+  organizationId?: string;
+  orgRoleId?: string;
+  orgRole?: OrgRole;
   team?: string;
   position?: string;
   points?: number;
@@ -24,6 +27,16 @@ export interface Badge {
   icon: string;
   color?: string;
   description: string;
+}
+
+export interface OrgRole {
+  id: string;
+  name: string;
+  description?: string;
+  organizationId: string;
+  _count?: {
+    users: number;
+  };
 }
 
 export interface Mission {
