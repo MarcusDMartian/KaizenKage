@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { ShieldCheck, Send, Check, ChevronRight } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 type TemplateType = 'Start/Stop' | 'NPS' | '4L' | 'Open';
 type TargetType = 'Company General' | 'My Direct Manager' | 'HR Team' | 'My Team';
 
 const Feedback: React.FC = () => {
+   const { t } = useTranslation();
    const [template, setTemplate] = useState<TemplateType>('NPS');
    const [target, setTarget] = useState<TargetType>('Company General');
    const [npsScore, setNpsScore] = useState<number | null>(null);
@@ -45,15 +47,15 @@ const Feedback: React.FC = () => {
                <div className="w-20 h-20 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
                   <Check size={40} className="text-green-600 dark:text-green-400" />
                </div>
-               <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-2">Thank You!</h2>
+               <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-2">{t('feedback.submitSuccess')}</h2>
                <p className="text-slate-500 dark:text-slate-400 mb-6">
-                  Your anonymous feedback has been submitted successfully. Your insights help us improve.
+                  {t('feedback.submitSuccessDesc')}
                </p>
                <button
                   onClick={resetForm}
                   className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-xl transition-colors"
                >
-                  Submit Another
+                  {t('feedback.submitAnother')}
                </button>
             </div>
          </div>
@@ -63,8 +65,8 @@ const Feedback: React.FC = () => {
    return (
       <div className="max-w-2xl mx-auto px-4 py-4 md:py-8">
          <div className="text-center mb-8">
-            <h2 className="text-2xl font-bold text-slate-800 dark:text-white">Anonymous Feedback</h2>
-            <p className="text-slate-500 dark:text-slate-400 mt-2">Your voice matters. Help us improve without revealing your identity.</p>
+            <h2 className="text-2xl font-bold text-slate-800 dark:text-white">{t('feedback.title')}</h2>
+            <p className="text-slate-500 dark:text-slate-400 mt-2">{t('feedback.description')}</p>
          </div>
 
          <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 p-6 md:p-8">
@@ -72,22 +74,22 @@ const Feedback: React.FC = () => {
             <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/50 rounded-xl p-4 mb-6 flex gap-3 items-start">
                <ShieldCheck className="text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" size={20} />
                <p className="text-sm text-blue-800 dark:text-blue-300">
-                  Your identity is hidden. This feedback is encrypted and only aggregated data is shown to leadership.
+                  {t('feedback.privacyNotice')}
                </p>
             </div>
 
             <div className="space-y-6">
                {/* Target Selection */}
                <div>
-                  <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Who is this feedback for?</label>
+                  <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">{t('feedback.targetLabel')}</label>
                   <div className="grid grid-cols-2 gap-2">
                      {(['Company General', 'My Direct Manager', 'HR Team', 'My Team'] as TargetType[]).map(t => (
                         <button
                            key={t}
                            onClick={() => setTarget(t)}
                            className={`p-3 rounded-xl text-sm font-medium border transition-all ${target === t
-                                 ? 'bg-indigo-50 dark:bg-indigo-900/30 border-indigo-300 dark:border-indigo-700 text-indigo-700 dark:text-indigo-300'
-                                 : 'bg-slate-50 dark:bg-slate-700/50 border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:border-indigo-300'
+                              ? 'bg-indigo-50 dark:bg-indigo-900/30 border-indigo-300 dark:border-indigo-700 text-indigo-700 dark:text-indigo-300'
+                              : 'bg-slate-50 dark:bg-slate-700/50 border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:border-indigo-300'
                               }`}
                         >
                            {t}
@@ -98,15 +100,15 @@ const Feedback: React.FC = () => {
 
                {/* Template Selection */}
                <div>
-                  <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Template</label>
+                  <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">{t('feedback.templateLabel')}</label>
                   <div className="flex flex-wrap gap-2">
                      {(['Start/Stop', 'NPS', '4L', 'Open'] as TemplateType[]).map(t => (
                         <button
                            key={t}
                            onClick={() => setTemplate(t)}
                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${template === t
-                                 ? 'bg-indigo-600 text-white'
-                                 : 'bg-slate-50 dark:bg-slate-700/50 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'
+                              ? 'bg-indigo-600 text-white'
+                              : 'bg-slate-50 dark:bg-slate-700/50 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'
                               }`}
                         >
                            {t}
@@ -119,7 +121,7 @@ const Feedback: React.FC = () => {
                {template === 'NPS' && (
                   <div className="space-y-4">
                      <label className="block text-sm font-bold text-slate-700 dark:text-slate-300">
-                        How likely are you to recommend working here?
+                        {t('feedback.npsQuestion')}
                      </label>
                      <div className="flex justify-between gap-1">
                         {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(num => (
@@ -127,8 +129,8 @@ const Feedback: React.FC = () => {
                               key={num}
                               onClick={() => setNpsScore(num)}
                               className={`w-8 h-10 sm:w-10 sm:h-12 rounded text-sm font-bold transition-colors ${npsScore === num
-                                    ? 'bg-indigo-600 text-white'
-                                    : 'bg-slate-50 dark:bg-slate-700 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300'
+                                 ? 'bg-indigo-600 text-white'
+                                 : 'bg-slate-50 dark:bg-slate-700 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300'
                                  }`}
                            >
                               {num}
@@ -136,8 +138,8 @@ const Feedback: React.FC = () => {
                         ))}
                      </div>
                      <div className="flex justify-between text-xs text-slate-400">
-                        <span>Not Likely</span>
-                        <span>Very Likely</span>
+                        <span>{t('feedback.npsNotLikely')}</span>
+                        <span>{t('feedback.npsVeryLikely')}</span>
                      </div>
                   </div>
                )}
@@ -256,7 +258,7 @@ const Feedback: React.FC = () => {
                   onClick={handleSubmit}
                   className="w-full bg-slate-900 dark:bg-indigo-600 hover:bg-slate-800 dark:hover:bg-indigo-700 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-slate-900/10 dark:shadow-indigo-500/20 flex items-center justify-center gap-2 transition-colors"
                >
-                  <Send size={18} /> Submit Anonymously
+                  <Send size={18} /> {t('feedback.submitAnonymously')}
                </button>
             </div>
          </div>

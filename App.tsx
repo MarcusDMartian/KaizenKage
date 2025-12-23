@@ -16,6 +16,7 @@ import Badges from './pages/Badges';
 import Settings from './pages/Settings';
 import Onboarding from './pages/Onboarding';
 import Login from './pages/Login';
+import Management from './pages/Management';
 
 // Wrapper component to handle routing logic
 const AppRoutes: React.FC = () => {
@@ -44,10 +45,6 @@ const AppRoutes: React.FC = () => {
 
   // Check authentication for protected routes
   if (!isLoggedIn()) {
-    // Mark onboarding as complete since user will see login first
-    if (!onboardingComplete) {
-      setOnboardingCompleted();
-    }
     return <Navigate to="/login" replace />;
   }
 
@@ -70,6 +67,7 @@ const AppRoutes: React.FC = () => {
         <Route path="/profile" element={<Profile />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/feedback" element={<Feedback />} />
+        <Route path="/management" element={<Management />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Layout>

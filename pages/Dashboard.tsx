@@ -11,9 +11,11 @@ import {
    Mission,
    Idea
 } from '../services/apiService';
+import { useTranslation } from 'react-i18next';
 
 const Dashboard: React.FC = () => {
    const navigate = useNavigate();
+   const { t } = useTranslation();
    const [currentUser, setCurrentUser] = useState<User | null>(null);
    const [missions, setMissions] = useState<Mission[]>([]);
    const [ideas, setIdeas] = useState<Idea[]>([]);
@@ -79,13 +81,13 @@ const Dashboard: React.FC = () => {
          {/* Welcome Section */}
          <div className="flex flex-col gap-2">
             <div className="flex items-center justify-between">
-               <h2 className="text-2xl font-bold text-slate-800 dark:text-white tracking-tight">Welcome back, {currentUser.name.split(' ')[0]}!</h2>
+               <h2 className="text-2xl font-bold text-slate-800 dark:text-white tracking-tight">{t('dashboard.welcome')}, {currentUser.name.split(' ')[0]}!</h2>
                <div className="flex items-center gap-2 bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-900/30 dark:to-red-900/30 text-orange-600 dark:text-orange-400 px-3 py-1.5 rounded-full border border-orange-100 dark:border-orange-800/50 shadow-sm">
                   <Flame size={16} className="fill-orange-500 text-orange-500" />
-                  <span className="font-bold text-sm">{currentUser.streak || 0} Day Streak</span>
+                  <span className="font-bold text-sm">{currentUser.streak || 0} {t('dashboard.streak')}</span>
                </div>
             </div>
-            <p className="text-slate-500 dark:text-slate-400 text-sm">The war for improvement never ends. Ready to deploy?</p>
+            <p className="text-slate-500 dark:text-slate-400 text-sm">{t('dashboard.quote')}</p>
          </div>
 
          {/* Horizontal Scroll Stats */}

@@ -1,0 +1,122 @@
+{
+    "common": {
+        "loading": "読み込み中...",
+        "error": "エラーが発生しました",
+        "save": "保存",
+        "cancel": "キャンセル",
+        "delete": "削除",
+        "edit": "編集",
+        "submit": "送信",
+        "search": "検索",
+        "home": "ホーム",
+        "profile": "プロフィール",
+        "settings": "設定",
+        "logout": "ログアウト",
+        "login": "ログイン",
+        "notifications": "通知"
+    },
+    "dashboard": {
+        "welcome": "おかえりなさい",
+        "streak": "継続日数",
+        "quote": "改善に終わりはありません。準備はいいですか？",
+        "stats": {
+            "xp": "累計ポイント",
+            "level": "レベル",
+            "nextLevel": "次レベルまで"
+        },
+        "missions": {
+            "title": "本日のミッション",
+            "claim": "受け取る",
+            "collected": "獲得済み"
+        },
+        "activity": {
+            "title": "最近のアクティビティ"
+        }
+    },
+    "nav": {
+        "home": "ホーム",
+        "ideas": "改善提案",
+        "create": "新規作成",
+        "kudos": "強み",
+        "profile": "プロフィール",
+        "leaderboard": "ランキング",
+        "badges": "バッジ",
+        "rewards": "リワード",
+        "feedback": "フィードバック",
+        "management": "管理"
+    },
+    "settings": {
+        "appearance": "外観",
+        "darkMode": "ダークモード",
+        "darkModeDesc": "ライトテーマとダークテーマを切り替える",
+        "language": "言語",
+        "languageDesc": "希望の言語を選択する",
+        "notifications": "通知",
+        "pushNotifications": "プッシュ通知",
+        "pushNotificationsDesc": "アクティビティの更新を受け取る",
+        "privacy": "プライバシーとデータ",
+        "privacyPolicy": "プライバシーポリシー",
+        "privacyPolicyDesc": "データの取り扱いについて確認する",
+        "dangerZone": "デインジャーゾーン",
+        "resetData": "全データの削除",
+        "resetDataDesc": "保存されたすべてのデータが消去されます",
+        "signOut": "サインアウト",
+        "signOutDesc": "セッションを終了する",
+        "version": "KaizenHub v1.0.0"
+    },
+    "onboarding": {
+        "skip": "スキップ",
+        "welcome": "KaizenHub へようこそ",
+        "welcomeDesc": "継続的改善のためのプラットフォームです。アイデアを共有し、仲間を称え、共に成長しましょう。",
+        "kudos": "仲間を称える",
+        "kudosDesc": "仲間の素晴らしい行動に Kudos（賞賛）を送りましょう。感謝し合える文化を創ります。",
+        "rewards": "ポイントを貯めて交換",
+        "rewardsDesc": "貢献に対して報酬を得られます。ミッションをクリアしてポイントを貯め、魅力的なリワードと交換しましょう。",
+        "climb": "ランクを上げる",
+        "climbDesc": "継続的な活動でレベルアップ。バッジを集め、継続日数を伸ばし、ランキングで競い合いましょう。",
+        "next": "次へ",
+        "getStarted": "はじめる"
+    },
+    "badges": {
+        "title": "バッジコレクション",
+        "description": "アイデアの投稿や仲間の賞賛、継続的な活動を通じてバッジを集めましょう。",
+        "unlockedCount": "獲得済み数",
+        "unlocked": "獲得済み",
+        "locked": "未獲得",
+        "empty": "まだバッジがありません。改善提案をしてみましょう！"
+    },
+    "feedback": {
+        "title": "匿名フィードバック",
+        "description": "あなたの意見が大切です。匿名で会社を良くするための声を届けましょう。",
+        "privacyNotice": "あなたの身元は保護されます。このフィードバックは暗号化され、集計されたデータのみがリーダーシップに共有されます。",
+        "targetLabel": "フィードバックの対象は？",
+        "templateLabel": "テンプレート",
+        "npsQuestion": "この職場を他の方にも勧めたいと思いますか？",
+        "npsNotLikely": "全く思わない",
+        "npsVeryLikely": "非常に思う",
+        "submitAnonymously": "匿名で送信する",
+        "submitSuccess": "ありがとうございます！",
+        "submitSuccessDesc": "匿名フィードバックが正常に送信されました。あなたの意見は改善に役立てられます。",
+        "submitAnother": "別のフィードバックを送る"
+    },
+    "management": {
+        "title": "管理コンソール",
+        "description": "アイデアの承認、リワード申請の管理、チームの貢献度の把握ができます。",
+        "ideasTab": "アイデア承認",
+        "rewardsTab": "リワード申請",
+        "usersTab": "ユーザー管理",
+        "approve": "承認",
+        "reject": "却下",
+        "fulfill": "完了としてマーク",
+        "noPendingIdeas": "承認待ちのアイデアはありません。",
+        "noPendingRewards": "未処理のリワード申請はありません。",
+        "accessDenied": "アクセス拒否",
+        "accessDeniedDesc": "このエリアはリーダーおよび管理者のみがアクセス可能です。"
+    },
+    "notifications": {
+        "title": "通知",
+        "markReadAll": "すべて既読にする",
+        "empty": "通知はありません",
+        "viewDetails": "詳細を見る"
+    }
+}

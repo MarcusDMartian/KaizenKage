@@ -2,45 +2,63 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronRight, ChevronLeft, Lightbulb, Heart, Gift, Zap, Trophy } from 'lucide-react';
 import { setOnboardingCompleted } from '../services/storageService';
-
-const slides = [
-    {
-        icon: Lightbulb,
-        color: 'from-indigo-500 to-purple-600',
-        iconBg: 'bg-indigo-100 text-indigo-600',
-        title: 'Welcome to KaizenHub',
-        description: 'Your platform for continuous improvement. Share ideas, recognize colleagues, and grow together.',
-        features: ['Submit improvement ideas', 'Vote and comment on proposals', 'Track implementation status']
-    },
-    {
-        icon: Heart,
-        color: 'from-rose-500 to-pink-600',
-        iconBg: 'bg-rose-100 text-rose-600',
-        title: 'Recognize Your Peers',
-        description: 'Send Kudos to colleagues who make a difference. Build a culture of appreciation and support.',
-        features: ['Send heartfelt recognition', 'Highlight core values', 'See appreciation on the Wow Wall']
-    },
-    {
-        icon: Gift,
-        color: 'from-emerald-500 to-teal-600',
-        iconBg: 'bg-emerald-100 text-emerald-600',
-        title: 'Earn & Redeem Points',
-        description: 'Get rewarded for your contributions. Complete missions, earn points, and redeem exciting rewards.',
-        features: ['Daily & weekly missions', 'Points for every action', 'Exclusive reward catalog']
-    },
-    {
-        icon: Trophy,
-        color: 'from-amber-500 to-orange-600',
-        iconBg: 'bg-amber-100 text-amber-600',
-        title: 'Climb the Ranks',
-        description: 'Level up by staying active. Collect badges, maintain streaks, and compete on the leaderboard.',
-        features: ['Unlock achievement badges', 'Maintain activity streaks', 'Rise on the leaderboard']
-    }
-];
+import { useTranslation } from 'react-i18next';
 
 const Onboarding: React.FC = () => {
+    const { t } = useTranslation();
     const navigate = useNavigate();
     const [currentSlide, setCurrentSlide] = useState(0);
+
+    const slides = [
+        {
+            icon: Lightbulb,
+            color: 'from-indigo-500 to-purple-600',
+            iconBg: 'bg-indigo-100 text-indigo-600',
+            title: t('onboarding.welcome'),
+            description: t('onboarding.welcomeDesc'),
+            features: [
+                'Submit improvement ideas',
+                'Vote and comment on proposals',
+                'Track implementation status'
+            ]
+        },
+        {
+            icon: Heart,
+            color: 'from-rose-500 to-pink-600',
+            iconBg: 'bg-rose-100 text-rose-600',
+            title: t('onboarding.kudos'),
+            description: t('onboarding.kudosDesc'),
+            features: [
+                'Send heartfelt recognition',
+                'Highlight core values',
+                'See appreciation on the Wow Wall'
+            ]
+        },
+        {
+            icon: Gift,
+            color: 'from-emerald-500 to-teal-600',
+            iconBg: 'bg-emerald-100 text-emerald-600',
+            title: t('onboarding.rewards'),
+            description: t('onboarding.rewardsDesc'),
+            features: [
+                'Daily & weekly missions',
+                'Points for every action',
+                'Exclusive reward catalog'
+            ]
+        },
+        {
+            icon: Trophy,
+            color: 'from-amber-500 to-orange-600',
+            iconBg: 'bg-amber-100 text-amber-600',
+            title: t('onboarding.climb'),
+            description: t('onboarding.climbDesc'),
+            features: [
+                'Unlock achievement badges',
+                'Maintain activity streaks',
+                'Rise on the leaderboard'
+            ]
+        }
+    ];
 
     const handleNext = () => {
         if (currentSlide < slides.length - 1) {
@@ -87,7 +105,7 @@ const Onboarding: React.FC = () => {
                     onClick={handleSkip}
                     className="absolute top-6 right-6 text-white/80 hover:text-white font-medium text-sm"
                 >
-                    Skip
+                    {t('onboarding.skip')}
                 </button>
 
                 {/* Icon */}
@@ -146,12 +164,12 @@ const Onboarding: React.FC = () => {
                     >
                         {isLastSlide ? (
                             <>
-                                Get Started
+                                {t('onboarding.getStarted')}
                                 <Zap size={20} className="text-indigo-600" />
                             </>
                         ) : (
                             <>
-                                Next
+                                {t('onboarding.next')}
                                 <ChevronRight size={20} />
                             </>
                         )}

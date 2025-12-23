@@ -12,92 +12,76 @@ import {
     AlertCircle,
     Loader2
 } from 'lucide-react';
-import { KaizenIdea, Comment } from '../types';
 import {
-    getIdeaById,
-    voteIdea,
-    addComment,
-    toggleFollowIdea,
-    getCurrentUser,
-    generateId
-} from '../services/storageService';
+    getIdea as apiGetIdea,
+    voteIdea as apiVoteIdea,
+    addComment as apiAddComment,
+    getCurrentUser as apiGetCurrentUser,
+} from '../services/apiService';
+import { useTranslation } from 'react-i18next';
+import { User, Idea } from '../services/apiService';
 
 const IdeaDetail: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
-    const [idea, setIdea] = useState<KaizenIdea | null>(null);
+    const { t } = useTranslation();
+    const [idea, setIdea] = useState<any | null>(null);
     const [loading, setLoading] = useState(true);
     const [commentText, setCommentText] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
-
-    const currentUser = getCurrentUser();
+    const [currentUser, setCurrentUser] = useState<User | null>(null);
 
     useEffect(() => {
-        if (id) {
-            const foundIdea = getIdeaById(id);
-            setIdea(foundIdea || null);
-            setLoading(false);
-        }
+        loadData();
     }, [id]);
 
-    const handleVote = () => {
-        if (!idea || !id) return;
-        const added = voteIdea(id, currentUser.id);
-        setIdea(prev => {
-            if (!prev) return prev;
-            const votedBy = prev.votedBy || [];
-            return {
-                ...prev,
-                votes: added ? prev.votes + 1 : Math.max(0, prev.votes - 1),
-                votedBy: added
-                    ? [...votedBy, currentUser.id]
-                    : votedBy.filter(uid => uid !== currentUser.id)
-            };
-        });
+    const loadData = async () => {
+        if (!id) return;
+        try {
+            const [ideaData, userData] = await Promise.all([
+                apiGetIdea(id),
+                apiGetCurrentUser()
+            ]);
+            setIdea(ideaData);
+            setCurrentUser(userData);
+        } catch (error) {
+            console.error('Failed to load idea detail:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleVote = async () => {
+        if (!id) return;
+        try {
+            await apiVoteIdea(id);
+            loadData();
+        } catch (error) {
+            console.error('Failed to vote:', error);
+        }
     };
 
     const handleFollow = () => {
-        if (!idea || !id) return;
-        const followed = toggleFollowIdea(id, currentUser.id);
-        setIdea(prev => {
-            if (!prev) return prev;
-            const followedBy = prev.followedBy || [];
-            return {
-                ...prev,
-                followedBy: followed
-                    ? [...followedBy, currentUser.id]
-                    : followedBy.filter(uid => uid !== currentUser.id)
-            };
-        });
+        // Not implemented in backend yet, just placeholder for UI
     };
 
     const handleAddComment = async () => {
-        if (!commentText.trim() || !id || !idea) return;
-
+        if (!commentText.trim() || !id) return;
         setIsSubmitting(true);
-        const newComment: Comment = {
-            id: generateId(),
-            userId: currentUser.id,
-            userName: currentUser.name,
-            userAvatar: currentUser.avatar,
-            text: commentText.trim(),
-            createdAt: 'Just now'
-        };
 
-        addComment(id, newComment);
-        setIdea(prev => {
-            if (!prev) return prev;
-            return {
-                ...prev,
-                comments: [...(prev.comments || []), newComment]
-            };
-        });
-        setCommentText('');
-        setIsSubmitting(false);
+        try {
+            await apiAddComment(id, commentText.trim());
+            setCommentText('');
+            await loadData();
+        } catch (error) {
+            console.error('Failed to add comment:', error);
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
-    const hasVoted = idea?.votedBy?.includes(currentUser.id) || false;
-    const isFollowing = idea?.followedBy?.includes(currentUser.id) || false;
+    const hasVoted = idea?.votedBy?.includes(currentUser?.id) || false;
+    const isFollowing = false; // logic removed for now
 
     const getStatusIcon = (status: string) => {
         switch (status) {
@@ -117,7 +101,7 @@ const IdeaDetail: React.FC = () => {
         }
     };
 
-    if (loading) {
+    if (loading || !currentUser) {
         return (
             <div className="flex items-center justify-center h-64">
                 <Loader2 className="animate-spin text-indigo-600" size={32} />
@@ -186,9 +170,9 @@ const IdeaDetail: React.FC = () => {
                     <div className="flex items-center gap-2">
                         <span className="text-xs font-bold text-slate-500 uppercase">Impact:</span>
                         <span className={`text-xs font-bold px-2 py-1 rounded ${idea.impact === 'Speed' ? 'bg-blue-100 text-blue-700' :
-                                idea.impact === 'Cost' ? 'bg-green-100 text-green-700' :
-                                    idea.impact === 'Quality' ? 'bg-purple-100 text-purple-700' :
-                                        'bg-orange-100 text-orange-700'
+                            idea.impact === 'Cost' ? 'bg-green-100 text-green-700' :
+                                idea.impact === 'Quality' ? 'bg-purple-100 text-purple-700' :
+                                    'bg-orange-100 text-orange-700'
                             }`}>
                             {idea.impact}
                         </span>
@@ -201,8 +185,8 @@ const IdeaDetail: React.FC = () => {
                         <button
                             onClick={handleVote}
                             className={`flex items-center gap-2 px-4 py-2 rounded-xl font-medium transition-all ${hasVoted
-                                    ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200'
-                                    : 'bg-white border border-slate-200 text-slate-600 hover:border-indigo-300'
+                                ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200'
+                                : 'bg-white border border-slate-200 text-slate-600 hover:border-indigo-300'
                                 }`}
                         >
                             <ThumbsUp size={18} className={hasVoted ? 'fill-white' : ''} />
@@ -212,8 +196,8 @@ const IdeaDetail: React.FC = () => {
                         <button
                             onClick={handleFollow}
                             className={`flex items-center gap-2 px-4 py-2 rounded-xl font-medium transition-all ${isFollowing
-                                    ? 'bg-amber-500 text-white shadow-lg shadow-amber-200'
-                                    : 'bg-white border border-slate-200 text-slate-600 hover:border-amber-300'
+                                ? 'bg-amber-500 text-white shadow-lg shadow-amber-200'
+                                : 'bg-white border border-slate-200 text-slate-600 hover:border-amber-300'
                                 }`}
                         >
                             {isFollowing ? <BellOff size={18} /> : <Bell size={18} />}
@@ -240,8 +224,8 @@ const IdeaDetail: React.FC = () => {
                         return (
                             <div key={status} className="flex items-center gap-3">
                                 <div className={`w-8 h-8 rounded-full flex items-center justify-center ${isComplete
-                                        ? isCurrent ? 'bg-indigo-600 text-white' : 'bg-green-500 text-white'
-                                        : 'bg-slate-100 text-slate-400'
+                                    ? isCurrent ? 'bg-indigo-600 text-white' : 'bg-green-500 text-white'
+                                    : 'bg-slate-100 text-slate-400'
                                     }`}>
                                     {isComplete && !isCurrent ? <CheckCircle2 size={16} /> : <span className="text-xs font-bold">{index + 1}</span>}
                                 </div>
@@ -291,7 +275,7 @@ const IdeaDetail: React.FC = () => {
                 {/* Add Comment */}
                 <div className="p-4 bg-slate-50 border-t border-slate-100">
                     <div className="flex gap-3">
-                        <img src={currentUser.avatar} alt="" className="w-8 h-8 rounded-full flex-shrink-0" />
+                        <img src={currentUser.avatarUrl} alt="" className="w-8 h-8 rounded-full flex-shrink-0" />
                         <div className="flex-1 flex gap-2">
                             <input
                                 type="text"

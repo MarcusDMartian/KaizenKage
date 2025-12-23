@@ -52,6 +52,7 @@ router.get('/', authMiddleware, async (req: AuthRequest, res: Response) => {
                     team: user.team?.name || 'Engineering',
                     points: periodPoints,
                     level: getUserLevel(periodPoints),
+                    badges: [], // TODO: Include actual badges
                 };
             })
             .sort((a, b) => b.points - a.points)

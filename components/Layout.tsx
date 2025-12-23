@@ -11,29 +11,57 @@ import {
   Trophy,
   Award,
   Plus,
-  Settings
+  Settings,
+  ShieldCheck
 } from 'lucide-react';
-import { getCurrentUser } from '../services/storageService';
+import { getSavedUser, getCurrentUser as apiGetCurrentUser, logout as apiLogout, User as UserType } from '../services/apiService';
 import { useTheme } from '../contexts/ThemeContext';
+import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
+import NotificationPopover from './NotificationPopover';
 
 interface LayoutProps {
   children: React.ReactNode;
 }
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
+  const navigate = useNavigate();
   const location = useLocation();
   const { isDarkMode } = useTheme();
-  const currentUser = getCurrentUser();
+  const { t } = useTranslation();
+  const [currentUser, setCurrentUser] = React.useState<UserType | null>(getSavedUser());
+
+  React.useEffect(() => {
+    loadUser();
+  }, []);
+
+  const loadUser = async () => {
+    try {
+      const user = await apiGetCurrentUser();
+      setCurrentUser(user);
+    } catch (error) {
+      console.error('Failed to load user in layout:', error);
+    }
+  };
+
+  const handleLogout = async () => {
+    await apiLogout();
+    navigate('/login');
+  };
 
   const navItems = [
-    { path: '/', label: 'Home', icon: Home },
-    { path: '/ideas', label: 'Kaizen', icon: Lightbulb },
-    { path: '/kudos', label: 'Kudos', icon: Heart },
-    { path: '/leaderboard', label: 'Leaderboard', icon: Trophy },
-    { path: '/badges', label: 'Badges', icon: Award },
-    { path: '/rewards', label: 'Rewards', icon: Gift },
-    { path: '/profile', label: 'Profile', icon: User },
+    { path: '/', label: t('nav.home'), icon: Home },
+    { path: '/ideas', label: t('nav.ideas'), icon: Lightbulb },
+    { path: '/kudos', label: t('nav.kudos'), icon: Heart },
+    { path: '/leaderboard', label: t('nav.leaderboard'), icon: Trophy },
+    { path: '/badges', label: t('nav.badges'), icon: Award },
+    { path: '/rewards', label: t('nav.rewards'), icon: Gift },
+    { path: '/profile', label: t('nav.profile'), icon: User },
   ];
+
+  if (currentUser?.role === 'LEADER' || currentUser?.role === 'ADMIN') {
+    navItems.splice(navItems.length - 1, 0, { path: '/management', label: t('nav.management'), icon: ShieldCheck });
+  }
 
   return (
     <div className={`min-h-screen relative overflow-hidden ${isDarkMode ? 'dark bg-slate-900 text-slate-100' : 'bg-slate-50 text-slate-800'}`}>
@@ -88,27 +116,29 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             </Link>
 
             {/* Notification */}
-            <div className={`relative cursor-pointer ${isDarkMode ? 'text-slate-400 hover:text-indigo-400' : 'text-slate-500 hover:text-indigo-600'} transition-colors p-1.5 rounded-full ${isDarkMode ? 'hover:bg-slate-700/50' : 'hover:bg-white/50'}`}>
-              <Bell size={20} />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border border-white"></span>
-            </div>
+            <NotificationPopover isDarkMode={isDarkMode} />
 
             <div className={`h-6 w-px ${isDarkMode ? 'bg-slate-600/50' : 'bg-slate-300/50'}`}></div>
 
             {/* Profile & Logout */}
             <div className="flex items-center gap-3">
-              <Link to="/profile" className="flex items-center gap-3 group">
-                <div className="text-right hidden lg:block">
-                  <p className={`text-sm font-bold ${isDarkMode ? 'text-white' : 'text-slate-800'} leading-none group-hover:text-indigo-600 transition-colors`}>{currentUser.name}</p>
-                  <p className="text-xs text-indigo-600 font-bold mt-0.5">{currentUser.points.toLocaleString()} pts</p>
-                </div>
-                <div className="relative">
-                  <img src={currentUser.avatar} alt="Avatar" className="w-9 h-9 rounded-full border-2 border-white shadow-sm group-hover:scale-105 transition-transform" />
-                  <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
-                </div>
-              </Link>
+              {currentUser && (
+                <Link to="/profile" className="flex items-center gap-3 group">
+                  <div className="text-right hidden lg:block">
+                    <p className={`text-sm font-bold ${isDarkMode ? 'text-white' : 'text-slate-800'} leading-none group-hover:text-indigo-600 transition-colors`}>{currentUser.name}</p>
+                    <p className="text-xs text-indigo-600 font-bold mt-0.5">{(currentUser.points || 0).toLocaleString()} pts</p>
+                  </div>
+                  <div className="relative">
+                    <img src={currentUser.avatarUrl} alt="Avatar" className="w-9 h-9 rounded-full border-2 border-white shadow-sm group-hover:scale-105 transition-transform" />
+                    <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
+                  </div>
+                </Link>
+              )}
 
-              <button className={`${isDarkMode ? 'text-slate-500 hover:text-red-400' : 'text-slate-400 hover:text-red-500'} transition-colors p-1.5 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg`} title="Logout">
+              <button
+                onClick={handleLogout}
+                className={`${isDarkMode ? 'text-slate-500 hover:text-red-400' : 'text-slate-400 hover:text-red-500'} transition-colors p-1.5 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg`} title="Logout"
+              >
                 <LogOut size={18} />
               </button>
             </div>
@@ -131,15 +161,14 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               <Link to="/settings" className={`${isDarkMode ? 'text-slate-400' : 'text-slate-600'} active:scale-90 transition-transform`}>
                 <Settings size={22} />
               </Link>
-              <div className="relative cursor-pointer active:scale-90 transition-transform">
-                <Bell size={24} className={isDarkMode ? 'text-slate-400' : 'text-slate-600'} />
-                <span className="absolute top-0 right-0 w-2.5 h-2.5 bg-red-500 rounded-full border border-white shadow-sm"></span>
-              </div>
-              <Link to="/profile">
-                <div className="p-0.5 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-600">
-                  <img src={currentUser.avatar} alt="Avatar" className="w-8 h-8 rounded-full border-2 border-white" />
-                </div>
-              </Link>
+              <NotificationPopover isDarkMode={isDarkMode} />
+              {currentUser && (
+                <Link to="/profile">
+                  <div className="p-0.5 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-600">
+                    <img src={currentUser.avatarUrl} alt="Avatar" className="w-8 h-8 rounded-full border-2 border-white" />
+                  </div>
+                </Link>
+              )}
             </div>
           </header>
 

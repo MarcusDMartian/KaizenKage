@@ -1,8 +1,9 @@
 import { Router, Response } from 'express';
 import prisma from '../lib/prisma.js';
-import { authMiddleware, AuthRequest } from '../middleware/auth.js';
+import { authMiddleware, AuthRequest, checkRole } from '../middleware/auth.js';
 import { awardPoints, POINTS } from '../lib/gamification.js';
 import { PointSource } from '@prisma/client';
+import { createNotification } from '../lib/notifications.js';
 
 const router = Router();
 
@@ -225,6 +226,51 @@ router.post('/:id/comments', authMiddleware, async (req: AuthRequest, res: Respo
     } catch (error) {
         console.error('Add comment error:', error);
         return res.status(500).json({ error: 'Failed to add comment' });
+    }
+});
+
+// PATCH /api/ideas/:id/status - Update idea status (Leader/Admin only)
+router.patch('/:id/status', authMiddleware, checkRole(['LEADER', 'ADMIN']), async (req: AuthRequest, res: Response) => {
+    try {
+        const { status } = req.body;
+        const ideaId = req.params.id;
+
+        if (!status) {
+            return res.status(400).json({ error: 'Status is required' });
+        }
+
+        const idea = await prisma.kaizenIdea.update({
+            where: { id: ideaId },
+            data: { status: status.toUpperCase() as any },
+            include: { creator: true },
+        });
+
+        // Award points and notify if status changed to APPROVED or IMPLEMENTED
+        if (status.toUpperCase() === 'APPROVED') {
+            await awardPoints(idea.creatorId, POINTS.IDEA_APPROVED, PointSource.IDEA_APPROVED, idea.id);
+            await createNotification(idea.creatorId, {
+                type: 'IDEA_APPROVED',
+                title: 'Idea Approved! 🚀',
+                message: `Your idea "${idea.title}" has been approved. You earned ${POINTS.IDEA_APPROVED} points!`,
+                link: `/ideas/${idea.id}`
+            });
+        } else if (status.toUpperCase() === 'IMPLEMENTED') {
+            await awardPoints(idea.creatorId, POINTS.IDEA_IMPLEMENTED, PointSource.IDEA_IMPLEMENTED, idea.id);
+            await createNotification(idea.creatorId, {
+                type: 'IDEA_IMPLEMENTED',
+                title: 'Idea Implemented! ✨',
+                message: `Congratulations! Your idea "${idea.title}" is now implemented. You earned ${POINTS.IDEA_IMPLEMENTED} points!`,
+                link: `/ideas/${idea.id}`
+            });
+        }
+
+        return res.json({
+            id: idea.id,
+            status: idea.status.toLowerCase(),
+        });
+    } catch (error) {
+        console.error('Update idea status error:', error);
+        return res.status(500).json({ error: 'Failed to update status' });
     }
 });
 

@@ -1,17 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { ShoppingBag, Wallet, History, ArrowUpRight, ArrowDownLeft, Clock, CheckCircle2, XCircle, Package } from 'lucide-react';
-import { Reward, PointTransaction, RedemptionRequest } from '../types';
+import { PointTransaction, RedemptionRequest } from '../types';
 import {
-   getRewards,
-   getTransactions,
-   getCurrentUser,
-   updateUserPoints,
-   addTransaction,
-   updateRewardStock,
-   addRedemption,
-   getRedemptions,
-   generateId
-} from '../services/storageService';
+   getRewards as apiGetRewards,
+   getWallet as apiGetWallet,
+   getCurrentUser as apiGetCurrentUser,
+   redeemReward as apiRedeemReward,
+   getRedemptions as apiGetRedemptions,
+   User,
+   Reward,
+   Transaction
+} from '../services/apiService';
+import { useTranslation } from 'react-i18next';
+import { Loader2 } from 'lucide-react';
 import RedeemModal from '../components/RedeemModal';
 
 const Rewards: React.FC = () => {
@@ -24,13 +25,31 @@ const Rewards: React.FC = () => {
    const [redeemSuccess, setRedeemSuccess] = useState(false);
    const [activeSection, setActiveSection] = useState<'catalog' | 'history'>('catalog');
 
-   const currentUser = getCurrentUser();
+   const [currentUser, setCurrentUser] = useState<User | null>(null);
+   const [loading, setLoading] = useState(true);
 
    useEffect(() => {
-      setRewards(getRewards());
-      setTransactions(getTransactions());
-      setRedemptions(getRedemptions());
+      loadData();
    }, []);
+
+   const loadData = async () => {
+      try {
+         const [rewardsData, walletData, redemptionsData, userData] = await Promise.all([
+            apiGetRewards(),
+            apiGetWallet(),
+            apiGetRedemptions(),
+            apiGetCurrentUser()
+         ]);
+         setRewards(rewardsData);
+         setTransactions(walletData.transactions);
+         setRedemptions(redemptionsData);
+         setCurrentUser(userData);
+      } catch (error) {
+         console.error('Failed to load rewards data:', error);
+      } finally {
+         setLoading(false);
+      }
+   };
 
    const handleRedeemClick = (reward: Reward) => {
       setSelectedReward(reward);
@@ -38,46 +57,21 @@ const Rewards: React.FC = () => {
       setRedeemSuccess(false);
    };
 
-   const handleConfirmRedeem = () => {
+   const handleConfirmRedeem = async () => {
       if (!selectedReward) return;
 
       setIsProcessing(true);
+      try {
+         await apiRedeemReward(selectedReward.id);
 
-      // Simulate processing delay
-      setTimeout(() => {
-         // Deduct points
-         updateUserPoints(-selectedReward.cost);
-
-         // Add transaction
-         addTransaction({
-            id: generateId(),
-            description: `Redeemed: ${selectedReward.name}`,
-            amount: -selectedReward.cost,
-            type: 'spend',
-            date: 'Just now'
-         });
-
-         // Update stock
-         updateRewardStock(selectedReward.id, selectedReward.stock - 1);
-
-         // Create redemption request
-         addRedemption({
-            id: generateId(),
-            rewardId: selectedReward.id,
-            rewardName: selectedReward.name,
-            rewardImage: selectedReward.image,
-            pointsCost: selectedReward.cost,
-            status: 'pending',
-            requestedAt: new Date().toLocaleDateString()
-         });
-
-         // Refresh data
-         setRewards(getRewards());
-         setTransactions(getTransactions());
-         setRedemptions(getRedemptions());
-         setIsProcessing(false);
+         // Success
          setRedeemSuccess(true);
-      }, 1500);
+         await loadData();
+      } catch (error) {
+         console.error('Failed to redeem reward:', error);
+      } finally {
+         setIsProcessing(false);
+      }
    };
 
    const handleCloseModal = () => {
@@ -111,6 +105,14 @@ const Rewards: React.FC = () => {
             return 'bg-amber-100 text-amber-700';
       }
    };
+
+   if (loading || !currentUser) {
+      return (
+         <div className="min-h-[50vh] flex items-center justify-center">
+            <Loader2 size={32} className="animate-spin text-indigo-600" />
+         </div>
+      );
+   }
 
    return (
       <div className="max-w-6xl mx-auto space-y-10 px-4 md:px-0">
@@ -174,8 +176,8 @@ const Rewards: React.FC = () => {
                                     onClick={() => handleRedeemClick(reward)}
                                     disabled={currentUser.points < reward.cost || reward.stock === 0}
                                     className={`text-sm px-3 py-1.5 rounded-lg font-medium transition-colors ${currentUser.points >= reward.cost && reward.stock > 0
-                                          ? 'bg-slate-900 text-white hover:bg-slate-800'
-                                          : 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                                       ? 'bg-slate-900 text-white hover:bg-slate-800'
+                                       : 'bg-slate-100 text-slate-400 cursor-not-allowed'
                                        }`}
                                  >
                                     Redeem

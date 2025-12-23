@@ -1,19 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { Heart, Send, Sparkles, UserPlus, Search } from 'lucide-react';
+import { Heart, Send, Sparkles, UserPlus, Search, Loader2 } from 'lucide-react';
 import { Kudos as KudosType, User } from '../types';
 import { generateRefinedText } from '../services/geminiService';
 import {
-   getKudos,
-   addKudos,
-   likeKudos,
-   getCurrentUser,
-   getUsers,
-   generateId,
-   updateUserPoints,
-   addTransaction,
-   updateMission,
-   getMissions
-} from '../services/storageService';
+   getKudos as apiGetKudos,
+   sendKudos as apiSendKudos,
+   likeKudos as apiLikeKudos,
+   getCurrentUser as apiGetCurrentUser,
+   getUsers as apiGetUsers,
+} from '../services/apiService';
+import { useTranslation } from 'react-i18next';
 import UserSelectModal from '../components/UserSelectModal';
 
 const Kudos: React.FC = () => {
@@ -27,12 +23,31 @@ const Kudos: React.FC = () => {
    const [isUserModalOpen, setIsUserModalOpen] = useState(false);
    const [submitSuccess, setSubmitSuccess] = useState(false);
 
-   const currentUser = getCurrentUser();
-   const allUsers = getUsers();
+   const [currentUser, setCurrentUser] = useState<User | null>(null);
+   const [allUsers, setAllUsers] = useState<User[]>([]);
+   const [mainLoading, setMainLoading] = useState(true);
+   const [isGenerating, setIsGenerating] = useState(false);
 
    useEffect(() => {
-      setKudosList(getKudos());
+      loadData();
    }, []);
+
+   const loadData = async () => {
+      try {
+         const [kudosData, userData, usersData] = await Promise.all([
+            apiGetKudos(),
+            apiGetCurrentUser(),
+            apiGetUsers()
+         ]);
+         setKudosList(kudosData);
+         setCurrentUser(userData);
+         setAllUsers(usersData);
+      } catch (error) {
+         console.error('Failed to load kudos:', error);
+      } finally {
+         setMainLoading(false);
+      }
+   };
 
    const handleAIWrite = async () => {
       if (!message) return;
@@ -42,59 +57,43 @@ const Kudos: React.FC = () => {
       setLoading(false);
    };
 
-   const handleLike = (kudosId: string) => {
-      likeKudos(kudosId, currentUser.id);
-      setKudosList(getKudos());
+   const handleLike = async (kudosId: string) => {
+      try {
+         await apiLikeKudos(kudosId);
+         loadData();
+      } catch (error) {
+         console.error('Failed to like:', error);
+      }
    };
 
-   const handleSend = () => {
+   const handleSend = async () => {
       if (!selectedRecipient || !message.trim()) return;
+      setIsGenerating(true);
 
-      const newKudos: KudosType = {
-         id: generateId(),
-         sender: currentUser,
-         receiver: selectedRecipient,
-         coreValue: selectedValue,
-         message: message.trim(),
-         createdAt: 'Just now',
-         likes: 0,
-         likedBy: []
-      };
-
-      addKudos(newKudos);
-
-      // Award points to sender
-      updateUserPoints(10);
-      addTransaction({
-         id: generateId(),
-         description: `Sent Kudos to ${selectedRecipient.name}`,
-         amount: 10,
-         type: 'earn',
-         date: 'Just now'
-      });
-
-      // Update mission progress
-      const missions = getMissions();
-      const kudosMission = missions.find(m => m.title.includes('Kudos') && !m.completed);
-      if (kudosMission) {
-         const newProgress = Math.min(kudosMission.progress + 1, kudosMission.total);
-         updateMission(kudosMission.id, {
-            progress: newProgress,
-            completed: newProgress >= kudosMission.total
+      try {
+         await apiSendKudos({
+            receiverId: selectedRecipient.id,
+            value: selectedValue,
+            message: message.trim()
          });
+
+         // Reset form
+         setMessage('');
+         setSelectedRecipient(null);
+         setSelectedValue('Kaizen');
+         setSubmitSuccess(true);
+
+         await loadData();
+
+         setTimeout(() => {
+            setSubmitSuccess(false);
+            setActiveTab('feed');
+         }, 2000);
+      } catch (error) {
+         console.error('Failed to send kudos:', error);
+      } finally {
+         setIsGenerating(false);
       }
-
-      // Reset form
-      setMessage('');
-      setSelectedRecipient(null);
-      setSelectedValue('Kaizen');
-      setKudosList(getKudos());
-      setSubmitSuccess(true);
-
-      setTimeout(() => {
-         setSubmitSuccess(false);
-         setActiveTab('feed');
-      }, 2000);
    };
 
    const getFilteredKudos = () => {
@@ -108,6 +107,14 @@ const Kudos: React.FC = () => {
    };
 
    const filteredKudos = getFilteredKudos();
+
+   if (mainLoading || !currentUser) {
+      return (
+         <div className="min-h-[50vh] flex items-center justify-center">
+            <Loader2 size={32} className="animate-spin text-indigo-600" />
+         </div>
+      );
+   }
 
    return (
       <div className="max-w-4xl mx-auto h-full flex flex-col px-4 pt-2 md:px-0">
@@ -157,14 +164,14 @@ const Kudos: React.FC = () => {
                               <button
                                  onClick={() => setIsUserModalOpen(true)}
                                  className={`w-full flex items-center gap-3 p-3 border rounded-xl cursor-pointer transition-all ${selectedRecipient
-                                       ? 'border-rose-400 bg-rose-50'
-                                       : 'border-slate-200 bg-slate-50 hover:border-rose-400'
+                                    ? 'border-rose-400 bg-rose-50'
+                                    : 'border-slate-200 bg-slate-50 hover:border-rose-400'
                                     }`}
                               >
                                  {selectedRecipient ? (
                                     <>
                                        <img
-                                          src={selectedRecipient.avatar}
+                                          src={selectedRecipient.avatarUrl}
                                           alt=""
                                           className="w-10 h-10 rounded-full border-2 border-white shadow-sm"
                                        />
@@ -192,8 +199,8 @@ const Kudos: React.FC = () => {
                                        key={val}
                                        onClick={() => setSelectedValue(val)}
                                        className={`text-xs font-medium border px-3 py-2 rounded-lg transition-colors ${selectedValue === val
-                                             ? 'bg-rose-500 text-white border-rose-500'
-                                             : 'border-slate-200 bg-white active:bg-rose-50 active:text-rose-600 active:border-rose-200'
+                                          ? 'bg-rose-500 text-white border-rose-500'
+                                          : 'border-slate-200 bg-white active:bg-rose-50 active:text-rose-600 active:border-rose-200'
                                           }`}
                                     >
                                        {val}
@@ -289,8 +296,8 @@ const Kudos: React.FC = () => {
                                     <button
                                        onClick={() => handleLike(kudos.id)}
                                        className={`flex items-center gap-1.5 px-2 py-1 rounded-full transition-colors ${hasLiked
-                                             ? 'bg-rose-100 text-rose-500'
-                                             : 'bg-slate-50 text-slate-400 active:text-rose-500'
+                                          ? 'bg-rose-100 text-rose-500'
+                                          : 'bg-slate-50 text-slate-400 active:text-rose-500'
                                           }`}
                                     >
                                        <Heart size={16} className={hasLiked ? 'fill-rose-500' : ''} />

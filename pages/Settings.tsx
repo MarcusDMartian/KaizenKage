@@ -15,17 +15,23 @@ import {
 import { useTheme } from '../contexts/ThemeContext';
 import { resetStorage } from '../services/storageService';
 import { logout, clearAuth } from '../services/apiService';
+import { useTranslation } from 'react-i18next';
 
 
 const Settings: React.FC = () => {
     const navigate = useNavigate();
     const { isDarkMode, toggleDarkMode } = useTheme();
+    const { t, i18n } = useTranslation();
     const [notifications, setNotifications] = React.useState(true);
-    const [language, setLanguage] = React.useState('en');
     const [showResetConfirm, setShowResetConfirm] = React.useState(false);
 
+    const changeLanguage = (lng: string) => {
+        i18n.changeLanguage(lng);
+    };
+
     const handleReset = () => {
-        resetStorage();
+        // In API mode, reset might not be supported or should reset local preferences only
+        localStorage.clear();
         window.location.reload();
     };
 
@@ -39,14 +45,14 @@ const Settings: React.FC = () => {
                 >
                     <ArrowLeft size={20} className="text-slate-600 dark:text-slate-300" />
                 </button>
-                <h1 className="text-xl font-bold text-slate-800 dark:text-white">Settings</h1>
+                <h1 className="text-xl font-bold text-slate-800 dark:text-white">{t('common.settings')}</h1>
             </div>
 
             <div className="space-y-6">
                 {/* Appearance Section */}
                 <section className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm overflow-hidden">
                     <div className="p-4 border-b border-slate-100 dark:border-slate-700">
-                        <h2 className="font-bold text-slate-800 dark:text-white">Appearance</h2>
+                        <h2 className="font-bold text-slate-800 dark:text-white">{t('settings.appearance')}</h2>
                     </div>
 
                     {/* Dark Mode Toggle */}
@@ -56,9 +62,9 @@ const Settings: React.FC = () => {
                                 {isDarkMode ? <Moon size={20} /> : <Sun size={20} />}
                             </div>
                             <div>
-                                <p className="font-medium text-slate-800 dark:text-white">Dark Mode</p>
+                                <p className="font-medium text-slate-800 dark:text-white">{t('settings.darkMode')}</p>
                                 <p className="text-xs text-slate-500 dark:text-slate-400">
-                                    {isDarkMode ? 'Currently using dark theme' : 'Currently using light theme'}
+                                    {t('settings.darkModeDesc')}
                                 </p>
                             </div>
                         </div>
@@ -79,13 +85,13 @@ const Settings: React.FC = () => {
                                 <Globe size={20} />
                             </div>
                             <div>
-                                <p className="font-medium text-slate-800 dark:text-white">Language</p>
-                                <p className="text-xs text-slate-500 dark:text-slate-400">Choose your preferred language</p>
+                                <p className="font-medium text-slate-800 dark:text-white">{t('settings.language')}</p>
+                                <p className="text-xs text-slate-500 dark:text-slate-400">{t('settings.languageDesc')}</p>
                             </div>
                         </div>
                         <select
-                            value={language}
-                            onChange={(e) => setLanguage(e.target.value)}
+                            value={i18n.language}
+                            onChange={(e) => changeLanguage(e.target.value)}
                             className="bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-2 text-sm text-slate-700 dark:text-slate-200"
                         >
                             <option value="en">English</option>
@@ -98,7 +104,7 @@ const Settings: React.FC = () => {
                 {/* Notifications Section */}
                 <section className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm overflow-hidden">
                     <div className="p-4 border-b border-slate-100 dark:border-slate-700">
-                        <h2 className="font-bold text-slate-800 dark:text-white">Notifications</h2>
+                        <h2 className="font-bold text-slate-800 dark:text-white">{t('settings.notifications')}</h2>
                     </div>
 
                     <div className="p-4 flex items-center justify-between">
@@ -107,8 +113,8 @@ const Settings: React.FC = () => {
                                 <Bell size={20} />
                             </div>
                             <div>
-                                <p className="font-medium text-slate-800 dark:text-white">Push Notifications</p>
-                                <p className="text-xs text-slate-500 dark:text-slate-400">Receive updates about your activity</p>
+                                <p className="font-medium text-slate-800 dark:text-white">{t('settings.pushNotifications')}</p>
+                                <p className="text-xs text-slate-500 dark:text-slate-400">{t('settings.pushNotificationsDesc')}</p>
                             </div>
                         </div>
                         <button
@@ -125,7 +131,7 @@ const Settings: React.FC = () => {
                 {/* Privacy Section */}
                 <section className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm overflow-hidden">
                     <div className="p-4 border-b border-slate-100 dark:border-slate-700">
-                        <h2 className="font-bold text-slate-800 dark:text-white">Privacy & Data</h2>
+                        <h2 className="font-bold text-slate-800 dark:text-white">{t('settings.privacy')}</h2>
                     </div>
 
                     <button className="w-full p-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
@@ -134,8 +140,8 @@ const Settings: React.FC = () => {
                                 <Shield size={20} />
                             </div>
                             <div className="text-left">
-                                <p className="font-medium text-slate-800 dark:text-white">Privacy Policy</p>
-                                <p className="text-xs text-slate-500 dark:text-slate-400">Learn how we handle your data</p>
+                                <p className="font-medium text-slate-800 dark:text-white">{t('settings.privacyPolicy')}</p>
+                                <p className="text-xs text-slate-500 dark:text-slate-400">{t('settings.privacyPolicyDesc')}</p>
                             </div>
                         </div>
                         <ChevronRight size={20} className="text-slate-400" />
@@ -145,7 +151,7 @@ const Settings: React.FC = () => {
                 {/* Danger Zone */}
                 <section className="bg-white dark:bg-slate-800 rounded-2xl border border-red-100 dark:border-red-900/30 shadow-sm overflow-hidden">
                     <div className="p-4 border-b border-red-100 dark:border-red-900/30">
-                        <h2 className="font-bold text-red-600">Danger Zone</h2>
+                        <h2 className="font-bold text-red-600">{t('settings.dangerZone')}</h2>
                     </div>
 
                     <div className="p-4">
@@ -158,8 +164,8 @@ const Settings: React.FC = () => {
                                     <RotateCcw size={20} />
                                 </div>
                                 <div className="text-left">
-                                    <p className="font-medium text-red-600">Reset All Data</p>
-                                    <p className="text-xs text-red-400">This will clear all your saved data</p>
+                                    <p className="font-medium text-red-600">{t('settings.resetData')}</p>
+                                    <p className="text-xs text-red-400">{t('settings.resetDataDesc')}</p>
                                 </div>
                             </div>
                             <ChevronRight size={20} className="text-red-400" />
@@ -168,7 +174,7 @@ const Settings: React.FC = () => {
                         {/* Sign Out Button */}
                         <button
                             onClick={async () => {
-                                clearAuth();
+                                await logout();
                                 navigate('/login', { replace: true });
                             }}
                             className="w-full flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-700/50 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors mt-3"
@@ -178,8 +184,8 @@ const Settings: React.FC = () => {
                                     <LogOut size={20} />
                                 </div>
                                 <div className="text-left">
-                                    <p className="font-medium text-slate-600 dark:text-slate-300">Sign Out</p>
-                                    <p className="text-xs text-slate-400">End your session</p>
+                                    <p className="font-medium text-slate-600 dark:text-slate-300">{t('settings.signOut')}</p>
+                                    <p className="text-xs text-slate-400">{t('settings.signOutDesc')}</p>
                                 </div>
                             </div>
                             <ChevronRight size={20} className="text-slate-400" />
@@ -191,9 +197,8 @@ const Settings: React.FC = () => {
                 <div className="text-center text-sm text-slate-400 dark:text-slate-500">
                     <div className="flex items-center justify-center gap-2 mb-2">
                         <Info size={14} />
-                        <span>KaizenHub v1.0.0</span>
+                        <span>{t('settings.version')}</span>
                     </div>
-                    <p>Made with ❤️ for continuous improvement</p>
                 </div>
             </div>
 
@@ -202,22 +207,22 @@ const Settings: React.FC = () => {
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
                     <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowResetConfirm(false)} />
                     <div className="relative bg-white dark:bg-slate-800 rounded-2xl p-6 max-w-sm w-full shadow-2xl">
-                        <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-2">Reset All Data?</h3>
+                        <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-2">{t('settings.resetConfirmTitle')}</h3>
                         <p className="text-slate-500 dark:text-slate-400 mb-6">
-                            This will reset all your ideas, kudos, transactions, and preferences back to the demo data. This action cannot be undone.
+                            {t('settings.resetConfirmDesc')}
                         </p>
                         <div className="flex gap-3">
                             <button
                                 onClick={() => setShowResetConfirm(false)}
                                 className="flex-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold py-3 rounded-xl"
                             >
-                                Cancel
+                                {t('common.cancel')}
                             </button>
                             <button
                                 onClick={handleReset}
                                 className="flex-1 bg-red-500 text-white font-bold py-3 rounded-xl"
                             >
-                                Reset
+                                {t('settings.resetData')}
                             </button>
                         </div>
                     </div>

@@ -4,25 +4,25 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { KaizenIdea } from '../types';
 import { generateRefinedText } from '../services/geminiService';
 import {
-  getIdeas,
-  addIdea,
-  voteIdea,
-  getCurrentUser,
-  generateId,
-  updateUserPoints,
-  addTransaction,
-  updateMission,
-  getMissions
-} from '../services/storageService';
+  getIdeas as apiGetIdeas,
+  createIdea as apiCreateIdea,
+  voteIdea as apiVoteIdea,
+  getCurrentUser as apiGetCurrentUser,
+} from '../services/apiService';
+import { useTranslation } from 'react-i18next';
+import { User, Idea as BackendIdea } from '../services/apiService';
 
 const KaizenIdeas: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<'all' | 'create'>('all');
   const [isGenerating, setIsGenerating] = useState(false);
-  const [ideas, setIdeas] = useState<KaizenIdea[]>([]);
+  const [ideas, setIdeas] = useState<any[]>([]);
   const [filter, setFilter] = useState('Latest');
   const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
 
   // Form State
   const [title, setTitle] = useState('');
@@ -30,11 +30,24 @@ const KaizenIdeas: React.FC = () => {
   const [proposal, setProposal] = useState('');
   const [impact, setImpact] = useState<'Cost' | 'Quality' | 'Speed' | 'Safety'>('Quality');
 
-  const currentUser = getCurrentUser();
-
   useEffect(() => {
-    setIdeas(getIdeas());
+    loadData();
   }, []);
+
+  const loadData = async () => {
+    try {
+      const [ideasData, userData] = await Promise.all([
+        apiGetIdeas(),
+        apiGetCurrentUser()
+      ]);
+      setIdeas(ideasData);
+      setCurrentUser(userData);
+    } catch (error) {
+      console.error('Failed to load ideas:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (location.state && (location.state as any).mode === 'create') {
@@ -53,65 +66,48 @@ const KaizenIdeas: React.FC = () => {
     setIsGenerating(false);
   };
 
-  const handleVote = (ideaId: string, e: React.MouseEvent) => {
+  const handleVote = async (ideaId: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    voteIdea(ideaId, currentUser.id);
-    setIdeas(getIdeas());
+    try {
+      await apiVoteIdea(ideaId);
+      // Update local state or reload
+      loadData();
+    } catch (error) {
+      console.error('Failed to vote:', error);
+    }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!title.trim() || !problem.trim() || !proposal.trim()) return;
+    setIsGenerating(true);
 
-    const newIdea: KaizenIdea = {
-      id: generateId(),
-      title: title.trim(),
-      problem: problem.trim(),
-      proposal: proposal.trim(),
-      impact,
-      status: 'New',
-      votes: 0,
-      votedBy: [],
-      followedBy: [],
-      comments: [],
-      author: currentUser,
-      createdAt: 'Just now'
-    };
-
-    addIdea(newIdea);
-
-    // Award points
-    updateUserPoints(50);
-    addTransaction({
-      id: generateId(),
-      description: `Submitted Kaizen Idea: "${title.trim()}"`,
-      amount: 50,
-      type: 'earn',
-      date: 'Just now'
-    });
-
-    // Update mission progress
-    const missions = getMissions();
-    const ideaMission = missions.find(m => m.title.includes('Kaizen Idea') && !m.completed);
-    if (ideaMission) {
-      const newProgress = Math.min(ideaMission.progress + 1, ideaMission.total);
-      updateMission(ideaMission.id, {
-        progress: newProgress,
-        completed: newProgress >= ideaMission.total
+    try {
+      await apiCreateIdea({
+        title: title.trim(),
+        problem: problem.trim(),
+        proposal: proposal.trim(),
+        impact: impact.toLowerCase()
       });
+
+      // Reset form
+      setTitle('');
+      setProblem('');
+      setProposal('');
+      setImpact('Quality');
+      setSubmitSuccess(true);
+
+      // Reload ideas
+      await loadData();
+
+      setTimeout(() => {
+        setSubmitSuccess(false);
+        setActiveTab('all');
+      }, 2000);
+    } catch (error) {
+      console.error('Failed to submit idea:', error);
+    } finally {
+      setIsGenerating(false);
     }
-
-    // Reset form
-    setTitle('');
-    setProblem('');
-    setProposal('');
-    setImpact('Quality');
-    setIdeas(getIdeas());
-    setSubmitSuccess(true);
-
-    setTimeout(() => {
-      setSubmitSuccess(false);
-      setActiveTab('all');
-    }, 2000);
   };
 
   const getFilteredIdeas = () => {
@@ -129,6 +125,14 @@ const KaizenIdeas: React.FC = () => {
   };
 
   const filteredIdeas = getFilteredIdeas();
+
+  if (loading || !currentUser) {
+    return (
+      <div className="min-h-[50vh] flex items-center justify-center">
+        <Loader2 size={32} className="animate-spin text-indigo-600" />
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-4xl mx-auto px-4 pt-2 md:px-0">
@@ -157,8 +161,8 @@ const KaizenIdeas: React.FC = () => {
                 key={f}
                 onClick={() => setFilter(f)}
                 className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap shadow-sm transition-all ${filter === f
-                    ? 'bg-indigo-600 text-white'
-                    : 'bg-white border border-slate-200 text-slate-700 active:bg-slate-50'
+                  ? 'bg-indigo-600 text-white'
+                  : 'bg-white border border-slate-200 text-slate-700 active:bg-slate-50'
                   }`}
               >
                 {f}
@@ -180,9 +184,9 @@ const KaizenIdeas: React.FC = () => {
                   <div className="flex justify-between items-start mb-3">
                     <div className="flex gap-3">
                       <div className={`mt-0.5 p-2 rounded-xl h-fit ${idea.impact === 'Speed' ? 'bg-blue-50 text-blue-600' :
-                          idea.impact === 'Cost' ? 'bg-green-50 text-green-600' :
-                            idea.impact === 'Safety' ? 'bg-orange-50 text-orange-600' :
-                              'bg-emerald-50 text-emerald-600'
+                        idea.impact === 'Cost' ? 'bg-green-50 text-green-600' :
+                          idea.impact === 'Safety' ? 'bg-orange-50 text-orange-600' :
+                            'bg-emerald-50 text-emerald-600'
                         }`}>
                         <Filter size={18} />
                       </div>
@@ -190,9 +194,9 @@ const KaizenIdeas: React.FC = () => {
                         <h3 className="font-bold text-slate-800 text-base leading-tight group-hover:text-indigo-600 transition-colors">{idea.title}</h3>
                         <div className="flex items-center gap-2 mt-2">
                           <span className={`text-[10px] font-bold uppercase tracking-wide px-2 py-1 rounded-md ${idea.status === 'Implemented' ? 'bg-green-100 text-green-700' :
-                              idea.status === 'In Review' ? 'bg-yellow-100 text-yellow-700' :
-                                idea.status === 'Approved' ? 'bg-blue-100 text-blue-700' :
-                                  'bg-slate-100 text-slate-600'
+                            idea.status === 'In Review' ? 'bg-yellow-100 text-yellow-700' :
+                              idea.status === 'Approved' ? 'bg-blue-100 text-blue-700' :
+                                'bg-slate-100 text-slate-600'
                             }`}>
                             {idea.status}
                           </span>
@@ -202,8 +206,8 @@ const KaizenIdeas: React.FC = () => {
                     <button
                       onClick={(e) => handleVote(idea.id, e)}
                       className={`flex flex-col items-center rounded-lg p-2 min-w-[48px] transition-all ${hasVoted
-                          ? 'bg-indigo-100 text-indigo-600'
-                          : 'bg-slate-50 text-slate-500 hover:bg-indigo-50'
+                        ? 'bg-indigo-100 text-indigo-600'
+                        : 'bg-slate-50 text-slate-500 hover:bg-indigo-50'
                         }`}
                     >
                       <ThumbsUp size={16} className={hasVoted ? 'fill-indigo-600' : ''} />

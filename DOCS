@@ -802,14 +802,16 @@ PHẦN E: ROADMAP & TODO
 ✅ Onboarding flow (4 slides cho first-time users).
 ✅ Data Reset functionality (Settings page).
 
-10. Tính năng cần bổ sung (Requires Backend)
-❌ User authentication (login/logout) – requires backend.
-❌ Backend API integration – replace localStorage với real API.
-❌ Real database thay mock data.
-❌ Push/email notifications – requires backend service.
-❌ Leader/Admin dashboards – requires role-based access.
-❌ Full i18n implementation – translation files.
-❌ PWA capabilities – service worker, manifest.
+✅ Language selection và i18n (English, Vietnamese, Japanese).
+✅ Management Dashboard (/management) cho Leader/Admin.
+✅ In-app Notification system với real-time updates.
+✅ PWA capabilities (Service worker registration).
+✅ Kết nối Frontend với Backend API (Auth, Ideas, Kudos, Rewards, v.v.).
+
+10. Tính năng cần bổ sung (Lộ trình tiếp theo)
+❌ Push/email notifications (External services).
+❌ AI-driven insights report cho leadership.
+❌ SSO Integration.
 
 11. Ghi chú sử dụng cho AI Dev Tool
 File này có thể dùng làm product spec + tech spec cấp cao cho AI Dev hoặc team dev.

@@ -1,23 +1,42 @@
 import React, { useState, useEffect } from 'react';
 import { Trophy } from 'lucide-react';
 import Leaderboard from '../components/Leaderboard';
-import { User } from '../types';
-import { getUsers } from '../services/storageService';
+import { getLeaderboard as apiGetLeaderboard, getCurrentUser as apiGetCurrentUser, User } from '../services/apiService';
+import { Loader2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const LeaderboardPage: React.FC = () => {
+  const { t } = useTranslation();
   const [period, setPeriod] = useState<'month' | 'quarter' | 'all'>('month');
-  const [users, setUsers] = useState<User[]>([]);
+  const [users, setUsers] = useState<any[]>([]);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setUsers(getUsers());
-  }, []);
+    loadData();
+  }, [period]);
+
+  const loadData = async () => {
+    try {
+      const [usersData, userData] = await Promise.all([
+        apiGetLeaderboard(period),
+        apiGetCurrentUser()
+      ]);
+      setUsers(usersData);
+      setCurrentUser(userData);
+    } catch (error) {
+      console.error('Failed to load leaderboard data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Determine sort key
   const getSortKey = () => {
     switch (period) {
       case 'month': return 'monthlyPoints';
       case 'quarter': return 'quarterlyPoints';
-      default: return 'points';
+      default: return 'totalPoints';
     }
   };
 
@@ -67,11 +86,18 @@ const LeaderboardPage: React.FC = () => {
       </div>
 
       {/* Leaderboard Component */}
-      <Leaderboard
-        users={users}
-        sortBy={getSortKey()}
-        showTeamFilter={true}
-      />
+      {loading ? (
+        <div className="flex items-center justify-center p-12">
+          <Loader2 size={32} className="animate-spin text-indigo-600" />
+        </div>
+      ) : (
+        <Leaderboard
+          users={users}
+          sortBy={getSortKey()}
+          showTeamFilter={true}
+          currentUser={currentUser}
+        />
+      )}
 
     </div>
   );

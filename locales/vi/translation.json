@@ -1,0 +1,122 @@
+{
+    "common": {
+        "loading": "Đang tải...",
+        "error": "Có lỗi xảy ra",
+        "save": "Lưu",
+        "cancel": "Hủy",
+        "delete": "Xóa",
+        "edit": "Sửa",
+        "submit": "Gửi",
+        "search": "Tìm kiếm",
+        "home": "Trang chủ",
+        "profile": "Cá nhân",
+        "settings": "Cài đặt",
+        "logout": "Đăng xuất",
+        "login": "Đăng nhập",
+        "notifications": "Thông báo"
+    },
+    "dashboard": {
+        "welcome": "Chào mừng trở lại",
+        "streak": "Chuỗi ngày",
+        "quote": "Cuộc chiến cải tiến không bao giờ kết thúc. Sẵn sàng chưa?",
+        "stats": {
+            "xp": "Tổng điểm",
+            "level": "Cấp độ",
+            "nextLevel": "Cấp tiếp theo"
+        },
+        "missions": {
+            "title": "Nhiệm vụ hàng ngày",
+            "claim": "Nhận",
+            "collected": "Đã nhận"
+        },
+        "activity": {
+            "title": "Hoạt động gần đây"
+        }
+    },
+    "nav": {
+        "home": "Trang chủ",
+        "ideas": "Kaizen",
+        "create": "Tạo mới",
+        "kudos": "Kudos",
+        "profile": "Cá nhân",
+        "leaderboard": "Xếp hạng",
+        "badges": "Huy hiệu",
+        "rewards": "Phần thưởng",
+        "feedback": "Góp ý",
+        "management": "Quản lý"
+    },
+    "settings": {
+        "appearance": "Giao diện",
+        "darkMode": "Chế độ tối",
+        "darkModeDesc": "Chuyển đổi giữa giao diện sáng và tối",
+        "language": "Ngôn ngữ",
+        "languageDesc": "Chọn ngôn ngữ ưu tiên của bạn",
+        "notifications": "Thông báo",
+        "pushNotifications": "Thông báo đẩy",
+        "pushNotificationsDesc": "Nhận cập nhật về hoạt động của bạn",
+        "privacy": "Quyền riêng tư",
+        "privacyPolicy": "Chính sách bảo mật",
+        "privacyPolicyDesc": "Tìm hiểu cách chúng tôi xử lý dữ liệu",
+        "dangerZone": "Vùng nguy hiểm",
+        "resetData": "Đặt lại toàn bộ dữ liệu",
+        "resetDataDesc": "Hành động này sẽ xóa tất cả dữ liệu đã lưu",
+        "signOut": "Đăng xuất",
+        "signOutDesc": "Kết thúc phiên làm việc",
+        "version": "KaizenHub v1.0.0"
+    },
+    "onboarding": {
+        "skip": "Bỏ qua",
+        "welcome": "Chào mừng đến với KaizenHub",
+        "welcomeDesc": "Nền tảng cải tiến liên tục của bạn. Chia sẻ ý tưởng, ghi nhận đồng nghiệp và cùng nhau phát triển.",
+        "kudos": "Ghi nhận đồng nghiệp",
+        "kudosDesc": "Gửi Kudos cho những đồng nghiệp tạo nên sự khác biệt. Xây dựng văn hóa hỗ trợ và trân trọng.",
+        "rewards": "Tích điểm & Đổi thưởng",
+        "rewardsDesc": "Nhận phần thưởng cho những đóng góp của bạn. Hoàn thành nhiệm vụ, tích điểm và đổi quà hấp dẫn.",
+        "climb": "Thăng hạng",
+        "climbDesc": "Lên cấp bằng cách duy trì hoạt động. Thu thập huy hiệu, duy trì chuỗi và cạnh tranh trên bảng xếp hạng.",
+        "next": "Tiếp theo",
+        "getStarted": "Bắt đầu ngay"
+    },
+    "badges": {
+        "title": "Bộ sưu tập huy hiệu",
+        "description": "Thu thập huy hiệu bằng cách đóng góp ý tưởng, ghi nhận đồng nghiệp và duy trì sự nhất quán.",
+        "unlockedCount": "Tổng số đã mở",
+        "unlocked": "Đã mở",
+        "locked": "Chưa mở",
+        "empty": "Chưa có huy hiệu nào. Hãy tiếp tục đóng góp!"
+    },
+    "feedback": {
+        "title": "Góp ý ẩn danh",
+        "description": "Ý kiến của bạn rất quan trọng. Giúp chúng tôi cải thiện mà không cần lộ danh tính.",
+        "privacyNotice": "Danh tính của bạn được bảo mật. Góp ý này được mã hóa và chỉ dữ liệu tổng hợp được hiển thị.",
+        "targetLabel": "Góp ý này dành cho ai?",
+        "templateLabel": "Mẫu góp ý",
+        "npsQuestion": "Bạn có sẵn lòng giới thiệu công ty cho người khác không?",
+        "npsNotLikely": "Không sẵn lòng",
+        "npsVeryLikely": "Rất sẵn lòng",
+        "submitAnonymously": "Gửi ẩn danh",
+        "submitSuccess": "Cảm ơn bạn!",
+        "submitSuccessDesc": "Góp ý ẩn danh của bạn đã được gửi thành công.",
+        "submitAnother": "Gửi góp ý khác"
+    },
+    "management": {
+        "title": "Bảng quản lý",
+        "description": "Duyệt ý tưởng, quản lý yêu cầu đổi thưởng và giám sát đóng góp của nhóm.",
+        "ideasTab": "Duyệt ý tưởng",
+        "rewardsTab": "Yêu cầu đổi thưởng",
+        "usersTab": "Quản lý người dùng",
+        "approve": "Duyệt",
+        "reject": "Từ chối",
+        "fulfill": "Đã hoàn thành",
+        "noPendingIdeas": "Không có ý tưởng nào đang chờ duyệt.",
+        "noPendingRewards": "Không có yêu cầu đổi thưởng nào đang chờ.",
+        "accessDenied": "Truy cập bị từ chối",
+        "accessDeniedDesc": "Khu vực này chỉ dành cho Trưởng nhóm và Quản trị viên."
+    },
+    "notifications": {
+        "title": "Thông báo",
+        "markReadAll": "Đánh dấu tất cả đã đọc",
+        "empty": "Chưa có thông báo nào",
+        "viewDetails": "Xem chi tiết"
+    }
+}

@@ -3,6 +3,7 @@ import prisma from '../lib/prisma.js';
 import { authMiddleware, AuthRequest } from '../middleware/auth.js';
 import { awardPoints, POINTS } from '../lib/gamification.js';
 import { PointSource } from '@prisma/client';
+import { createNotification } from '../lib/notifications.js';
 
 const router = Router();
 
@@ -82,6 +83,14 @@ router.post('/', authMiddleware, async (req: AuthRequest, res: Response) => {
         // Award points to sender and receiver
         await awardPoints(req.userId!, POINTS.KUDOS_SENT, PointSource.KUDOS_SENT, kudos.id);
         await awardPoints(receiverId, POINTS.KUDOS_RECEIVED, PointSource.KUDOS_RECEIVED, kudos.id);
+
+        // Notify receiver
+        await createNotification(receiverId, {
+            type: 'KUDOS_RECEIVED',
+            title: 'New Kudos! ❤️',
+            message: `${kudos.sender.name} sent you Kudos for ${value.toLowerCase()}! You earned ${POINTS.KUDOS_RECEIVED} points.`,
+            link: '/kudos'
+        });
 
         return res.status(201).json({
             id: kudos.id,

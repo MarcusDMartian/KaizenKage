@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
    Settings,
    LogOut,
@@ -14,28 +14,57 @@ import {
    CheckCircle2,
    Zap
 } from 'lucide-react';
-import { User, Mission } from '../types';
-import { getCurrentUser, getMissions, getIdeas, getKudos } from '../services/storageService';
+import {
+   getCurrentUser as apiGetCurrentUser,
+   getMissions as apiGetMissions,
+   getIdeas as apiGetIdeas,
+   getKudos as apiGetKudos,
+   logout as apiLogout,
+   User,
+   Mission
+} from '../services/apiService';
+import { useTranslation } from 'react-i18next';
+import { Loader2 } from 'lucide-react';
 
 const Profile: React.FC = () => {
-   const [currentUser, setCurrentUser] = useState<User>(getCurrentUser());
+   const { t } = useTranslation();
+   const navigate = useNavigate();
+   const [currentUser, setCurrentUser] = useState<User | null>(null);
    const [missions, setMissions] = useState<Mission[]>([]);
    const [stats, setStats] = useState({ ideas: 0, kudosSent: 0, kudosReceived: 0 });
+   const [loading, setLoading] = useState(true);
 
    useEffect(() => {
-      const user = getCurrentUser();
-      setCurrentUser(user);
-      setMissions(getMissions());
-
-      const ideas = getIdeas();
-      const kudos = getKudos();
-
-      setStats({
-         ideas: ideas.filter(i => i.author.id === user.id).length,
-         kudosSent: kudos.filter(k => k.sender.id === user.id).length,
-         kudosReceived: kudos.filter(k => k.receiver.id === user.id).length
-      });
+      loadData();
    }, []);
+
+   const loadData = async () => {
+      try {
+         const [user, missionsData, ideas, kudos] = await Promise.all([
+            apiGetCurrentUser(),
+            apiGetMissions(),
+            apiGetIdeas(),
+            apiGetKudos()
+         ]);
+
+         setCurrentUser(user);
+         setMissions(missionsData);
+         setStats({
+            ideas: ideas.filter(i => i.author.id === user.id).length,
+            kudosSent: kudos.filter(k => k.sender.id === user.id).length,
+            kudosReceived: kudos.filter(k => k.receiver.id === user.id).length
+         });
+      } catch (error) {
+         console.error('Failed to load profile data:', error);
+      } finally {
+         setLoading(false);
+      }
+   };
+
+   const handleLogout = async () => {
+      await apiLogout();
+      navigate('/login');
+   };
 
    const menuItems = [
       {
@@ -82,6 +111,14 @@ const Profile: React.FC = () => {
 
    const progressPercent = Math.min(100, (currentUser.points / currentUser.nextLevelPoints) * 100);
 
+   if (loading || !currentUser) {
+      return (
+         <div className="min-h-[50vh] flex items-center justify-center">
+            <Loader2 size={32} className="animate-spin text-indigo-600" />
+         </div>
+      );
+   }
+
    return (
       <div className="max-w-3xl mx-auto space-y-6 pb-24 px-4 md:px-0">
          {/* User Header */}
@@ -94,7 +131,7 @@ const Profile: React.FC = () => {
             </div>
             <div className="px-6 pb-6">
                <div className="relative -mt-12 mb-4 flex justify-between items-end">
-                  <img src={currentUser.avatar} alt="" className="w-24 h-24 rounded-full border-4 border-white dark:border-slate-800 shadow-lg bg-white dark:bg-slate-700" />
+                  <img src={currentUser.avatarUrl} alt="" className="w-24 h-24 rounded-full border-4 border-white dark:border-slate-800 shadow-lg bg-white dark:bg-slate-700" />
                </div>
 
                <div>
@@ -241,7 +278,10 @@ const Profile: React.FC = () => {
          </div>
 
          {/* Logout Button */}
-         <button className="w-full bg-white/70 dark:bg-slate-800/70 backdrop-blur-md text-red-500 font-bold p-4 rounded-2xl shadow-sm border border-white/60 dark:border-slate-700/60 flex items-center justify-center gap-2 hover:bg-red-50 dark:hover:bg-red-900/20 hover:border-red-100 dark:hover:border-red-800/50 transition-colors">
+         <button
+            onClick={handleLogout}
+            className="w-full bg-white/70 dark:bg-slate-800/70 backdrop-blur-md text-red-500 font-bold p-4 rounded-2xl shadow-sm border border-white/60 dark:border-slate-700/60 flex items-center justify-center gap-2 hover:bg-red-50 dark:hover:bg-red-900/20 hover:border-red-100 dark:hover:border-red-800/50 transition-colors"
+         >
             <LogOut size={20} /> Abort Mission (Sign Out)
          </button>
       </div>

@@ -4,13 +4,14 @@ import { User } from '../types';
 import { CURRENT_USER } from '../constants';
 
 interface LeaderboardProps {
-  users: User[];
-  sortBy: 'points' | 'monthlyPoints' | 'quarterlyPoints';
+  users: any[];
+  sortBy: string;
   limit?: number;
   showTeamFilter?: boolean;
+  currentUser?: any;
 }
 
-const Leaderboard: React.FC<LeaderboardProps> = ({ users, sortBy, limit, showTeamFilter = false }) => {
+const Leaderboard: React.FC<LeaderboardProps> = ({ users, sortBy, limit, showTeamFilter = false, currentUser }) => {
   const [selectedTeam, setSelectedTeam] = useState('all');
 
   // Derive unique teams from props
@@ -43,7 +44,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ users, sortBy, limit, showTea
 
   const getRowStyle = (index: number, isCurrentUser: boolean) => {
     let classes = "flex items-center p-4 rounded-xl border transition-all shadow-sm ";
-    
+
     if (isCurrentUser) {
       // Distinct highlight for the current user
       classes += "border-indigo-500 bg-indigo-50/60 ring-1 ring-indigo-500/50 ";
@@ -63,30 +64,30 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ users, sortBy, limit, showTea
       {/* Internal Team Filter */}
       {showTeamFilter && (
         <div className="flex justify-end mb-2">
-           <div className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-lg border border-slate-200 shadow-sm transition-colors hover:border-indigo-300">
-              <Filter size={14} className="text-slate-400" />
-              <select 
-                value={selectedTeam}
-                onChange={(e) => setSelectedTeam(e.target.value)}
-                className="text-sm text-slate-600 bg-transparent border-none focus:ring-0 cursor-pointer pr-8 outline-none"
-              >
-                 <option value="all">All Teams</option>
-                 {teams.map(team => (
-                    <option key={team} value={team}>{team}</option>
-                 ))}
-              </select>
-           </div>
+          <div className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-lg border border-slate-200 shadow-sm transition-colors hover:border-indigo-300">
+            <Filter size={14} className="text-slate-400" />
+            <select
+              value={selectedTeam}
+              onChange={(e) => setSelectedTeam(e.target.value)}
+              className="text-sm text-slate-600 bg-transparent border-none focus:ring-0 cursor-pointer pr-8 outline-none"
+            >
+              <option value="all">All Teams</option>
+              {teams.map(team => (
+                <option key={team} value={team}>{team}</option>
+              ))}
+            </select>
+          </div>
         </div>
       )}
 
       {/* User Rows */}
       {displayUsers.length > 0 ? (
         displayUsers.map((user, index) => {
-          const isCurrentUser = user.id === CURRENT_USER.id;
-          
+          const isCurrentUser = user.id === currentUser?.id;
+
           return (
-            <div 
-              key={user.id} 
+            <div
+              key={user.id}
               className={getRowStyle(index, isCurrentUser)}
             >
               {/* Rank */}
@@ -106,7 +107,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ users, sortBy, limit, showTea
                 </div>
                 <div className="min-w-0">
                   <h4 className="font-bold text-slate-800 text-sm truncate flex items-center gap-2">
-                    {user.name} 
+                    {user.name}
                     {isCurrentUser && <span className="text-[10px] bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded-full border border-indigo-200">YOU</span>}
                   </h4>
                   <div className="flex items-center gap-2 text-xs text-slate-500 mt-0.5">
@@ -138,7 +139,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ users, sortBy, limit, showTea
         })
       ) : (
         <div className="text-center py-8 text-slate-500">
-           No users found for this filter.
+          No users found for this filter.
         </div>
       )}
     </div>

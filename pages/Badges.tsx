@@ -1,18 +1,45 @@
 import React, { useState, useEffect } from 'react';
 import { Award, Lock } from 'lucide-react';
-import { Badge } from '../types';
-import { getCurrentUser } from '../services/storageService';
+import { getCurrentUser as apiGetCurrentUser, getBadges as apiGetBadges, User, Badge } from '../services/apiService';
+import { Loader2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { MOCK_BADGES } from '../constants';
 
 const Badges: React.FC = () => {
-   const [currentUser, setCurrentUser] = useState(getCurrentUser());
+   const { t } = useTranslation();
+   const [currentUser, setCurrentUser] = useState<User | null>(null);
+   const [badges, setBadges] = useState<Badge[]>([]);
+   const [loading, setLoading] = useState(true);
 
    useEffect(() => {
-      setCurrentUser(getCurrentUser());
+      loadData();
    }, []);
 
-   const unlockedBadgeIds = new Set(currentUser.badges.map(b => b.id));
-   const progressPercentage = (unlockedBadgeIds.size / MOCK_BADGES.length) * 100;
+   const loadData = async () => {
+      try {
+         const [badgesData, userData] = await Promise.all([
+            apiGetBadges(),
+            apiGetCurrentUser()
+         ]);
+         setBadges(badgesData);
+         setCurrentUser(userData);
+      } catch (error) {
+         console.error('Failed to load badges:', error);
+      } finally {
+         setLoading(false);
+      }
+   };
+
+   if (loading || !currentUser) {
+      return (
+         <div className="min-h-[50vh] flex items-center justify-center">
+            <Loader2 size={32} className="animate-spin text-indigo-600" />
+         </div>
+      );
+   }
+
+   const unlockedBadgeCount = badges.filter(b => b.unlocked).length;
+   const progressPercentage = (unlockedBadgeCount / badges.length) * 100;
 
    return (
       <div className="max-w-5xl mx-auto space-y-8 px-4 md:px-0 pb-24">
@@ -23,16 +50,16 @@ const Badges: React.FC = () => {
             </div>
             <div className="relative z-10">
                <h2 className="text-3xl font-bold mb-2 flex items-center gap-3">
-                  <Award className="text-yellow-300" fill="currentColor" /> Badge Collection
+                  <Award className="text-yellow-300" fill="currentColor" /> {t('badges.title')}
                </h2>
                <p className="text-indigo-100 max-w-xl">
-                  Collect badges by contributing ideas, recognizing peers, and maintaining consistency. Show off your achievements!
+                  {t('badges.description')}
                </p>
 
                <div className="mt-6 max-w-md">
                   <div className="flex justify-between text-sm font-medium mb-2 text-indigo-100">
-                     <span>Total Unlocked</span>
-                     <span>{unlockedBadgeIds.size} / {MOCK_BADGES.length}</span>
+                     <span>{t('badges.unlockedCount')}</span>
+                     <span>{unlockedBadgeCount} / {badges.length}</span>
                   </div>
                   <div className="h-3 bg-black/20 rounded-full overflow-hidden backdrop-blur-sm">
                      <div
@@ -46,22 +73,22 @@ const Badges: React.FC = () => {
 
          {/* Badges Grid */}
          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {MOCK_BADGES.map((badge) => {
-               const isUnlocked = unlockedBadgeIds.has(badge.id);
+            {badges.map((badge) => {
+               const isUnlocked = badge.unlocked;
 
                return (
                   <div
                      key={badge.id}
                      className={`relative group rounded-xl p-6 border transition-all duration-300 ${isUnlocked
-                           ? 'bg-white dark:bg-slate-800 border-slate-100 dark:border-slate-700 shadow-sm hover:shadow-md hover:-translate-y-1'
-                           : 'bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 opacity-70 hover:opacity-100'
+                        ? 'bg-white dark:bg-slate-800 border-slate-100 dark:border-slate-700 shadow-sm hover:shadow-md hover:-translate-y-1'
+                        : 'bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 opacity-70 hover:opacity-100'
                         }`}
                   >
                      {/* Badge Icon */}
                      <div className="flex justify-center mb-4">
                         <div className={`w-20 h-20 rounded-2xl flex items-center justify-center text-4xl shadow-sm transition-transform duration-300 ${isUnlocked
-                              ? `${badge.color} group-hover:scale-110`
-                              : 'bg-slate-200 dark:bg-slate-700 text-slate-400 grayscale'
+                           ? `${badge.color} group-hover:scale-110`
+                           : 'bg-slate-200 dark:bg-slate-700 text-slate-400 grayscale'
                            }`}>
                            {badge.icon}
                         </div>
@@ -87,10 +114,10 @@ const Badges: React.FC = () => {
                      {/* Status Tag */}
                      <div className="mt-4 flex justify-center">
                         <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full ${isUnlocked
-                              ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
-                              : 'bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400'
+                           ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
+                           : 'bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400'
                            }`}>
-                           {isUnlocked ? 'Unlocked' : 'Locked'}
+                           {isUnlocked ? t('badges.unlocked') : t('badges.locked')}
                         </span>
                      </div>
                   </div>

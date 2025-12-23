@@ -77,6 +77,17 @@ export interface Badge {
     unlocked: boolean;
 }
 
+export interface Notification {
+    id: string;
+    userId: string;
+    type: string;
+    title: string;
+    message: string;
+    read: boolean;
+    link?: string;
+    createdAt: string;
+}
+
 export interface Idea {
     id: string;
     title: string;
@@ -334,4 +345,61 @@ export async function getBadges(): Promise<Badge[]> {
     const response = await fetchWithAuth('/badges');
     if (!response.ok) throw new Error('Failed to get badges');
     return response.json();
+}
+
+// ============================================
+// MANAGEMENT API (Leader/Admin)
+// ============================================
+
+export async function updateIdeaStatus(id: string, status: string): Promise<any> {
+    const response = await fetchWithAuth(`/ideas/${id}/status`, {
+        method: 'PATCH',
+        body: JSON.stringify({ status }),
+    });
+    if (!response.ok) throw new Error('Failed to update status');
+    return response.json();
+}
+
+export async function getManagementRedemptions(): Promise<any[]> {
+    const response = await fetchWithAuth('/rewards/management/redemptions');
+    if (!response.ok) throw new Error('Failed to get management redemptions');
+    return response.json();
+}
+
+export async function processRedemption(id: string, data: { status: string; note?: string }): Promise<any> {
+    const response = await fetchWithAuth(`/rewards/redemptions/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify(data),
+    });
+    if (!response.ok) throw new Error('Failed to process redemption');
+    return response.json();
+}
+
+export async function updateUser(id: string, data: { role?: string; teamId?: string; position?: string; isActive?: boolean }): Promise<any> {
+    const response = await fetchWithAuth(`/users/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify(data),
+    });
+    if (!response.ok) throw new Error('Failed to update user');
+    return response.json();
+}
+
+// ============================================
+// NOTIFICATIONS API
+// ============================================
+
+export async function getNotifications(): Promise<Notification[]> {
+    const response = await fetchWithAuth('/notifications');
+    if (!response.ok) throw new Error('Failed to get notifications');
+    return response.json();
+}
+
+export async function markNotificationRead(id: string): Promise<void> {
+    const response = await fetchWithAuth(`/notifications/${id}/read`, { method: 'PATCH' });
+    if (!response.ok) throw new Error('Failed to mark read');
+}
+
+export async function markAllNotificationsRead(): Promise<void> {
+    const response = await fetchWithAuth('/notifications/read-all', { method: 'PATCH' });
+    if (!response.ok) throw new Error('Failed to mark all read');
 }

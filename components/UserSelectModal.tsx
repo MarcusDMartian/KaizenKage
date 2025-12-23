@@ -87,7 +87,7 @@ const UserSelectModal: React.FC<UserSelectModalProps> = ({
                                         }`}
                                 >
                                     <img
-                                        src={user.avatar}
+                                        src={user.avatarUrl}
                                         alt={user.name}
                                         className="w-10 h-10 rounded-full border-2 border-white shadow-sm"
                                     />

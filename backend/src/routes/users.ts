@@ -1,6 +1,6 @@
 import { Router, Response } from 'express';
 import prisma from '../lib/prisma.js';
-import { authMiddleware, AuthRequest } from '../middleware/auth.js';
+import { authMiddleware, AuthRequest, checkRole } from '../middleware/auth.js';
 import { getUserBalance, getUserLevel, getNextLevelPoints } from '../lib/gamification.js';
 
 const router = Router();
@@ -116,6 +116,29 @@ router.get('/:id', authMiddleware, async (req: AuthRequest, res: Response) => {
     } catch (error) {
         console.error('Get user error:', error);
         return res.status(500).json({ error: 'Failed to get user' });
+    }
+});
+
+// PATCH /api/users/:id - Update user (Admin only)
+router.patch('/:id', authMiddleware, checkRole(['ADMIN']), async (req: AuthRequest, res: Response) => {
+    try {
+        const { role, teamId, position, isActive } = req.body;
+        const userId = req.params.id;
+
+        const user = await prisma.user.update({
+            where: { id: userId },
+            data: {
+                ...(role ? { role: role.toUpperCase() as any } : {}),
+                ...(teamId ? { teamId } : {}),
+                ...(position ? { position } : {}),
+                ...(isActive !== undefined ? { isActive } : {}),
+            },
+        });
+
+        return res.json(user);
+    } catch (error) {
+        console.error('Update user error:', error);
+        return res.status(500).json({ error: 'Failed to update user' });
     }
 });
 

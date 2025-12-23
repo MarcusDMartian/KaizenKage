@@ -1,8 +1,9 @@
 import { Router, Response } from 'express';
 import prisma from '../lib/prisma.js';
-import { authMiddleware, AuthRequest } from '../middleware/auth.js';
+import { authMiddleware, AuthRequest, checkRole } from '../middleware/auth.js';
 import { deductPoints, getUserBalance } from '../lib/gamification.js';
 import { PointSource } from '@prisma/client';
+import { createNotification } from '../lib/notifications.js';
 
 const router = Router();
 
@@ -139,6 +140,76 @@ router.get('/wallet', authMiddleware, async (req: AuthRequest, res: Response) =>
     } catch (error) {
         console.error('Get wallet error:', error);
         return res.status(500).json({ error: 'Failed to get wallet' });
+    }
+});
+
+// GET /api/rewards/management/redemptions - List all redemptions (Leader/Admin only)
+router.get('/management/redemptions', authMiddleware, checkRole(['LEADER', 'ADMIN']), async (req: AuthRequest, res: Response) => {
+    try {
+        const redemptions = await prisma.redemptionRequest.findMany({
+            include: { user: true, reward: true },
+            orderBy: { requestedAt: 'desc' },
+        });
+
+        return res.json(
+            redemptions.map((r) => ({
+                id: r.id,
+                userId: r.userId,
+                userName: r.user.name,
+                userAvatar: r.user.avatarUrl,
+                rewardId: r.rewardId,
+                rewardName: r.reward.name,
+                rewardImage: r.reward.imageUrl,
+                pointsCost: r.reward.pointsCost,
+                status: r.status.toLowerCase(),
+                requestedAt: r.requestedAt.toISOString(),
+                processedAt: r.processedAt?.toISOString(),
+            }))
+        );
+    } catch (error) {
+        console.error('Get all redemptions error:', error);
+        return res.status(500).json({ error: 'Failed to get redemptions' });
+    }
+});
+
+// PATCH /api/rewards/redemptions/:id - Process redemption (Leader/Admin only)
+router.patch('/redemptions/:id', authMiddleware, checkRole(['LEADER', 'ADMIN']), async (req: AuthRequest, res: Response) => {
+    try {
+        const { status, note } = req.body;
+        const redemptionId = req.params.id;
+
+        if (!status) {
+            return res.status(400).json({ error: 'Status is required' });
+        }
+
+        const redemption = await prisma.redemptionRequest.update({
+            where: { id: redemptionId },
+            data: {
+                status: status.toUpperCase() as any,
+                processedById: req.userId!,
+                processedAt: new Date(),
+                note,
+            },
+            include: { reward: true },
+        });
+
+        // Notify user
+        await createNotification(redemption.userId, {
+            type: `REWARD_${status.toUpperCase()}`,
+            title: status.toUpperCase() === 'APPROVED' ? 'Reward Approved! 🎁' : 'Reward Request Update',
+            message: status.toUpperCase() === 'APPROVED'
+                ? `Your request for "${redemption.reward.name}" has been approved and is being fulfilled.`
+                : `Your request for "${redemption.reward.name}" was ${status.toLowerCase()}. ${note || ''}`,
+            link: '/profile'
+        });
+
+        return res.json({
+            id: redemption.id,
+            status: redemption.status.toLowerCase(),
+        });
+    } catch (error) {
+        console.error('Process redemption error:', error);
+        return res.status(500).json({ error: 'Failed to process redemption' });
     }
 });
 

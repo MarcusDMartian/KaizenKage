@@ -1,0 +1,124 @@
+{
+    "common": {
+        "loading": "Loading...",
+        "error": "An error occurred",
+        "save": "Save",
+        "cancel": "Cancel",
+        "delete": "Delete",
+        "edit": "Edit",
+        "submit": "Submit",
+        "search": "Search",
+        "home": "Home",
+        "profile": "Profile",
+        "settings": "Settings",
+        "logout": "Logout",
+        "login": "Login",
+        "notifications": "Notifications"
+    },
+    "dashboard": {
+        "welcome": "Welcome back",
+        "streak": "Day Streak",
+        "quote": "The war for improvement never ends. Ready to deploy?",
+        "stats": {
+            "xp": "Total XP",
+            "level": "Level",
+            "nextLevel": "Next Level"
+        },
+        "missions": {
+            "title": "Daily Operations",
+            "claim": "Claim",
+            "collected": "Collected"
+        },
+        "activity": {
+            "title": "Field Activity"
+        }
+    },
+    "nav": {
+        "home": "Home",
+        "ideas": "Kaizen",
+        "create": "Create",
+        "kudos": "Kudos",
+        "profile": "Profile",
+        "leaderboard": "Leaderboard",
+        "badges": "Badges",
+        "rewards": "Rewards",
+        "feedback": "Feedback",
+        "management": "Management"
+    },
+    "settings": {
+        "appearance": "Appearance",
+        "darkMode": "Dark Mode",
+        "darkModeDesc": "Switch between dark and light theme",
+        "language": "Language",
+        "languageDesc": "Choose your preferred language",
+        "notifications": "Notifications",
+        "pushNotifications": "Push Notifications",
+        "pushNotificationsDesc": "Receive updates about your activity",
+        "privacy": "Privacy & Data",
+        "privacyPolicy": "Privacy Policy",
+        "privacyPolicyDesc": "Learn how we handle your data",
+        "dangerZone": "Danger Zone",
+        "resetData": "Reset All Data",
+        "resetDataDesc": "This will clear all your saved data",
+        "signOut": "Sign Out",
+        "signOutDesc": "End your session",
+        "resetConfirmTitle": "Reset All Data?",
+        "resetConfirmDesc": "This will reset all your preferences and local data. This action cannot be undone.",
+        "version": "KaizenHub v1.0.0"
+    },
+    "onboarding": {
+        "skip": "Skip",
+        "welcome": "Welcome to KaizenHub",
+        "welcomeDesc": "Your platform for continuous improvement. Share ideas, recognize colleagues, and grow together.",
+        "kudos": "Recognize Your Peers",
+        "kudosDesc": "Send Kudos to colleagues who make a difference. Build a culture of appreciation and support.",
+        "rewards": "Earn & Redeem Points",
+        "rewardsDesc": "Get rewarded for your contributions. Complete missions, earn points, and redeem exciting rewards.",
+        "climb": "Climb the Ranks",
+        "climbDesc": "Level up by staying active. Collect badges, maintain streaks, and compete on the leaderboard.",
+        "next": "Next",
+        "getStarted": "Get Started"
+    },
+    "badges": {
+        "title": "Badge Collection",
+        "description": "Collect badges by contributing ideas, recognizing peers, and maintaining consistency. Show off your achievements!",
+        "unlockedCount": "Total Unlocked",
+        "unlocked": "Unlocked",
+        "locked": "Locked",
+        "empty": "No badges earned yet. Keep contributing!"
+    },
+    "feedback": {
+        "title": "Anonymous Feedback",
+        "description": "Your voice matters. Help us improve without revealing your identity.",
+        "privacyNotice": "Your identity is hidden. This feedback is encrypted and only aggregated data is shown to leadership.",
+        "targetLabel": "Who is this feedback for?",
+        "templateLabel": "Template",
+        "npsQuestion": "How likely are you to recommend working here?",
+        "npsNotLikely": "Not Likely",
+        "npsVeryLikely": "Very Likely",
+        "submitAnonymously": "Submit Anonymously",
+        "submitSuccess": "Thank You!",
+        "submitSuccessDesc": "Your anonymous feedback has been submitted successfully. Your insights help us improve.",
+        "submitAnother": "Submit Another"
+    },
+    "management": {
+        "title": "Management Console",
+        "description": "Approve ideas, manage reward requests, and oversee team contributions.",
+        "ideasTab": "Kaizen Ideas",
+        "rewardsTab": "Reward Requests",
+        "usersTab": "User Management",
+        "approve": "Approve",
+        "reject": "Reject",
+        "fulfill": "Mark Fulfilled",
+        "noPendingIdeas": "No pending ideas in review.",
+        "noPendingRewards": "No pending reward redemptions.",
+        "accessDenied": "Access Denied",
+        "accessDeniedDesc": "This area is restricted to Leaders and Administrators."
+    },
+    "notifications": {
+        "title": "Notifications",
+        "markReadAll": "Mark all as read",
+        "empty": "No notifications yet",
+        "viewDetails": "View Details"
+    }
+}

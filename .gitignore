@@ -29,3 +29,7 @@ backend/.env.local
 *.njsproj
 *.sln
 *.sw?
+
+# Database
+backend/prisma/dev.db
+backend/prisma/dev.db-journal
