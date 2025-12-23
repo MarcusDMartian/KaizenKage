@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Award, Lock } from 'lucide-react';
+import { Award, Lock, Check, Loader2 } from 'lucide-react';
 import { getCurrentUser as apiGetCurrentUser, getBadges as apiGetBadges, User, Badge } from '../services/apiService';
-import { Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { MOCK_BADGES } from '../constants';
+import EmptyState from '../components/EmptyState';
 
 const Badges: React.FC = () => {
    const { t } = useTranslation();
@@ -39,7 +38,7 @@ const Badges: React.FC = () => {
    }
 
    const unlockedBadgeCount = badges.filter(b => b.unlocked).length;
-   const progressPercentage = (unlockedBadgeCount / badges.length) * 100;
+   const progressPercentage = badges.length > 0 ? (unlockedBadgeCount / badges.length) * 100 : 0;
 
    return (
       <div className="max-w-5xl mx-auto space-y-8 px-4 md:px-0 pb-24">
@@ -73,56 +72,62 @@ const Badges: React.FC = () => {
 
          {/* Badges Grid */}
          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {badges.map((badge) => {
-               const isUnlocked = badge.unlocked;
+            {badges.length === 0 ? (
+               <div className="col-span-full">
+                  <EmptyState
+                     icon={Award}
+                     title="Award Chamber Empty"
+                     message="No badges have been defined for the platform yet. Check back soon for new achievements!"
+                  />
+               </div>
+            ) : (
+               badges.map((badge) => {
+                  const isUnlocked = badge.unlocked;
 
-               return (
-                  <div
-                     key={badge.id}
-                     className={`relative group rounded-xl p-6 border transition-all duration-300 ${isUnlocked
-                        ? 'bg-white dark:bg-slate-800 border-slate-100 dark:border-slate-700 shadow-sm hover:shadow-md hover:-translate-y-1'
-                        : 'bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 opacity-70 hover:opacity-100'
-                        }`}
-                  >
-                     {/* Badge Icon */}
-                     <div className="flex justify-center mb-4">
-                        <div className={`w-20 h-20 rounded-2xl flex items-center justify-center text-4xl shadow-sm transition-transform duration-300 ${isUnlocked
-                           ? `${badge.color} group-hover:scale-110`
-                           : 'bg-slate-200 dark:bg-slate-700 text-slate-400 grayscale'
-                           }`}>
-                           {badge.icon}
+                  return (
+                     <div
+                        key={badge.id}
+                        className={`relative group rounded-xl p-6 border transition-all duration-300 ${isUnlocked
+                           ? 'bg-white dark:bg-slate-800 border-slate-100 dark:border-slate-700 shadow-sm hover:shadow-md hover:-translate-y-1'
+                           : 'bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 opacity-70 hover:opacity-100'
+                           }`}
+                     >
+                        {!isUnlocked && (
+                           <div className="absolute top-3 right-3 text-slate-400">
+                              <Lock size={16} />
+                           </div>
+                        )}
+
+                        <div className="flex justify-center mb-4">
+                           <div className={`w-20 h-20 rounded-2xl flex items-center justify-center text-4xl shadow-sm transition-transform duration-300 ${isUnlocked
+                              ? `${badge.color} group-hover:scale-110`
+                              : 'bg-slate-200 dark:bg-slate-700 text-slate-400 grayscale'
+                              }`}>
+                              {badge.icon}
+                           </div>
+                        </div>
+
+                        <div className="text-center">
+                           <h3 className={`font-bold mb-1 ${isUnlocked ? 'text-slate-800 dark:text-white' : 'text-slate-500 dark:text-slate-400'}`}>
+                              {badge.name}
+                           </h3>
+                           <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
+                              {badge.description}
+                           </p>
+                        </div>
+
+                        <div className="mt-4 flex justify-center">
+                           <span className={`text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-full ${isUnlocked
+                              ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
+                              : 'bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400'
+                              }`}>
+                              {isUnlocked ? t('badges.unlocked') : t('badges.locked')}
+                           </span>
                         </div>
                      </div>
-
-                     {/* Lock Overlay for locked badges */}
-                     {!isUnlocked && (
-                        <div className="absolute top-3 right-3 text-slate-400">
-                           <Lock size={16} />
-                        </div>
-                     )}
-
-                     {/* Content */}
-                     <div className="text-center">
-                        <h3 className={`font-bold mb-1 ${isUnlocked ? 'text-slate-800 dark:text-white' : 'text-slate-500 dark:text-slate-400'}`}>
-                           {badge.name}
-                        </h3>
-                        <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                           {badge.description}
-                        </p>
-                     </div>
-
-                     {/* Status Tag */}
-                     <div className="mt-4 flex justify-center">
-                        <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full ${isUnlocked
-                           ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
-                           : 'bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400'
-                           }`}>
-                           {isUnlocked ? t('badges.unlocked') : t('badges.locked')}
-                        </span>
-                     </div>
-                  </div>
-               );
-            })}
+                  );
+               })
+            )}
          </div>
       </div>
    );

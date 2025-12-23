@@ -12,7 +12,8 @@ import {
   Award,
   Plus,
   Settings,
-  ShieldCheck
+  ShieldCheck,
+  ShieldAlert
 } from 'lucide-react';
 import { getSavedUser, getCurrentUser as apiGetCurrentUser, logout as apiLogout, User as UserType } from '../services/apiService';
 import { useTheme } from '../contexts/ThemeContext';
@@ -59,8 +60,12 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     { path: '/profile', label: t('nav.profile'), icon: User },
   ];
 
-  if (currentUser?.role === 'LEADER' || currentUser?.role === 'ADMIN') {
+  if (currentUser?.role === 'LEADER' || currentUser?.role === 'ADMIN' || currentUser?.role === 'SUPERADMIN') {
     navItems.splice(navItems.length - 1, 0, { path: '/management', label: t('nav.management'), icon: ShieldCheck });
+  }
+
+  if (currentUser?.role === 'SUPERADMIN') {
+    navItems.splice(navItems.length - 1, 0, { path: '/console', label: 'Console', icon: ShieldAlert });
   }
 
   return (

@@ -6,8 +6,8 @@ import { login, register } from '../services/apiService';
 const Login: React.FC = () => {
     const navigate = useNavigate();
     const [isLogin, setIsLogin] = useState(true);
-    const [email, setEmail] = useState('alex@kaizenhub.com');
-    const [password, setPassword] = useState('demo123');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
     const [name, setName] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
@@ -148,12 +148,6 @@ const Login: React.FC = () => {
                         </button>
                     </div>
 
-                    {/* Demo credentials hint */}
-                    <div className="mt-6 p-4 bg-white/5 rounded-xl border border-white/10">
-                        <p className="text-white/60 text-sm text-center">
-                            <span className="font-medium text-white/80">Demo:</span> alex@kaizenhub.com / demo123
-                        </p>
-                    </div>
                 </div>
             </div>
         </div>

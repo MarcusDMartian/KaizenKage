@@ -403,3 +403,85 @@ export async function markAllNotificationsRead(): Promise<void> {
     const response = await fetchWithAuth('/notifications/read-all', { method: 'PATCH' });
     if (!response.ok) throw new Error('Failed to mark all read');
 }
+// ============================================
+// ADMIN (SUPERADMIN) API
+// ============================================
+
+export async function adminGetUsers(): Promise<User[]> {
+    const response = await fetchWithAuth('/admin/users');
+    if (!response.ok) throw new Error('Failed to fetch users');
+    return response.json();
+}
+
+export async function adminUpdateUser(id: string, data: any): Promise<User> {
+    const response = await fetchWithAuth(`/admin/users/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify(data),
+    });
+    if (!response.ok) throw new Error('Failed to update user');
+    return response.json();
+}
+
+export async function adminGetMissions(): Promise<any[]> {
+    const response = await fetchWithAuth('/admin/missions');
+    if (!response.ok) throw new Error('Failed to fetch missions');
+    return response.json();
+}
+
+export async function adminCreateMission(data: any): Promise<any> {
+    const response = await fetchWithAuth('/admin/missions', {
+        method: 'POST',
+        body: JSON.stringify(data),
+    });
+    if (!response.ok) throw new Error('Failed to create mission');
+    return response.json();
+}
+
+export async function adminUpdateMission(id: string, data: any): Promise<any> {
+    const response = await fetchWithAuth(`/admin/missions/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify(data),
+    });
+    if (!response.ok) throw new Error('Failed to update mission');
+    return response.json();
+}
+
+export async function adminDeleteMission(id: string): Promise<void> {
+    const response = await fetchWithAuth(`/admin/missions/${id}`, { method: 'DELETE' });
+    if (!response.ok) throw new Error('Failed to delete mission');
+}
+
+export async function adminGetRewards(): Promise<any[]> {
+    const response = await fetchWithAuth('/admin/rewards');
+    if (!response.ok) throw new Error('Failed to fetch rewards');
+    return response.json();
+}
+
+export async function adminCreateReward(data: any): Promise<any> {
+    const response = await fetchWithAuth('/admin/rewards', {
+        method: 'POST',
+        body: JSON.stringify(data),
+    });
+    if (!response.ok) throw new Error('Failed to create reward');
+    return response.json();
+}
+
+export async function adminUpdateReward(id: string, data: any): Promise<any> {
+    const response = await fetchWithAuth(`/admin/rewards/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify(data),
+    });
+    if (!response.ok) throw new Error('Failed to update reward');
+    return response.json();
+}
+
+export async function adminDeleteReward(id: string): Promise<void> {
+    const response = await fetchWithAuth(`/admin/rewards/${id}`, { method: 'DELETE' });
+    if (!response.ok) throw new Error('Failed to delete reward');
+}
+
+export async function adminGetStats(): Promise<any> {
+    const response = await fetchWithAuth('/admin/stats');
+    if (!response.ok) throw new Error('Failed to fetch system stats');
+    return response.json();
+}

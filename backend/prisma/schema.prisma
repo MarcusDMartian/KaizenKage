@@ -60,6 +60,7 @@ enum Role {
   MEMBER
   LEADER
   ADMIN
+  SUPERADMIN
 }
 
 // ============================================

@@ -12,7 +12,8 @@ import {
     getSavedUser
 } from '../services/apiService';
 import { useTranslation } from 'react-i18next';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Plus, Users as UsersIcon } from 'lucide-react';
+import EmptyState from '../components/EmptyState';
 
 const Management: React.FC = () => {
     const { t } = useTranslation();
@@ -93,10 +94,10 @@ const Management: React.FC = () => {
                 </div>
                 <div className="relative z-10">
                     <h2 className="text-3xl font-bold mb-2 flex items-center gap-3">
-                        <ShieldCheck className="text-indigo-400" /> {t('management.title')}
+                        <ShieldCheck className="text-indigo-400" /> {t('management.leadConsole')}
                     </h2>
                     <p className="text-indigo-100 max-w-xl">
-                        {t('management.description')}
+                        {t('management.leadConsoleDesc')}
                     </p>
                 </div>
             </div>
@@ -129,7 +130,7 @@ const Management: React.FC = () => {
                             : 'text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-indigo-600'
                             }`}
                     >
-                        <Users size={18} /> {t('management.usersTab')}
+                        <UsersIcon size={18} /> {t('management.usersTab')}
                     </button>
                 )}
             </div>
@@ -146,7 +147,13 @@ const Management: React.FC = () => {
                         {activeTab === 'ideas' && (
                             <div className="divide-y divide-slate-100 dark:divide-slate-700">
                                 {ideas.length === 0 ? (
-                                    <EmptyState message={t('management.noPendingIdeas')} />
+                                    <div className="p-8">
+                                        <EmptyState
+                                            icon={Lightbulb}
+                                            title={t('management.noPendingIdeas')}
+                                            message="All tactical suggestions have been reviewed. Great job on staying on top of the queue!"
+                                        />
+                                    </div>
                                 ) : (
                                     ideas.map(idea => (
                                         <div key={idea.id} className="p-6 hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
@@ -197,7 +204,13 @@ const Management: React.FC = () => {
                         {activeTab === 'rewards' && (
                             <div className="divide-y divide-slate-100 dark:divide-slate-700">
                                 {redemptions.length === 0 ? (
-                                    <EmptyState message={t('management.noPendingRewards')} />
+                                    <div className="p-8">
+                                        <EmptyState
+                                            icon={Gift}
+                                            title={t('management.noPendingRewards')}
+                                            message="No rewards are currently awaiting fulfillment. The treasury is quiet."
+                                        />
+                                    </div>
                                 ) : (
                                     redemptions.map(req => (
                                         <div key={req.id} className="p-6 hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
@@ -242,45 +255,53 @@ const Management: React.FC = () => {
 
                         {activeTab === 'users' && (
                             <div className="p-6 overflow-x-auto">
-                                <table className="w-full text-left">
-                                    <thead>
-                                        <tr className="text-slate-400 text-xs uppercase tracking-wider border-b border-slate-100 dark:border-slate-700">
-                                            <th className="pb-3 pl-2">User</th>
-                                            <th className="pb-3">Team</th>
-                                            <th className="pb-3">Role</th>
-                                            <th className="pb-3 text-right">Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
-                                        {users.map(user => (
-                                            <tr key={user.id} className="group">
-                                                <td className="py-4 pl-2">
-                                                    <div className="flex items-center gap-3">
-                                                        <img src={user.avatarUrl} className="w-9 h-9 rounded-full" alt="" />
-                                                        <div>
-                                                            <p className="font-bold text-slate-800 dark:text-white text-sm">{user.name}</p>
-                                                            <p className="text-xs text-slate-500">{user.email}</p>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td className="py-4">
-                                                    <span className="text-sm text-slate-600 dark:text-slate-300">{user.team}</span>
-                                                </td>
-                                                <td className="py-4">
-                                                    <span className={`text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded-lg ${user.role === 'ADMIN' ? 'bg-red-100 text-red-700' :
-                                                        user.role === 'LEADER' ? 'bg-amber-100 text-amber-700' :
-                                                            'bg-slate-100 text-slate-600'
-                                                        }`}>
-                                                        {user.role}
-                                                    </span>
-                                                </td>
-                                                <td className="py-4 text-right">
-                                                    <button className="text-indigo-600 hover:text-indigo-800 text-sm font-bold">Edit</button>
-                                                </td>
+                                {users.length === 0 ? (
+                                    <EmptyState
+                                        icon={UsersIcon}
+                                        title="No Squad Members Found"
+                                        message="There are no users matching your current criteria or the system is completely empty."
+                                    />
+                                ) : (
+                                    <table className="w-full text-left">
+                                        <thead>
+                                            <tr className="text-slate-400 text-xs uppercase tracking-wider border-b border-slate-100 dark:border-slate-700">
+                                                <th className="pb-3 pl-2">User</th>
+                                                <th className="pb-3">Team</th>
+                                                <th className="pb-3">Role</th>
+                                                <th className="pb-3 text-right">Actions</th>
                                             </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
+                                        </thead>
+                                        <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
+                                            {users.map(user => (
+                                                <tr key={user.id} className="group">
+                                                    <td className="py-4 pl-2">
+                                                        <div className="flex items-center gap-3">
+                                                            <img src={user.avatarUrl} className="w-9 h-9 rounded-full" alt="" />
+                                                            <div>
+                                                                <p className="font-bold text-slate-800 dark:text-white text-sm">{user.name}</p>
+                                                                <p className="text-xs text-slate-500">{user.email}</p>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td className="py-4">
+                                                        <span className="text-sm text-slate-600 dark:text-slate-300">{user.team}</span>
+                                                    </td>
+                                                    <td className="py-4">
+                                                        <span className={`text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded-lg ${user.role === 'ADMIN' ? 'bg-red-100 text-red-700' :
+                                                            user.role === 'LEADER' ? 'bg-amber-100 text-amber-700' :
+                                                                'bg-slate-100 text-slate-600'
+                                                            }`}>
+                                                            {user.role}
+                                                        </span>
+                                                    </td>
+                                                    <td className="py-4 text-right">
+                                                        <button className="text-indigo-600 hover:text-indigo-800 text-sm font-bold">Edit</button>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                )}
                             </div>
                         )}
                     </div>
@@ -290,13 +311,5 @@ const Management: React.FC = () => {
     );
 };
 
-const EmptyState: React.FC<{ message: string }> = ({ message }) => (
-    <div className="flex flex-col items-center justify-center p-20 text-center">
-        <div className="w-16 h-16 bg-slate-50 dark:bg-slate-700/50 rounded-full flex items-center justify-center mb-4">
-            <CheckCircle size={32} className="text-slate-300" />
-        </div>
-        <p className="text-slate-500 dark:text-slate-400 font-medium">{message}</p>
-    </div>
-);
-
 export default Management;
+

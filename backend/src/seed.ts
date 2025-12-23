@@ -6,7 +6,22 @@ import { PointSource } from '@prisma/client';
 async function seed() {
     console.log('🌱 Seeding database...');
 
+    // Clear existing data that should be fresh
+    console.log('🧹 Clearing transient data...');
+    await prisma.pointTransaction.deleteMany({});
+    await prisma.kaizenVote.deleteMany({});
+    await prisma.kaizenComment.deleteMany({});
+    await prisma.kaizenIdea.deleteMany({});
+    await prisma.kudosLike.deleteMany({});
+    await prisma.kudos.deleteMany({});
+    await prisma.userBadge.deleteMany({});
+    await prisma.userMission.deleteMany({});
+    await prisma.redemptionRequest.deleteMany({});
+    await prisma.notification.deleteMany({});
+    await prisma.user.deleteMany({});
+
     // Create teams
+    console.log('👥 Creating teams...');
     const engineering = await prisma.team.upsert({
         where: { id: 'team-engineering' },
         update: {},
@@ -34,83 +49,26 @@ async function seed() {
         },
     });
 
-    // Create demo user
-    const passwordHash = await bcrypt.hash('demo123', 10);
+    // Create default Superadmin
+    console.log('🔐 Creating Superadmin...');
+    const passwordHash = await bcrypt.hash('admin123', 10);
 
-    const demoUser = await prisma.user.upsert({
-        where: { email: 'alex@kaizenhub.com' },
+    const admin = await prisma.user.upsert({
+        where: { email: 'admin@kaizenhub.com' },
         update: {},
         create: {
-            email: 'alex@kaizenhub.com',
+            email: 'admin@kaizenhub.com',
             passwordHash,
-            name: 'Alex Chen',
-            avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Alex',
-            role: 'MEMBER',
+            name: 'System Admin',
+            avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Admin',
+            role: 'SUPERADMIN',
             teamId: engineering.id,
-            position: 'Senior Software Engineer',
+            position: 'Platform Administrator',
         },
     });
-
-    // Create more users
-    const sarah = await prisma.user.upsert({
-        where: { email: 'sarah@kaizenhub.com' },
-        update: {},
-        create: {
-            email: 'sarah@kaizenhub.com',
-            passwordHash,
-            name: 'Sarah Wilson',
-            avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah',
-            role: 'LEADER',
-            teamId: product.id,
-            position: 'Product Manager',
-        },
-    });
-
-    const mike = await prisma.user.upsert({
-        where: { email: 'mike@kaizenhub.com' },
-        update: {},
-        create: {
-            email: 'mike@kaizenhub.com',
-            passwordHash,
-            name: 'Mike Johnson',
-            avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Mike',
-            role: 'MEMBER',
-            teamId: engineering.id,
-            position: 'DevOps Engineer',
-        },
-    });
-
-    const lisa = await prisma.user.upsert({
-        where: { email: 'lisa@kaizenhub.com' },
-        update: {},
-        create: {
-            email: 'lisa@kaizenhub.com',
-            passwordHash,
-            name: 'Lisa Park',
-            avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Lisa',
-            role: 'MEMBER',
-            teamId: operations.id,
-            position: 'Operations Manager',
-        },
-    });
-
-    // Seed some points for demo user (clear and recreate)
-    await prisma.pointTransaction.deleteMany({});
-    const transactions = [
-        { userId: demoUser.id, amount: 500, type: 'EARN' as const, source: 'IDEA_CREATED' as const },
-        { userId: demoUser.id, amount: 300, type: 'EARN' as const, source: 'KUDOS_RECEIVED' as const },
-        { userId: demoUser.id, amount: 200, type: 'EARN' as const, source: 'MISSION_COMPLETED' as const },
-        { userId: demoUser.id, amount: 150, type: 'EARN' as const, source: 'IDEA_APPROVED' as const },
-        { userId: demoUser.id, amount: 100, type: 'EARN' as const, source: 'STREAK_BONUS' as const },
-        { userId: sarah.id, amount: 450, type: 'EARN' as const, source: 'IDEA_CREATED' as const },
-        { userId: mike.id, amount: 380, type: 'EARN' as const, source: 'KUDOS_RECEIVED' as const },
-        { userId: lisa.id, amount: 520, type: 'EARN' as const, source: 'MISSION_COMPLETED' as const },
-    ];
-    for (const tx of transactions) {
-        await prisma.pointTransaction.create({ data: tx });
-    }
 
     // Create badges
+    console.log('🏅 Creating badges...');
     const badges = [
         { id: 'badge-innovator', name: 'Innovator', code: 'innovator', description: 'Submitted first Kaizen idea', iconUrl: '💡' },
         { id: 'badge-helper', name: 'Helpful Hand', code: 'helper', description: 'Helped 10 colleagues', iconUrl: '🤝' },
@@ -128,20 +86,8 @@ async function seed() {
         });
     }
 
-    // Award some badges to demo user
-    await prisma.userBadge.upsert({
-        where: { userId_badgeId: { userId: demoUser.id, badgeId: 'badge-innovator' } },
-        update: {},
-        create: { userId: demoUser.id, badgeId: 'badge-innovator', reason: 'First idea submitted' },
-    });
-
-    await prisma.userBadge.upsert({
-        where: { userId_badgeId: { userId: demoUser.id, badgeId: 'badge-streak' } },
-        update: {},
-        create: { userId: demoUser.id, badgeId: 'badge-streak', reason: '7-day streak achieved' },
-    });
-
     // Create missions
+    console.log('🚀 Creating missions...');
     const missions = [
         { id: 'mission-daily-idea', name: 'Submit an Idea', description: 'Share one improvement idea today', triggerType: 'DAILY' as const, rewardPoints: 25, rulesJson: '{"event":"idea_created","min_count":1}' },
         { id: 'mission-daily-kudos', name: 'Send Kudos', description: 'Recognize a colleague', triggerType: 'DAILY' as const, rewardPoints: 15, rulesJson: '{"event":"kudos_sent","min_count":1}' },
@@ -158,6 +104,7 @@ async function seed() {
     }
 
     // Create rewards
+    console.log('🎁 Creating rewards...');
     const rewards = [
         { id: 'reward-coffee', name: 'Coffee Voucher', description: '¥500 coffee shop voucher', imageUrl: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=300', pointsCost: 100, stock: 50, type: 'VOUCHER' as const },
         { id: 'reward-lunch', name: 'Team Lunch', description: 'Free lunch with your team', imageUrl: 'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=300', pointsCost: 300, stock: 20, type: 'VOUCHER' as const },
@@ -174,95 +121,10 @@ async function seed() {
         });
     }
 
-    // Create sample ideas
-    const ideas = [
-        {
-            id: 'idea-1',
-            creatorId: demoUser.id,
-            title: 'Automate Weekly Report Generation',
-            problemText: 'We spend 2+ hours every Friday compiling weekly reports manually',
-            proposalText: 'Implement automated report generation using our existing dashboard data',
-            impactType: 'SPEED' as const,
-            status: 'APPROVED' as const,
-        },
-        {
-            id: 'idea-2',
-            creatorId: sarah.id,
-            title: 'Add Recycling Bins to Office',
-            problemText: 'No recycling options in the office leads to unnecessary waste',
-            proposalText: 'Install color-coded recycling bins near each workstation',
-            impactType: 'OTHER' as const,
-            status: 'NEW' as const,
-        },
-        {
-            id: 'idea-3',
-            creatorId: mike.id,
-            title: 'Optimize Image Assets',
-            problemText: 'Large image files slowing down page load times',
-            proposalText: 'Implement WebP format and lazy loading for all images',
-            impactType: 'SPEED' as const,
-            status: 'IN_REVIEW' as const,
-        },
-    ];
-
-    for (const idea of ideas) {
-        await prisma.kaizenIdea.upsert({
-            where: { id: idea.id },
-            update: {},
-            create: idea,
-        });
-    }
-
-    // Add some votes
-    await prisma.kaizenVote.upsert({
-        where: { ideaId_voterId: { ideaId: 'idea-1', voterId: sarah.id } },
-        update: {},
-        create: { ideaId: 'idea-1', voterId: sarah.id },
-    });
-
-    await prisma.kaizenVote.upsert({
-        where: { ideaId_voterId: { ideaId: 'idea-1', voterId: mike.id } },
-        update: {},
-        create: { ideaId: 'idea-1', voterId: mike.id },
-    });
-
-    // Create sample kudos
-    const kudosData = [
-        {
-            id: 'kudos-1',
-            senderId: sarah.id,
-            receiverId: demoUser.id,
-            coreValue: 'EXCELLENCE' as const,
-            message: 'Amazing work on the new feature! The attention to detail was impressive.',
-        },
-        {
-            id: 'kudos-2',
-            senderId: demoUser.id,
-            receiverId: mike.id,
-            coreValue: 'COLLABORATION' as const,
-            message: 'Thanks for helping debug that production issue at midnight! True team player.',
-        },
-        {
-            id: 'kudos-3',
-            senderId: lisa.id,
-            receiverId: sarah.id,
-            coreValue: 'OWNERSHIP' as const,
-            message: 'Great leadership during the product launch. You kept everyone motivated!',
-        },
-    ];
-
-    for (const kudos of kudosData) {
-        await prisma.kudos.upsert({
-            where: { id: kudos.id },
-            update: {},
-            create: kudos,
-        });
-    }
-
     console.log('✅ Seed completed!');
-    console.log('\n📧 Demo Login:');
-    console.log('   Email: alex@kaizenhub.com');
-    console.log('   Password: demo123');
+    console.log('\n📧 Admin Login:');
+    console.log('   Email: admin@kaizenhub.com');
+    console.log('   Password: admin123');
 }
 
 seed()

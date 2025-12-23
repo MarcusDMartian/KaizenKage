@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
-import { Target, TrendingUp, Award, Flame, CheckCircle2, Lightbulb, ChevronRight, Zap, Check, Loader2 } from 'lucide-react';
+import { Target, TrendingUp, Award, Flame, CheckCircle2, Lightbulb, ChevronRight, Zap, Check, Loader2, Plus } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
    getCurrentUser as apiGetCurrentUser,
@@ -12,6 +12,7 @@ import {
    Idea
 } from '../services/apiService';
 import { useTranslation } from 'react-i18next';
+import EmptyState from '../components/EmptyState';
 
 const Dashboard: React.FC = () => {
    const navigate = useNavigate();
@@ -64,7 +65,9 @@ const Dashboard: React.FC = () => {
       );
    }
 
-   const progressToNextLevel = ((currentUser.points || 0) / (currentUser.nextLevelPoints || 1000)) * 100;
+   const nextLevelPts = currentUser.nextLevelPoints || 1000;
+   const currentPts = currentUser.points || 0;
+   const progressToNextLevel = (currentPts / nextLevelPts) * 100;
 
    const data = [
       { name: 'Completed', value: currentUser.points || 0 },
@@ -81,7 +84,9 @@ const Dashboard: React.FC = () => {
          {/* Welcome Section */}
          <div className="flex flex-col gap-2">
             <div className="flex items-center justify-between">
-               <h2 className="text-2xl font-bold text-slate-800 dark:text-white tracking-tight">{t('dashboard.welcome')}, {currentUser.name.split(' ')[0]}!</h2>
+               <h2 className="text-2xl font-bold text-slate-800 dark:text-white tracking-tight">
+                  {t('dashboard.welcome')}, {(currentUser.name || 'User').split(' ')[0]}!
+               </h2>
                <div className="flex items-center gap-2 bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-900/30 dark:to-red-900/30 text-orange-600 dark:text-orange-400 px-3 py-1.5 rounded-full border border-orange-100 dark:border-orange-800/50 shadow-sm">
                   <Flame size={16} className="fill-orange-500 text-orange-500" />
                   <span className="font-bold text-sm">{currentUser.streak || 0} {t('dashboard.streak')}</span>
@@ -173,57 +178,65 @@ const Dashboard: React.FC = () => {
             </div>
 
             <div className="space-y-3">
-               {missions.slice(0, 4).map((mission) => (
-                  <div
-                     key={mission.id}
-                     className={`p-4 rounded-xl border transition-all ${mission.completed
-                        ? 'bg-emerald-50/50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800/50'
-                        : 'bg-slate-50/50 dark:bg-slate-700/50 border-slate-100 dark:border-slate-700'
-                        }`}
-                  >
-                     <div className="flex items-start justify-between mb-2">
-                        <div className="flex items-center gap-3">
-                           <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${mission.completed
-                              ? 'bg-emerald-500 text-white'
-                              : 'bg-slate-100 dark:bg-slate-600 text-slate-400 dark:text-slate-300'
-                              }`}>
-                              {mission.completed ? <Check size={16} /> : <Target size={16} />}
+               {missions.filter(m => !m.claimed).length === 0 ? (
+                  <EmptyState
+                     icon={Target}
+                     title="No Missions Active"
+                     message="You've cleared all current operations! Check back later for new assignments."
+                  />
+               ) : (
+                  missions.filter(m => !m.claimed).slice(0, 4).map((mission) => (
+                     <div
+                        key={mission.id}
+                        className={`p-4 rounded-xl border transition-all ${mission.completed
+                           ? 'bg-emerald-50/50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800/50'
+                           : 'bg-slate-50/50 dark:bg-slate-700/50 border-slate-100 dark:border-slate-700'
+                           }`}
+                     >
+                        <div className="flex items-start justify-between mb-2">
+                           <div className="flex items-center gap-3">
+                              <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${mission.completed
+                                 ? 'bg-emerald-500 text-white'
+                                 : 'bg-slate-100 dark:bg-slate-600 text-slate-400 dark:text-slate-300'
+                                 }`}>
+                                 {mission.completed ? <Check size={16} /> : <Target size={16} />}
+                              </div>
+                              <div>
+                                 <p className={`font-medium ${mission.completed ? 'text-emerald-700 dark:text-emerald-300' : 'text-slate-700 dark:text-slate-200'}`}>
+                                    {mission.name}
+                                 </p>
+                                 <p className="text-xs text-slate-500 dark:text-slate-400">{mission.description}</p>
+                              </div>
                            </div>
-                           <div>
-                              <p className={`font-medium ${mission.completed ? 'text-emerald-700 dark:text-emerald-300' : 'text-slate-700 dark:text-slate-200'}`}>
-                                 {mission.name}
-                              </p>
-                              <p className="text-xs text-slate-500 dark:text-slate-400">{mission.description}</p>
+                           <div className="flex items-center gap-2">
+                              <span className="text-sm font-bold text-indigo-600 dark:text-indigo-400">+{mission.reward}</span>
+                              {mission.completed && !mission.claimed && (
+                                 <button
+                                    onClick={() => handleClaimReward(mission.id)}
+                                    disabled={claimingId === mission.id}
+                                    className="px-3 py-1 bg-emerald-500 text-white text-xs font-bold rounded-full hover:bg-emerald-600 transition-colors disabled:opacity-50"
+                                 >
+                                    {claimingId === mission.id ? <Loader2 size={12} className="animate-spin" /> : 'Claim'}
+                                 </button>
+                              )}
+                              {mission.claimed && (
+                                 <span className="text-xs text-slate-400 dark:text-slate-500">Claimed</span>
+                              )}
                            </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                           <span className="text-sm font-bold text-indigo-600 dark:text-indigo-400">+{mission.reward}</span>
-                           {mission.completed && !mission.claimed && (
-                              <button
-                                 onClick={() => handleClaimReward(mission.id)}
-                                 disabled={claimingId === mission.id}
-                                 className="px-3 py-1 bg-emerald-500 text-white text-xs font-bold rounded-full hover:bg-emerald-600 transition-colors disabled:opacity-50"
-                              >
-                                 {claimingId === mission.id ? <Loader2 size={12} className="animate-spin" /> : 'Claim'}
-                              </button>
-                           )}
-                           {mission.claimed && (
-                              <span className="text-xs text-slate-400 dark:text-slate-500">Claimed</span>
-                           )}
+                        <div className="bg-slate-100 dark:bg-slate-700 h-1.5 rounded-full overflow-hidden">
+                           <div
+                              className={`h-full rounded-full transition-all ${mission.completed
+                                 ? 'bg-emerald-500'
+                                 : 'bg-indigo-500'
+                                 }`}
+                              style={{ width: `${Math.min(100, (mission.progress / mission.target) * 100)}%` }}
+                           />
                         </div>
+                        <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">{mission.progress}/{mission.target}</p>
                      </div>
-                     <div className="bg-slate-100 dark:bg-slate-700 h-1.5 rounded-full overflow-hidden">
-                        <div
-                           className={`h-full rounded-full transition-all ${mission.completed
-                              ? 'bg-emerald-500'
-                              : 'bg-indigo-500'
-                              }`}
-                           style={{ width: `${Math.min(100, (mission.progress / mission.target) * 100)}%` }}
-                        />
-                     </div>
-                     <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">{mission.progress}/{mission.target}</p>
-                  </div>
-               ))}
+                  ))
+               )}
             </div>
          </div>
 
@@ -240,29 +253,42 @@ const Dashboard: React.FC = () => {
             </div>
 
             <div className="space-y-3">
-               {ideas.slice(0, 3).map((idea) => (
-                  <div
-                     key={idea.id}
-                     onClick={() => navigate(`/ideas/${idea.id}`)}
-                     className="p-4 bg-slate-50/50 dark:bg-slate-700/50 rounded-xl border border-slate-100 dark:border-slate-600 hover:border-indigo-200 dark:hover:border-indigo-700 transition-all cursor-pointer"
-                  >
-                     <div className="flex items-start gap-3">
-                        <img
-                           src={idea.author.avatar}
-                           alt={idea.author.name}
-                           className="w-10 h-10 rounded-full object-cover"
-                        />
-                        <div className="flex-1 min-w-0">
-                           <p className="font-medium text-slate-800 dark:text-white truncate">{idea.title}</p>
-                           <p className="text-xs text-slate-500 dark:text-slate-400">{idea.author.name} · {idea.createdAt}</p>
-                        </div>
-                        <div className="flex items-center gap-1 text-indigo-600 dark:text-indigo-400">
-                           <span className="text-sm font-bold">{idea.votes}</span>
-                           <TrendingUp size={14} />
+               {ideas.length === 0 ? (
+                  <EmptyState
+                     icon={Lightbulb}
+                     title="Intel Feed Empty"
+                     message="No ideas have been submitted yet. Be the first to suggest a tactical improvement!"
+                     action={{
+                        label: "Submit First Idea",
+                        onClick: () => navigate('/ideas', { state: { mode: 'create' } }),
+                        icon: Plus
+                     }}
+                  />
+               ) : (
+                  ideas.slice(0, 3).map((idea) => (
+                     <div
+                        key={idea.id}
+                        onClick={() => navigate(`/ideas/${idea.id}`)}
+                        className="p-4 bg-slate-50/50 dark:bg-slate-700/50 rounded-xl border border-slate-100 dark:border-slate-600 hover:border-indigo-200 dark:hover:border-indigo-700 transition-all cursor-pointer"
+                     >
+                        <div className="flex items-start gap-3">
+                           <img
+                              src={idea.author.avatar}
+                              alt={idea.author.name}
+                              className="w-10 h-10 rounded-full object-cover"
+                           />
+                           <div className="flex-1 min-w-0">
+                              <p className="font-medium text-slate-800 dark:text-white truncate">{idea.title}</p>
+                              <p className="text-xs text-slate-500 dark:text-slate-400">{idea.author.name} · {idea.createdAt}</p>
+                           </div>
+                           <div className="flex items-center gap-1 text-indigo-600 dark:text-indigo-400">
+                              <span className="text-sm font-bold">{idea.votes}</span>
+                              <TrendingUp size={14} />
+                           </div>
                         </div>
                      </div>
-                  </div>
-               ))}
+                  ))
+               )}
             </div>
          </div>
       </div>

@@ -220,7 +220,7 @@ const Rewards: React.FC = () => {
                         </div>
                      ) : (
                         <div className="p-8 text-center text-slate-500">
-                           No transactions found.
+                           No transactions yet. Complete missions to earn points!
                         </div>
                      )}
                   </div>

@@ -17,6 +17,7 @@ import Settings from './pages/Settings';
 import Onboarding from './pages/Onboarding';
 import Login from './pages/Login';
 import Management from './pages/Management';
+import SuperadminConsole from './pages/SuperadminConsole';
 
 // Wrapper component to handle routing logic
 const AppRoutes: React.FC = () => {
@@ -68,6 +69,7 @@ const AppRoutes: React.FC = () => {
         <Route path="/settings" element={<Settings />} />
         <Route path="/feedback" element={<Feedback />} />
         <Route path="/management" element={<Management />} />
+        <Route path="/console" element={<SuperadminConsole />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Layout>

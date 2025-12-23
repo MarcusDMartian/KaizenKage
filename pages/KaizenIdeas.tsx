@@ -11,6 +11,8 @@ import {
 } from '../services/apiService';
 import { useTranslation } from 'react-i18next';
 import { User, Idea as BackendIdea } from '../services/apiService';
+import EmptyState from '../components/EmptyState';
+import { Lightbulb } from 'lucide-react';
 
 const KaizenIdeas: React.FC = () => {
   const location = useLocation();
@@ -245,9 +247,16 @@ const KaizenIdeas: React.FC = () => {
               );
             })
           ) : (
-            <div className="text-center py-12 text-slate-500">
-              No ideas found for this filter.
-            </div>
+            <EmptyState
+              icon={Lightbulb}
+              title="Intel Feed Silent"
+              message={ideas.length === 0 ? "No ideas yet. Be the first to suggest an improvement!" : "No ideas found for this filter."}
+              action={ideas.length === 0 ? {
+                label: "Submit First Idea",
+                onClick: () => setActiveTab('create'),
+                icon: Plus
+              } : undefined}
+            />
           )}
         </div>
       ) : (

@@ -11,6 +11,7 @@ import {
 } from '../services/apiService';
 import { useTranslation } from 'react-i18next';
 import UserSelectModal from '../components/UserSelectModal';
+import EmptyState from '../components/EmptyState';
 
 const Kudos: React.FC = () => {
    const [activeTab, setActiveTab] = useState<'feed' | 'send'>('feed');
@@ -309,9 +310,16 @@ const Kudos: React.FC = () => {
                         );
                      })
                   ) : (
-                     <div className="text-center py-12 text-slate-400">
-                        No kudos found. Be the first to spread some love!
-                     </div>
+                     <EmptyState
+                        icon={Heart}
+                        title="Wow Wall Silent"
+                        message="No kudos have been broadcat yet. Be the first to recognize a colleague's excellence!"
+                        action={{
+                           label: "Send First Kudos",
+                           onClick: () => setActiveTab('send'),
+                           icon: Send
+                        }}
+                     />
                   )}
                </div>
             </div>

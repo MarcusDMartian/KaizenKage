@@ -16,16 +16,11 @@ const STORAGE_KEYS = {
 };
 
 // Initialize storage with mock data if not exists
+// Initialize storage - in production mode we don't want to seed mock data
 export const initializeStorage = (): void => {
   const initialized = localStorage.getItem(STORAGE_KEYS.INITIALIZED);
   if (!initialized) {
-    localStorage.setItem(STORAGE_KEYS.IDEAS, JSON.stringify(MOCK_IDEAS));
-    localStorage.setItem(STORAGE_KEYS.KUDOS, JSON.stringify(MOCK_KUDOS));
-    localStorage.setItem(STORAGE_KEYS.REWARDS, JSON.stringify(MOCK_REWARDS));
-    localStorage.setItem(STORAGE_KEYS.TRANSACTIONS, JSON.stringify(MOCK_TRANSACTIONS));
-    localStorage.setItem(STORAGE_KEYS.MISSIONS, JSON.stringify(MOCK_MISSIONS));
-    localStorage.setItem(STORAGE_KEYS.CURRENT_USER, JSON.stringify(CURRENT_USER));
-    localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(MOCK_USERS));
+    // Only set essential defaults for new users
     localStorage.setItem(STORAGE_KEYS.REDEMPTIONS, JSON.stringify([]));
     localStorage.setItem(STORAGE_KEYS.INITIALIZED, 'true');
   }
@@ -71,7 +66,7 @@ export const voteIdea = (ideaId: string, userId: string): boolean => {
   const ideas = getIdeas();
   const idea = ideas.find(i => i.id === ideaId);
   if (!idea) return false;
-  
+
   const votedBy = idea.votedBy || [];
   if (votedBy.includes(userId)) {
     // Already voted, remove vote
@@ -100,7 +95,7 @@ export const toggleFollowIdea = (ideaId: string, userId: string): boolean => {
   const ideas = getIdeas();
   const idea = ideas.find(i => i.id === ideaId);
   if (!idea) return false;
-  
+
   const followedBy = idea.followedBy || [];
   if (followedBy.includes(userId)) {
     idea.followedBy = followedBy.filter(id => id !== userId);
@@ -131,7 +126,7 @@ export const likeKudos = (kudosId: string, userId: string): boolean => {
   const allKudos = getKudos();
   const kudos = allKudos.find(k => k.id === kudosId);
   if (!kudos) return false;
-  
+
   const likedBy = kudos.likedBy || [];
   if (likedBy.includes(userId)) {
     kudos.likedBy = likedBy.filter(id => id !== userId);

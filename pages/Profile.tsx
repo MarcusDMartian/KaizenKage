@@ -24,7 +24,8 @@ import {
    Mission
 } from '../services/apiService';
 import { useTranslation } from 'react-i18next';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Plus } from 'lucide-react';
+import EmptyState from '../components/EmptyState';
 
 const Profile: React.FC = () => {
    const { t } = useTranslation();
@@ -199,22 +200,30 @@ const Profile: React.FC = () => {
                <Link to="/" className="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700">View Dashboard</Link>
             </div>
             <div className="space-y-3">
-               {missions.slice(0, 3).map(mission => (
-                  <div key={mission.id} className="flex items-center gap-3 p-3 bg-white/50 dark:bg-slate-700/50 rounded-xl border border-white/80 dark:border-slate-600 shadow-sm">
-                     <div className={`p-2 rounded-full ${mission.completed ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400' : 'bg-slate-100 dark:bg-slate-600 text-slate-400'}`}>
-                        {mission.completed ? <CheckCircle2 size={16} /> : <div className="w-4 h-4 rounded-full border-2 border-current" />}
-                     </div>
-                     <div className="flex-1">
-                        <p className={`text-sm font-medium ${mission.completed ? 'text-slate-500 dark:text-slate-400 line-through' : 'text-slate-800 dark:text-white'}`}>
-                           {mission.title}
-                        </p>
-                        <div className="w-full bg-slate-200 dark:bg-slate-600 h-1 rounded-full mt-2 overflow-hidden">
-                           <div className="bg-indigo-500 h-full transition-all duration-300" style={{ width: `${(mission.progress / mission.total) * 100}%` }}></div>
+               {missions.filter(m => !m.claimed).length === 0 ? (
+                  <EmptyState
+                     icon={Target}
+                     title="Ready for Reassignment"
+                     message="No active missions right now. Check the main board for new objectives."
+                  />
+               ) : (
+                  missions.filter(m => !m.claimed).slice(0, 3).map(mission => (
+                     <div key={mission.id} className="flex items-center gap-3 p-3 bg-white/50 dark:bg-slate-700/50 rounded-xl border border-white/80 dark:border-slate-600 shadow-sm">
+                        <div className={`p-2 rounded-full ${mission.completed ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400' : 'bg-slate-100 dark:bg-slate-600 text-slate-400'}`}>
+                           {mission.completed ? <CheckCircle2 size={16} /> : <div className="w-4 h-4 rounded-full border-2 border-current" />}
                         </div>
+                        <div className="flex-1">
+                           <p className={`text-sm font-medium ${mission.completed ? 'text-slate-500 dark:text-slate-400 line-through' : 'text-slate-800 dark:text-white'}`}>
+                              {mission.title}
+                           </p>
+                           <div className="w-full bg-slate-200 dark:bg-slate-600 h-1 rounded-full mt-2 overflow-hidden">
+                              <div className="bg-indigo-500 h-full transition-all duration-300" style={{ width: `${(mission.progress / mission.total) * 100}%` }}></div>
+                           </div>
+                        </div>
+                        <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400">+{mission.reward}pts</span>
                      </div>
-                     <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400">+{mission.reward}pts</span>
-                  </div>
-               ))}
+                  ))
+               )}
             </div>
          </div>
 
@@ -240,13 +249,20 @@ const Profile: React.FC = () => {
                      </div>
                   ))}
                   <Link to="/badges" className="flex flex-col items-center justify-center gap-2 p-3 bg-slate-50 dark:bg-slate-700/30 rounded-xl border border-dashed border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-colors">
-                     <span className="text-xs font-bold text-slate-400">View All</span>
+                     <span className="text-xs font-bold text-slate-400 text-center">View<br />All</span>
                   </Link>
                </div>
             ) : (
-               <div className="text-center py-8 text-slate-500 dark:text-slate-400 text-sm">
-                  No badges earned yet. Keep contributing!
-               </div>
+               <EmptyState
+                  icon={Award}
+                  title="Honors Pending"
+                  message="No badges secured yet. Accomplish missions to fill your trophy cabinet!"
+                  action={{
+                     label: "Browse Honors",
+                     onClick: () => navigate('/badges'),
+                     icon: Award
+                  }}
+               />
             )}
          </div>
 
