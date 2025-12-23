@@ -69,7 +69,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   }
 
   return (
-    <div className={`min-h-screen relative overflow-hidden transition-colors duration-300`}>
+    <div className={`min-h-screen relative overflow-hidden transition-colors duration-300 bg-slate-50 dark:bg-slate-900`}>
 
       {/* --- LIQUID BACKGROUND --- */}
       <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
