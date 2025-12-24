@@ -42,6 +42,18 @@ Admin/HR:
 - Quản lý user, team/đơn vị.
 - Xem báo cáo toàn công ty, xuất dữ liệu.
 
+Superadmin (Org Owner):
+- Quản lý toàn bộ tổ chức của mình.
+- Duyệt/từ chối yêu cầu tham gia tổ chức (Join Requests).
+- Quản lý users, missions, rewards, badges trong tổ chức.
+- Truy cập Management Dashboard.
+
+System Admin (Platform-level):
+- Quản lý toàn bộ platform (không gắn với org cụ thể).
+- Truy cập Console (/console) để quản lý nhiều organizations.
+- Xem thống kê toàn hệ thống.
+
+
 2.3. Use case lõi
 Peer-to-peer recognition (Kudos):
 - Nhân viên tặng "Kudos" cho nhau, gắn với giá trị cốt lõi (Kaizen, Collaboration, Ownership…).
@@ -865,6 +877,14 @@ PHẦN E: ROADMAP & TODO
 ✅ In-app Notification system với real-time updates.
 ✅ PWA capabilities (Service worker registration).
 ✅ Kết nối Frontend với Backend API (Auth, Ideas, Kudos, Rewards, v.v.).
+
+✅ SYSTEM_ADMIN Role - Platform-level admin không thuộc organization cụ thể.
+✅ isActive field trong auth response - Trả về trạng thái active của user khi login/register.
+✅ Console access riêng cho SYSTEM_ADMIN (thay vì SUPERADMIN).
+✅ Diagnostic logging cho login flow (debug mode).
+✅ GitHub Pages deployment với relative paths.
+✅ Railway backend deployment với health check endpoint.
+
 
 10. Tính năng cần bổ sung (Lộ trình tiếp theo)
 ❌ Push/email notifications (External services).
