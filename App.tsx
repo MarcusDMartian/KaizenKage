@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { HashRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { initializeStorage, isOnboardingCompleted } from './services/storageService';
 import { isLoggedIn } from './services/apiService';
+import { useIdleTimer } from './hooks/useIdleTimer';
 import Layout from './components/Layout';
 import Dashboard from './pages/Dashboard';
 import KaizenIdeas from './pages/KaizenIdeas';
@@ -17,12 +18,21 @@ import Onboarding from './pages/Onboarding';
 import Login from './pages/Login';
 import Management from './pages/Management';
 import SuperadminConsole from './pages/SuperadminConsole';
+import WaitingApproval from './pages/WaitingApproval';
+import { getSavedUser } from './services/apiService';
 
 // Wrapper component to handle routing logic
 const AppRoutes: React.FC = () => {
   const location = useLocation();
-  // Read onboarding status directly to avoid race conditions with navigation
+  const authenticated = isLoggedIn();
+
+  // Start inactivity timer for session management (15 mins)
+  useIdleTimer(authenticated);
+
+  // Read onboarding status and active status
+  const user = getSavedUser();
   const onboardingComplete = isOnboardingCompleted();
+  const isActive = user?.isActive !== false; // Active by default (for old users) or if explicitly true
 
   // Public routes (no auth required)
   if (location.pathname === '/login') {
@@ -41,6 +51,11 @@ const AppRoutes: React.FC = () => {
   // Check authentication for protected routes
   if (!isLoggedIn()) {
     return <Navigate to="/login" replace />;
+  }
+
+  // Handle inactive users (pending approval)
+  if (!isActive) {
+    return <WaitingApproval />;
   }
 
   // If onboarding not complete, show it first

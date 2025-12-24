@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Bell, Check, Clock, Trash2 } from 'lucide-react';
+import { Bell, Check, Clock } from 'lucide-react';
 import { Popover, Transition } from '@headlessui/react';
 import { Fragment } from 'react';
-import { getNotifications as apiGetNotifications, markNotificationRead as apiMarkRead, markAllNotificationsRead as apiMarkAllRead, clearNotifications as apiClearNotifications, Notification } from '../services/apiService';
+import { getNotifications as apiGetNotifications, markNotificationRead as apiMarkRead, markAllNotificationsRead as apiMarkAllRead, Notification } from '../services/apiService';
 
 const NotificationPopover: React.FC = () => {
     const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -41,15 +41,6 @@ const NotificationPopover: React.FC = () => {
         }
     };
 
-    const handleClear = async () => {
-        try {
-            await apiClearNotifications();
-            setNotifications([]);
-        } catch (error) {
-            console.error('Failed to clear notifications:', error);
-        }
-    };
-
     const unreadCount = notifications.filter(n => !n.read).length;
 
     return (
@@ -82,15 +73,6 @@ const NotificationPopover: React.FC = () => {
                                     className="text-[10px] font-bold text-indigo-600 hover:bg-indigo-50 px-2 py-1 rounded"
                                 >
                                     Mark all read
-                                </button>
-                            )}
-                            {notifications.length > 0 && (
-                                <button
-                                    onClick={handleClear}
-                                    className="text-slate-400 hover:text-red-500 p-1"
-                                    title="Clear all"
-                                >
-                                    <Trash2 size={14} />
                                 </button>
                             )}
                         </div>

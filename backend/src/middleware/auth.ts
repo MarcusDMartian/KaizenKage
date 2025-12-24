@@ -10,7 +10,7 @@ export interface AuthRequest extends Request {
     user?: any; // To store full user info if needed
 }
 
-export function authMiddleware(req: AuthRequest, res: Response, next: NextFunction): void {
+export async function authMiddleware(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     const authHeader = req.headers.authorization;
 
     if (!authHeader) {
@@ -28,6 +28,19 @@ export function authMiddleware(req: AuthRequest, res: Response, next: NextFuncti
     try {
         const decoded = jwt.verify(token, JWT_SECRET) as { userId: string };
         req.userId = decoded.userId;
+
+        // Check if user is active
+        const user = await prisma.user.findUnique({
+            where: { id: req.userId },
+            select: { isActive: true }
+        });
+
+        if (!user || !user.isActive) {
+            // Special error for inactive users to handle in frontend
+            res.status(403).json({ error: 'ACCOUNT_INACTIVE', message: 'Tài khoản chưa được kích hoạt.' });
+            return;
+        }
+
         next();
     } catch (error) {
         res.status(401).json({ error: 'Invalid token' });

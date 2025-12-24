@@ -106,14 +106,14 @@ router.post('/check-domain', async (req, res) => {
         const domain = email.split('@')[1];
         if (!domain) return res.status(400).json({ error: 'Invalid email format' });
 
-        const org = await prisma.organization.findUnique({
+        const orgs = await prisma.organization.findMany({
             where: { domain },
             select: { id: true, name: true }
         });
 
         return res.json({
-            exists: !!org,
-            organization: org,
+            exists: orgs.length > 0,
+            organizations: orgs,
             domain
         });
     } catch (error) {
@@ -135,11 +135,8 @@ router.post('/register-org', async (req, res) => {
 
         // Transaction to ensure atomicity
         const result = await prisma.$transaction(async (prisma) => {
-            // Check if Org already exists
-            const existingOrg = await prisma.organization.findUnique({ where: { domain } });
-            if (existingOrg) {
-                throw new Error('Organization already exists for this domain');
-            }
+            // Allow multiple orgs per domain
+
 
             // Check if User already exists
             const existingUser = await prisma.user.findUnique({ where: { email } });
@@ -203,37 +200,46 @@ router.post('/join-request', async (req, res) => {
             return res.status(400).json({ error: 'All fields are required' });
         }
 
-        // Check if user already exists
-        const existingUser = await prisma.user.findUnique({ where: { email } });
-        if (existingUser) {
-            return res.status(400).json({ error: 'User already registered' });
-        }
-
-        // Check if request already pending
-        // We need to implement a check but schema doesn't have unique constraint on email for request yet, 
-        // but let's check manually
-        const existingRequest = await prisma.joinRequest.findFirst({
-            where: { email, status: 'PENDING' }
-        });
-
-        if (existingRequest) {
-            return res.status(400).json({ error: 'Join request already pending' });
-        }
-
-        const passwordHash = await bcrypt.hash(password, 10);
-
-        const request = await prisma.joinRequest.create({
-            data: {
-                email,
-                name,
-                passwordHash,
-                orgId
+        const result = await prisma.$transaction(async (prisma) => {
+            // Check if user already exists
+            const existingUser = await prisma.user.findUnique({ where: { email } });
+            if (existingUser) {
+                throw new Error('User already registered. Please login.');
             }
+
+            const passwordHash = await bcrypt.hash(password, 10);
+
+            // Create inactive User first
+            const user = await prisma.user.create({
+                data: {
+                    email,
+                    passwordHash,
+                    name,
+                    organizationId: orgId,
+                    role: 'MEMBER',
+                    isActive: false, // Must be approved
+                    avatarUrl: `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(name)}`,
+                }
+            });
+
+            // Create Join Request record for tracking/admin UI
+            const request = await prisma.joinRequest.create({
+                data: {
+                    email,
+                    name,
+                    passwordHash,
+                    orgId,
+                    status: 'PENDING'
+                }
+            });
+
+            return { user, request };
         });
 
         return res.status(201).json({
-            message: 'Join request submitted successfully. Please wait for administrator approval.',
-            requestId: request.id
+            message: 'Tài khoản đã được khởi tạo. Vui lòng chờ quản trị viên phê duyệt để bắt đầu sử dụng.',
+            userId: result.user.id,
+            requestId: result.request.id
         });
 
     } catch (error) {

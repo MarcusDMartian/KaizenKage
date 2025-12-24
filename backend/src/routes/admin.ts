@@ -382,16 +382,10 @@ router.post('/join-requests/:id/approve', async (req: AuthRequest, res: Response
                 throw new Error('Request not found or already processed');
             }
 
-            // Create User
-            const newUser = await prisma.user.create({
-                data: {
-                    email: request.email,
-                    name: request.name,
-                    passwordHash: request.passwordHash,
-                    organizationId: request.orgId,
-                    role: 'MEMBER', // Default role
-                    avatarUrl: `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(request.name)}`
-                }
+            // Activate existing User
+            const user = await prisma.user.update({
+                where: { email: request.email },
+                data: { isActive: true }
             });
 
             // Update Request
@@ -400,7 +394,7 @@ router.post('/join-requests/:id/approve', async (req: AuthRequest, res: Response
                 data: { status: 'APPROVED' }
             });
 
-            return newUser;
+            return user;
         });
 
         return res.json({ message: 'Request approved', user: result });

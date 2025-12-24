@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Zap, Mail, Lock, User, Loader2, ArrowRight, Building2, CheckCircle } from 'lucide-react';
+import { Zap, Mail, Lock, User, Loader2, ArrowRight, Building2, CheckCircle, Plus } from 'lucide-react';
 import { login, registerOrg, joinRequest, checkDomain } from '../services/apiService';
 
 const Login: React.FC = () => {
@@ -15,7 +15,9 @@ const Login: React.FC = () => {
 
     // Org Data
     const [orgName, setOrgName] = useState('');
-    const [foundOrg, setFoundOrg] = useState<any>(null);
+    const [foundOrgs, setFoundOrgs] = useState<any[]>([]);
+    const [selectedOrgId, setSelectedOrgId] = useState<string>('');
+    const [wantsNewOrg, setWantsNewOrg] = useState(false);
     const [joinRequestSent, setJoinRequestSent] = useState(false);
 
     const [loading, setLoading] = useState(false);
@@ -24,7 +26,9 @@ const Login: React.FC = () => {
     const resetState = () => {
         setStep(1);
         setOrgName('');
-        setFoundOrg(null);
+        setFoundOrgs([]);
+        setSelectedOrgId('');
+        setWantsNewOrg(false);
         setJoinRequestSent(false);
         setError('');
     };
@@ -62,15 +66,18 @@ const Login: React.FC = () => {
         try {
             const data = await checkDomain(email);
             if (data.exists) {
-                setFoundOrg(data.organization);
-            } else {
-                // Pre-fill org name from domain?
-                // data.domain is like 'google.com'
-                // maybe capitalize it
-                const domain = data.domain;
-                const companyName = domain.split('.')[0];
-                setOrgName(companyName.charAt(0).toUpperCase() + companyName.slice(1));
+                setFoundOrgs(data.organizations || []);
+                // If orgs exist, default to selecting the first one unless they choose to create
+                if (data.organizations?.length > 0) {
+                    setSelectedOrgId(data.organizations[0].id);
+                }
             }
+
+            // Pre-fill org name from domain
+            const domain = data.domain;
+            const companyName = domain.split('.')[0];
+            setOrgName(companyName.charAt(0).toUpperCase() + companyName.slice(1));
+
             setStep(2);
         } catch (err: any) {
             setError(err.message || 'Failed to check domain');
@@ -85,9 +92,10 @@ const Login: React.FC = () => {
         setLoading(true);
 
         try {
-            if (foundOrg) {
+            if (selectedOrgId && !wantsNewOrg) {
                 // Join Request
-                await joinRequest({ email, password, name, orgId: foundOrg.id });
+                await joinRequest({ email, password, name, orgId: selectedOrgId });
+                // With our change, the account IS created, but we show the pending message
                 setJoinRequestSent(true);
             } else {
                 // Create Org
@@ -96,7 +104,9 @@ const Login: React.FC = () => {
                     setLoading(false);
                     return;
                 }
-                await registerOrg({ email, password, name, orgName });
+                const res = await registerOrg({ email, password, name, orgName });
+                // If they created an org, they are SUPERADMIN and isActive:true (default in register-org)
+                // Actually let's check backend register-org
                 navigate('/', { replace: true });
             }
         } catch (err: any) {
@@ -135,31 +145,31 @@ const Login: React.FC = () => {
                             <div className="w-16 h-16 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
                                 <CheckCircle size={32} className="text-emerald-300" />
                             </div>
-                            <h2 className="text-2xl font-bold text-white mb-2">Request Sent!</h2>
+                            <h2 className="text-2xl font-bold text-white mb-2">Đã gửi yêu cầu!</h2>
                             <p className="text-white/80 mb-6">
-                                Your request to join <span className="font-bold text-white">{foundOrg?.name}</span> has been sent.
-                                Please wait for an administrator to approve your account.
+                                Yêu cầu tham gia tổ chức của bạn đã được gửi đi.
+                                Bạn có thể đăng nhập ngay bây giờ để kiểm tra trạng thái phê duyệt.
                             </p>
                             <button
                                 onClick={() => { setIsLogin(true); resetState(); }}
-                                className="bg-white text-indigo-600 font-bold px-6 py-2 rounded-xl"
+                                className="w-full bg-white text-indigo-600 font-bold px-6 py-3 rounded-xl shadow-lg hover:bg-slate-50 transition-all"
                             >
-                                Back to Login
+                                Đi đến Đăng nhập
                             </button>
                         </div>
                     ) : (
                         <>
                             <h1 className="text-2xl font-bold text-white text-center mb-2">
-                                {isLogin ? 'Welcome Back' : (step === 1 ? 'Create Account' : (foundOrg ? 'Join Organization' : 'Setup Organization'))}
+                                {isLogin ? 'Chào mừng quay trở lại' : (step === 1 ? 'Tạo tài khoản' : (foundOrgs.length > 0 && !wantsNewOrg ? 'Tham gia tổ chức' : 'Thiết lập tổ chức'))}
                             </h1>
                             <p className="text-white/70 text-center mb-8">
                                 {isLogin
-                                    ? 'Sign in to continue your journey'
+                                    ? 'Đăng nhập để tiếp tục hành trình của bạn'
                                     : (step === 1
-                                        ? 'Join the continuous improvement community'
-                                        : (foundOrg
-                                            ? `We found an organization for @${email.split('@')[1]}`
-                                            : `Create a new workspace for @${email.split('@')[1]}`
+                                        ? 'Tham gia cộng đồng Kaizen ngay hôm nay'
+                                        : (foundOrgs.length > 0 && !wantsNewOrg
+                                            ? `Chúng tôi tìm thấy các tổ chức cho @${email.split('@')[1]}`
+                                            : `Tạo không gian làm việc mới cho @${email.split('@')[1]}`
                                         )
                                     )
                                 }
@@ -226,31 +236,67 @@ const Login: React.FC = () => {
                                 )}
 
                                 {!isLogin && step === 2 && (
-                                    foundOrg ? (
-                                        <div className="bg-white/10 rounded-xl p-4 border border-white/20">
-                                            <div className="flex items-center gap-3 mb-2">
-                                                <Building2 className="text-white" size={24} />
-                                                <span className="text-xl font-bold text-white">{foundOrg.name}</span>
+                                    <div className="space-y-4">
+                                        {foundOrgs.length > 0 && (
+                                            <div className="space-y-3">
+                                                <label className="block text-white/80 text-sm mb-1 text-center">Chúng tôi tìm thấy các tổ chức sau:</label>
+                                                {foundOrgs.map(org => (
+                                                    <button
+                                                        key={org.id}
+                                                        type="button"
+                                                        onClick={() => { setSelectedOrgId(org.id); setWantsNewOrg(false); }}
+                                                        className={`w-full p-4 rounded-xl border-2 transition-all flex items-center justify-between ${selectedOrgId === org.id && !wantsNewOrg
+                                                            ? 'bg-white text-indigo-900 border-white shadow-xl'
+                                                            : 'bg-white/10 text-white border-white/20 hover:bg-white/20'
+                                                            }`}
+                                                    >
+                                                        <div className="flex items-center gap-3">
+                                                            <Building2 size={20} />
+                                                            <span className="font-bold">{org.name}</span>
+                                                        </div>
+                                                        {selectedOrgId === org.id && !wantsNewOrg && <CheckCircle size={18} className="text-indigo-600" />}
+                                                    </button>
+                                                ))}
+
+                                                <div className="relative py-2 flex items-center gap-4">
+                                                    <div className="flex-1 h-px bg-white/20"></div>
+                                                    <span className="text-white/40 text-xs font-bold uppercase tracking-widest">Hoặc</span>
+                                                    <div className="flex-1 h-px bg-white/20"></div>
+                                                </div>
                                             </div>
-                                            <p className="text-white/70 text-sm">
-                                                This organization is already registered. You can request to join, and an administrator will review your request.
-                                            </p>
-                                        </div>
-                                    ) : (
-                                        <div>
-                                            <label className="block text-white/80 text-sm mb-2">Organization Name</label>
-                                            <div className="relative">
-                                                <Building2 size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/50" />
-                                                <input
-                                                    type="text"
-                                                    value={orgName}
-                                                    onChange={(e) => setOrgName(e.target.value)}
-                                                    placeholder="e.g. Acme Corp"
-                                                    className="w-full bg-white/10 border border-white/20 rounded-xl py-3 pl-12 pr-4 text-white placeholder-white/50 focus:outline-none focus:border-white/40 focus:ring-2 focus:ring-white/20"
-                                                />
+                                        )}
+
+                                        <button
+                                            type="button"
+                                            onClick={() => setWantsNewOrg(true)}
+                                            className={`w-full p-4 rounded-xl border-2 transition-all flex items-center gap-3 ${wantsNewOrg
+                                                ? 'bg-white text-indigo-900 border-white shadow-xl'
+                                                : 'bg-white/10 text-white border-white/20 hover:bg-white/20'
+                                                }`}
+                                        >
+                                            <Plus size={20} />
+                                            <div className="text-left">
+                                                <span className="font-bold block">Tạo tổ chức mới</span>
+                                                <span className="text-xs opacity-70">Thiết lập workspace riêng cho team của bạn</span>
                                             </div>
-                                        </div>
-                                    )
+                                        </button>
+
+                                        {wantsNewOrg && (
+                                            <div className="pt-2">
+                                                <label className="block text-white/80 text-sm mb-2">Tên tổ chức</label>
+                                                <div className="relative">
+                                                    <Building2 size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/50" />
+                                                    <input
+                                                        type="text"
+                                                        value={orgName}
+                                                        onChange={(e) => setOrgName(e.target.value)}
+                                                        placeholder="Ví dụ: Công ty TNHH Kaizen"
+                                                        className="w-full bg-white/10 border border-white/20 rounded-xl py-3 pl-12 pr-4 text-white placeholder-white/50 focus:outline-none focus:border-white/40 focus:ring-2 focus:ring-white/20"
+                                                    />
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
                                 )}
 
                                 <button
@@ -263,10 +309,10 @@ const Login: React.FC = () => {
                                     ) : (
                                         <>
                                             {isLogin
-                                                ? 'Sign In'
+                                                ? 'Đăng nhập'
                                                 : (step === 1
-                                                    ? 'Next'
-                                                    : (foundOrg ? 'Request Access' : 'Create Organization')
+                                                    ? 'Tiếp tục'
+                                                    : (selectedOrgId && !wantsNewOrg ? 'Yêu cầu tham gia' : 'Kích hoạt tổ chức')
                                                 )
                                             }
                                             <ArrowRight size={20} />
@@ -275,7 +321,7 @@ const Login: React.FC = () => {
                                     {/* Fix button text color for non-emerald state */}
                                     <style>{`
                                         button[type="submit"]:not(.bg-emerald-500) {
-                                            color: ${isLogin || step === 1 || !foundOrg ? '#4f46e5' : 'white'};
+                                            color: ${isLogin || step === 1 || wantsNewOrg ? '#4f46e5' : 'white'};
                                         }
                                     `}</style>
                                 </button>

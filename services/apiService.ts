@@ -1,20 +1,20 @@
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
 
-// Get token from localStorage
+// Get token from sessionStorage
 function getToken(): string | null {
-    return localStorage.getItem('kaizenhub_token');
+    return sessionStorage.getItem('kaizenhub_token');
 }
 
-// Save token and user to localStorage
+// Save token and user to sessionStorage
 export function saveAuth(token: string, user: User): void {
-    localStorage.setItem('kaizenhub_token', token);
-    localStorage.setItem('kaizenhub_user', JSON.stringify(user));
+    sessionStorage.setItem('kaizenhub_token', token);
+    sessionStorage.setItem('kaizenhub_user', JSON.stringify(user));
 }
 
 // Clear auth data
 export function clearAuth(): void {
-    localStorage.removeItem('kaizenhub_token');
-    localStorage.removeItem('kaizenhub_user');
+    sessionStorage.removeItem('kaizenhub_token');
+    sessionStorage.removeItem('kaizenhub_user');
 }
 
 // Check if logged in
@@ -24,7 +24,7 @@ export function isLoggedIn(): boolean {
 
 // Get saved user
 export function getSavedUser(): User | null {
-    const userJson = localStorage.getItem('kaizenhub_user');
+    const userJson = sessionStorage.getItem('kaizenhub_user');
     return userJson ? JSON.parse(userJson) : null;
 }
 
@@ -425,7 +425,7 @@ export async function markAllNotificationsRead(): Promise<void> {
 // MULTI-TENANCY API
 // ============================================
 
-export async function checkDomain(email: string): Promise<{ exists: boolean; organization?: any; domain: string }> {
+export async function checkDomain(email: string): Promise<{ exists: boolean; organizations?: any[]; domain: string }> {
     const response = await fetch(`${API_BASE}/auth/check-domain`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -670,8 +670,8 @@ export async function updateProfile(data: { orgRoleId?: string; position?: strin
         throw new Error(error.error || 'Failed to update profile');
     }
     const updatedUser = await response.json();
-    // Update saved user in localStorage
-    localStorage.setItem('kaizenhub_user', JSON.stringify(updatedUser));
+    // Update saved user in sessionStorage
+    sessionStorage.setItem('kaizenhub_user', JSON.stringify(updatedUser));
     return updatedUser;
 }
 

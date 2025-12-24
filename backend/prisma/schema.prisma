@@ -6,8 +6,8 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 // ============================================
@@ -17,7 +17,7 @@ datasource db {
 model Organization {
   id        String   @id @default(uuid())
   name      String
-  domain    String   @unique
+  domain    String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
