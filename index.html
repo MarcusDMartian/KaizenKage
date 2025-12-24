@@ -12,19 +12,6 @@
   <link rel="manifest" href="/manifest.json" />
   <title>Kaizenkage</title>
   <script>
-    // Immediate theme check to prevent flash
-    (function () {
-      const savedTheme = localStorage.getItem('kaizenhub_theme');
-      const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-
-      if (savedTheme === 'dark' || (!savedTheme && systemDark)) {
-        document.documentElement.classList.add('dark');
-      } else {
-        document.documentElement.classList.remove('dark');
-      }
-    })();
-  </script>
-  <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('/sw.js').then(registration => {

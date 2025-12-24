@@ -47,8 +47,6 @@
     },
     "settings": {
         "appearance": "外観",
-        "darkMode": "ダークモード",
-        "darkModeDesc": "ライトテーマとダークテーマを切り替える",
         "language": "言語",
         "languageDesc": "希望の言語を選択する",
         "notifications": "通知",

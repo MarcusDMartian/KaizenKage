@@ -77,8 +77,8 @@ const Management: React.FC = () => {
         return (
             <div className="min-h-[60vh] flex flex-col items-center justify-center text-center p-8">
                 <ShieldCheck size={64} className="text-slate-300 mb-4" />
-                <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-2">{t('management.accessDenied')}</h2>
-                <p className="text-slate-500 dark:text-slate-400 max-w-md">
+                <h2 className="text-2xl font-bold text-slate-800 mb-2">{t('management.accessDenied')}</h2>
+                <p className="text-slate-500 max-w-md">
                     {t('management.accessDeniedDesc')}
                 </p>
             </div>
@@ -103,12 +103,12 @@ const Management: React.FC = () => {
             </div>
 
             {/* Tabs */}
-            <div className="flex flex-wrap gap-2 p-1.5 bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm">
+            <div className="flex flex-wrap gap-2 p-1.5 bg-white rounded-xl border border-slate-100 shadow-sm">
                 <button
                     onClick={() => setActiveTab('ideas')}
                     className={`flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold transition-all ${activeTab === 'ideas'
                         ? 'bg-indigo-600 text-white shadow-md'
-                        : 'text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-indigo-600'
+                        : 'text-slate-500 hover:bg-slate-50 hover:text-indigo-600'
                         }`}
                 >
                     <Lightbulb size={18} /> {t('management.ideasTab')}
@@ -117,7 +117,7 @@ const Management: React.FC = () => {
                     onClick={() => setActiveTab('rewards')}
                     className={`flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold transition-all ${activeTab === 'rewards'
                         ? 'bg-indigo-600 text-white shadow-md'
-                        : 'text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-indigo-600'
+                        : 'text-slate-500 hover:bg-slate-50 hover:text-indigo-600'
                         }`}
                 >
                     <Gift size={18} /> {t('management.rewardsTab')}
@@ -127,7 +127,7 @@ const Management: React.FC = () => {
                         onClick={() => setActiveTab('users')}
                         className={`flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold transition-all ${activeTab === 'users'
                             ? 'bg-indigo-600 text-white shadow-md'
-                            : 'text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-indigo-600'
+                            : 'text-slate-500 hover:bg-slate-50 hover:text-indigo-600'
                             }`}
                     >
                         <UsersIcon size={18} /> {t('management.usersTab')}
@@ -136,7 +136,7 @@ const Management: React.FC = () => {
             </div>
 
             {/* Content Area */}
-            <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm overflow-hidden min-h-[400px]">
+            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden min-h-[400px]">
                 {loading ? (
                     <div className="flex flex-col items-center justify-center p-20 gap-4">
                         <Loader2 size={40} className="animate-spin text-indigo-600" />
@@ -145,7 +145,7 @@ const Management: React.FC = () => {
                 ) : (
                     <div className="p-0">
                         {activeTab === 'ideas' && (
-                            <div className="divide-y divide-slate-100 dark:divide-slate-700">
+                            <div className="divide-y divide-slate-100">
                                 {ideas.length === 0 ? (
                                     <div className="p-8">
                                         <EmptyState
@@ -156,23 +156,23 @@ const Management: React.FC = () => {
                                     </div>
                                 ) : (
                                     ideas.map(idea => (
-                                        <div key={idea.id} className="p-6 hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
+                                        <div key={idea.id} className="p-6 hover:bg-slate-50 transition-colors">
                                             <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
                                                 <div className="space-y-2">
                                                     <div className="flex items-center gap-2 mb-2">
                                                         <img src={idea.author.avatar} alt="" className="w-6 h-6 rounded-full" />
-                                                        <span className="text-sm font-medium text-slate-700 dark:text-slate-200">{idea.author.name}</span>
+                                                        <span className="text-sm font-medium text-slate-700">{idea.author.name}</span>
                                                         <span className="text-xs text-slate-400">• {idea.createdAt}</span>
                                                     </div>
-                                                    <h3 className="text-lg font-bold text-slate-800 dark:text-white">{idea.title}</h3>
+                                                    <h3 className="text-lg font-bold text-slate-800">{idea.title}</h3>
                                                     <div className="flex gap-4 text-sm">
                                                         <div>
-                                                            <span className="font-bold block text-indigo-600 dark:text-indigo-400">Problem:</span>
-                                                            <p className="text-slate-500 dark:text-slate-400 line-clamp-2">{idea.problem}</p>
+                                                            <span className="font-bold block text-indigo-600">Problem:</span>
+                                                            <p className="text-slate-500 line-clamp-2">{idea.problem}</p>
                                                         </div>
                                                         <div>
-                                                            <span className="font-bold block text-green-600 dark:text-green-400">Proposal:</span>
-                                                            <p className="text-slate-500 dark:text-slate-400 line-clamp-2">{idea.proposal}</p>
+                                                            <span className="font-bold block text-green-600">Proposal:</span>
+                                                            <p className="text-slate-500 line-clamp-2">{idea.proposal}</p>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -202,7 +202,7 @@ const Management: React.FC = () => {
                         )}
 
                         {activeTab === 'rewards' && (
-                            <div className="divide-y divide-slate-100 dark:divide-slate-700">
+                            <div className="divide-y divide-slate-100">
                                 {redemptions.length === 0 ? (
                                     <div className="p-8">
                                         <EmptyState
@@ -213,14 +213,14 @@ const Management: React.FC = () => {
                                     </div>
                                 ) : (
                                     redemptions.map(req => (
-                                        <div key={req.id} className="p-6 hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
+                                        <div key={req.id} className="p-6 hover:bg-slate-50 transition-colors">
                                             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                                                 <div className="flex items-center gap-4">
-                                                    <div className="w-12 h-12 bg-slate-100 dark:bg-slate-700 rounded-xl overflow-hidden flex-shrink-0">
+                                                    <div className="w-12 h-12 bg-slate-100 rounded-xl overflow-hidden flex-shrink-0">
                                                         <img src={req.rewardImage} alt="" className="w-full h-full object-cover" />
                                                     </div>
                                                     <div>
-                                                        <h3 className="font-bold text-slate-800 dark:text-white">{req.rewardName}</h3>
+                                                        <h3 className="font-bold text-slate-800">{req.rewardName}</h3>
                                                         <div className="flex items-center gap-2 text-sm text-slate-500">
                                                             <span>Requested by: {req.userName}</span>
                                                             <span>•</span>
@@ -240,7 +240,7 @@ const Management: React.FC = () => {
                                                     <button
                                                         onClick={() => handleRedemption(req.id, 'REJECTED')}
                                                         disabled={processing === req.id}
-                                                        className="flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 rounded-xl text-sm font-bold transition-all disabled:opacity-50"
+                                                        className="flex items-center gap-2 px-4 py-2 bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-xl text-sm font-bold transition-all disabled:opacity-50"
                                                     >
                                                         {processing === req.id ? <Loader2 size={16} className="animate-spin" /> : <XCircle size={16} />}
                                                         {t('management.reject')}
@@ -264,27 +264,27 @@ const Management: React.FC = () => {
                                 ) : (
                                     <table className="w-full text-left">
                                         <thead>
-                                            <tr className="text-slate-400 text-xs uppercase tracking-wider border-b border-slate-100 dark:border-slate-700">
+                                            <tr className="text-slate-400 text-xs uppercase tracking-wider border-b border-slate-100">
                                                 <th className="pb-3 pl-2">User</th>
                                                 <th className="pb-3">Team</th>
                                                 <th className="pb-3">Role</th>
                                                 <th className="pb-3 text-right">Actions</th>
                                             </tr>
                                         </thead>
-                                        <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
+                                        <tbody className="divide-y divide-slate-100">
                                             {users.map(user => (
                                                 <tr key={user.id} className="group">
                                                     <td className="py-4 pl-2">
                                                         <div className="flex items-center gap-3">
                                                             <img src={user.avatarUrl} className="w-9 h-9 rounded-full" alt="" />
                                                             <div>
-                                                                <p className="font-bold text-slate-800 dark:text-white text-sm">{user.name}</p>
+                                                                <p className="font-bold text-slate-800 text-sm">{user.name}</p>
                                                                 <p className="text-xs text-slate-500">{user.email}</p>
                                                             </div>
                                                         </div>
                                                     </td>
                                                     <td className="py-4">
-                                                        <span className="text-sm text-slate-600 dark:text-slate-300">{user.team}</span>
+                                                        <span className="text-sm text-slate-600">{user.team}</span>
                                                     </td>
                                                     <td className="py-4">
                                                         <span className={`text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded-lg ${user.role === 'ADMIN' ? 'bg-red-100 text-red-700' :

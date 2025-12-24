@@ -47,8 +47,6 @@
     },
     "settings": {
         "appearance": "Appearance",
-        "darkMode": "Dark Mode",
-        "darkModeDesc": "Switch between dark and light theme",
         "language": "Language",
         "languageDesc": "Choose your preferred language",
         "notifications": "Notifications",

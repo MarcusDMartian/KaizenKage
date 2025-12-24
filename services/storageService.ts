@@ -10,7 +10,7 @@ const STORAGE_KEYS = {
   CURRENT_USER: 'kaizenhub_current_user',
   USERS: 'kaizenhub_users',
   REDEMPTIONS: 'kaizenhub_redemptions',
-  THEME: 'kaizenhub_theme',
+
   ONBOARDING_COMPLETED: 'kaizenhub_onboarding_completed',
   INITIALIZED: 'kaizenhub_initialized',
 };
@@ -233,16 +233,6 @@ export const addRedemption = (redemption: RedemptionRequest): void => {
   const redemptions = getRedemptions();
   redemptions.unshift(redemption);
   saveRedemptions(redemptions);
-};
-
-// ============ THEME ============
-export const getTheme = (): 'light' | 'dark' => {
-  const theme = localStorage.getItem(STORAGE_KEYS.THEME);
-  return (theme as 'light' | 'dark') || 'light';
-};
-
-export const saveTheme = (theme: 'light' | 'dark'): void => {
-  localStorage.setItem(STORAGE_KEYS.THEME, theme);
 };
 
 // ============ ONBOARDING ============

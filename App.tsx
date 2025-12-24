@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { HashRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import { ThemeProvider } from './contexts/ThemeContext';
-import { initializeStorage, isOnboardingCompleted, setOnboardingCompleted } from './services/storageService';
+import { initializeStorage, isOnboardingCompleted } from './services/storageService';
 import { isLoggedIn } from './services/apiService';
 import Layout from './components/Layout';
 import Dashboard from './pages/Dashboard';
@@ -75,7 +74,7 @@ function App() {
   const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
-    // Initialize localStorage with mock data (for backward compatibility)
+    // Initialize localStorage with mock data
     initializeStorage();
     setIsReady(true);
   }, []);
@@ -89,13 +88,11 @@ function App() {
   }
 
   return (
-    <ThemeProvider>
-      <Router>
-        <Routes>
-          <Route path="/*" element={<AppRoutes />} />
-        </Routes>
-      </Router>
-    </ThemeProvider>
+    <Router>
+      <Routes>
+        <Route path="/*" element={<AppRoutes />} />
+      </Routes>
+    </Router>
   );
 }
 

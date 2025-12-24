@@ -290,8 +290,8 @@ const Kudos: React.FC = () => {
                                  </p>
                                  <div className="mt-4 flex items-center justify-between pt-3 border-t border-slate-50">
                                     <p className="text-xs text-slate-500">
-                                       <span className="font-bold text-slate-900">{kudos.sender.name}</span> → <span className="font-bold text-slate-900">{kudos.receiver.name}</span>
-                                       <span className="text-slate-300 mx-2">•</span>
+                                       <span className="font-bold text-slate-900">{kudos.sender.name}</span> \u2192 <span className="font-bold text-slate-900">{kudos.receiver.name}</span>
+                                       <span className="text-slate-300 mx-2">\u2022</span>
                                        <span>{kudos.createdAt}</span>
                                     </p>
                                     <button

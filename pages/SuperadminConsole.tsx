@@ -175,8 +175,8 @@ const SuperadminConsole: React.FC = () => {
         return (
             <div className="min-h-[60vh] flex flex-col items-center justify-center text-center p-8">
                 <ShieldAlert size={64} className="text-red-500 mb-4" />
-                <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-2">{t('management.accessDenied')}</h2>
-                <p className="text-slate-500 dark:text-slate-400 max-w-md">
+                <h2 className="text-2xl font-bold text-slate-800 mb-2">{t('management.accessDenied')}</h2>
+                <p className="text-slate-500 max-w-md">
                     {t('management.accessDeniedDesc')}
                 </p>
             </div>
@@ -208,51 +208,51 @@ const SuperadminConsole: React.FC = () => {
                 <div className="lg:col-span-1 space-y-2">
                     <button
                         onClick={() => setActiveTab('stats')}
-                        className={`w-full flex items-center gap-3 px-5 py-4 rounded-2xl font-bold transition-all ${activeTab === 'stats' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200' : 'bg-white dark:bg-slate-800 text-slate-500 hover:bg-slate-50'}`}
+                        className={`w-full flex items-center gap-3 px-5 py-4 rounded-2xl font-bold transition-all ${activeTab === 'stats' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200' : 'bg-white text-slate-500 hover:bg-slate-50'}`}
                     >
                         <BarChart3 size={20} /> {t('management.systemStats')}
                     </button>
                     <button
                         onClick={() => setActiveTab('users')}
-                        className={`w-full flex items-center gap-3 px-5 py-4 rounded-2xl font-bold transition-all ${activeTab === 'users' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200' : 'bg-white dark:bg-slate-800 text-slate-500 hover:bg-slate-50'}`}
+                        className={`w-full flex items-center gap-3 px-5 py-4 rounded-2xl font-bold transition-all ${activeTab === 'users' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200' : 'bg-white text-slate-500 hover:bg-slate-50'}`}
                     >
                         <Users size={20} /> {t('management.users')}
                     </button>
                     <button
                         onClick={() => setActiveTab('requests')}
-                        className={`w-full flex items-center gap-3 px-5 py-4 rounded-2xl font-bold transition-all ${activeTab === 'requests' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200' : 'bg-white dark:bg-slate-800 text-slate-500 hover:bg-slate-50'}`}
+                        className={`w-full flex items-center gap-3 px-5 py-4 rounded-2xl font-bold transition-all ${activeTab === 'requests' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200' : 'bg-white text-slate-500 hover:bg-slate-50'}`}
                     >
                         <UserPlus size={20} /> Member Requests
                         {requests.length > 0 && <span className="bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full">{requests.length}</span>}
                     </button>
                     <button
                         onClick={() => setActiveTab('missions')}
-                        className={`w-full flex items-center gap-3 px-5 py-4 rounded-2xl font-bold transition-all ${activeTab === 'missions' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200' : 'bg-white dark:bg-slate-800 text-slate-500 hover:bg-slate-50'}`}
+                        className={`w-full flex items-center gap-3 px-5 py-4 rounded-2xl font-bold transition-all ${activeTab === 'missions' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200' : 'bg-white text-slate-500 hover:bg-slate-50'}`}
                     >
                         <Target size={20} /> {t('management.missions')}
                     </button>
                     <button
                         onClick={() => setActiveTab('rewards')}
-                        className={`w-full flex items-center gap-3 px-5 py-4 rounded-2xl font-bold transition-all ${activeTab === 'rewards' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200' : 'bg-white dark:bg-slate-800 text-slate-500 hover:bg-slate-50'}`}
+                        className={`w-full flex items-center gap-3 px-5 py-4 rounded-2xl font-bold transition-all ${activeTab === 'rewards' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200' : 'bg-white text-slate-500 hover:bg-slate-50'}`}
                     >
                         <Gift size={20} /> {t('management.rewards')}
                     </button>
                     <button
                         onClick={() => setActiveTab('badges')}
-                        className={`w-full flex items-center gap-3 px-5 py-4 rounded-2xl font-bold transition-all ${activeTab === 'badges' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200' : 'bg-white dark:bg-slate-800 text-slate-500 hover:bg-slate-50'}`}
+                        className={`w-full flex items-center gap-3 px-5 py-4 rounded-2xl font-bold transition-all ${activeTab === 'badges' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200' : 'bg-white text-slate-500 hover:bg-slate-50'}`}
                     >
                         <Award size={20} /> Badges
                     </button>
                     <button
                         onClick={() => setActiveTab('roles')}
-                        className={`w-full flex items-center gap-3 px-5 py-4 rounded-2xl font-bold transition-all ${activeTab === 'roles' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200' : 'bg-white dark:bg-slate-800 text-slate-500 hover:bg-slate-50'}`}
+                        className={`w-full flex items-center gap-3 px-5 py-4 rounded-2xl font-bold transition-all ${activeTab === 'roles' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200' : 'bg-white text-slate-500 hover:bg-slate-50'}`}
                     >
                         <Briefcase size={20} /> Roles
                     </button>
                 </div>
 
                 <div className="lg:col-span-3">
-                    <div className="bg-white dark:bg-slate-800 rounded-3xl border border-slate-100 dark:border-slate-700 shadow-xl overflow-hidden min-h-[500px]">
+                    <div className="bg-white rounded-3xl border border-slate-100 shadow-xl overflow-hidden min-h-[500px]">
                         {loading ? (
                             <div className="flex flex-col items-center justify-center h-full p-20 gap-4">
                                 <Loader2 size={48} className="animate-spin text-indigo-600" />
@@ -286,12 +286,12 @@ const SuperadminConsole: React.FC = () => {
             {/* Modal */}
             {showModal && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-                    <div className="bg-white dark:bg-slate-800 w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden border border-white/20">
-                        <div className="p-6 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50/50 dark:bg-slate-700/50">
-                            <h3 className="text-xl font-black text-slate-800 dark:text-white">
+                    <div className="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden border border-white/20">
+                        <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                            <h3 className="text-xl font-black text-slate-800">
                                 {modalData.id ? t('common.edit') : t('common.submit')} {activeTab === 'missions' ? t('management.missions') : activeTab === 'badges' ? 'Badge' : t('management.rewards')}
                             </h3>
-                            <button onClick={() => setShowModal(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors">
+                            <button onClick={() => setShowModal(false)} className="text-slate-400 hover:text-slate-600 transition-colors">
                                 <X size={24} />
                             </button>
                         </div>
@@ -303,7 +303,7 @@ const SuperadminConsole: React.FC = () => {
                                     type="text"
                                     value={modalData.name || ''}
                                     onChange={(e) => setModalData({ ...modalData, name: e.target.value })}
-                                    className="w-full bg-slate-50 dark:bg-slate-700 border-none rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 transition-all font-bold"
+                                    className="w-full bg-slate-50 border-none rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 transition-all font-bold"
                                 />
                             </div>
                             <div className="space-y-1">
@@ -313,7 +313,7 @@ const SuperadminConsole: React.FC = () => {
                                     rows={3}
                                     value={modalData.description || ''}
                                     onChange={(e) => setModalData({ ...modalData, description: e.target.value })}
-                                    className="w-full bg-slate-50 dark:bg-slate-700 border-none rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 transition-all font-medium"
+                                    className="w-full bg-slate-50 border-none rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 transition-all font-medium"
                                 />
                             </div>
 
@@ -324,7 +324,7 @@ const SuperadminConsole: React.FC = () => {
                                         <select
                                             value={modalData.triggerType || 'DAILY'}
                                             onChange={(e) => setModalData({ ...modalData, triggerType: e.target.value })}
-                                            className="w-full bg-slate-50 dark:bg-slate-700 border-none rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 font-bold"
+                                            className="w-full bg-slate-50 border-none rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 font-bold"
                                         >
                                             <option value="DAILY">{t('management.daily')}</option>
                                             <option value="WEEKLY">{t('management.weekly')}</option>
@@ -338,7 +338,7 @@ const SuperadminConsole: React.FC = () => {
                                             type="number"
                                             value={modalData.rewardPoints || 0}
                                             onChange={(e) => setModalData({ ...modalData, rewardPoints: parseInt(e.target.value) })}
-                                            className="w-full bg-slate-50 dark:bg-slate-700 border-none rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 font-bold"
+                                            className="w-full bg-slate-50 border-none rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 font-bold"
                                         />
                                     </div>
                                 </div>
@@ -351,14 +351,14 @@ const SuperadminConsole: React.FC = () => {
                                             type="text"
                                             value={modalData.code || ''}
                                             onChange={(e) => setModalData({ ...modalData, code: e.target.value })}
-                                            className="w-full bg-slate-50 dark:bg-slate-700 border-none rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 transition-all font-mono"
+                                            className="w-full bg-slate-50 border-none rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 transition-all font-mono"
                                             placeholder="e.g., FIRST_IDEA, STREAK_MASTER"
                                         />
                                     </div>
                                 </>
                             ) : activeTab === 'roles' ? (
-                                <div className="bg-indigo-50 dark:bg-indigo-900/20 p-4 rounded-2xl border border-indigo-100 dark:border-indigo-900/30">
-                                    <p className="text-sm font-bold text-indigo-800 dark:text-indigo-400">
+                                <div className="bg-indigo-50 p-4 rounded-2xl border border-indigo-100">
+                                    <p className="text-sm font-bold text-indigo-800">
                                         {modalData.id ? 'Editing existing role.' : 'Creating a new role for the selected organization.'}
                                     </p>
                                 </div>
@@ -370,7 +370,7 @@ const SuperadminConsole: React.FC = () => {
                                             type="text"
                                             value={modalData.imageUrl || ''}
                                             onChange={(e) => setModalData({ ...modalData, imageUrl: e.target.value })}
-                                            className="w-full bg-slate-50 dark:bg-slate-700 border-none rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 transition-all"
+                                            className="w-full bg-slate-50 border-none rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 transition-all"
                                             placeholder="https://..."
                                         />
                                     </div>
@@ -382,7 +382,7 @@ const SuperadminConsole: React.FC = () => {
                                                 type="number"
                                                 value={modalData.pointsCost || 0}
                                                 onChange={(e) => setModalData({ ...modalData, pointsCost: parseInt(e.target.value) })}
-                                                className="w-full bg-slate-50 dark:bg-slate-700 border-none rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 font-bold"
+                                                className="w-full bg-slate-50 border-none rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 font-bold"
                                             />
                                         </div>
                                         <div className="space-y-1">
@@ -392,7 +392,7 @@ const SuperadminConsole: React.FC = () => {
                                                 type="number"
                                                 value={modalData.stock || 0}
                                                 onChange={(e) => setModalData({ ...modalData, stock: parseInt(e.target.value) })}
-                                                className="w-full bg-slate-50 dark:bg-slate-700 border-none rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 font-bold"
+                                                className="w-full bg-slate-50 border-none rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 font-bold"
                                             />
                                         </div>
                                     </div>
@@ -406,9 +406,9 @@ const SuperadminConsole: React.FC = () => {
                                         id="isActive"
                                         checked={modalData.isActive}
                                         onChange={(e) => setModalData({ ...modalData, isActive: e.target.checked })}
-                                        className="w-5 h-5 rounded border-none bg-slate-100 dark:bg-slate-700 text-indigo-600 focus:ring-indigo-500"
+                                        className="w-5 h-5 rounded border-none bg-slate-100 text-indigo-600 focus:ring-indigo-500"
                                     />
-                                    <label htmlFor="isActive" className="text-sm font-bold text-slate-600 dark:text-slate-300">{t('management.active')}</label>
+                                    <label htmlFor="isActive" className="text-sm font-bold text-slate-600">{t('management.active')}</label>
                                 </div>
                             )}
 
@@ -441,13 +441,13 @@ const StatsOverview: React.FC<{ stats: any }> = ({ stats }) => {
                 { label: 'Kudos Exchanged', value: stats?.kudosCount || 0, icon: <ShieldAlert />, color: 'bg-rose-500' },
                 { label: t('management.missions'), value: stats?.activeMissions || 0, icon: <Target />, color: 'bg-amber-500' },
             ].map((item, idx) => (
-                <div key={idx} className="bg-slate-50 dark:bg-slate-700/50 p-6 rounded-3xl border border-slate-100 dark:border-slate-600 shadow-sm flex items-center gap-6">
+                <div key={idx} className="bg-slate-50 p-6 rounded-3xl border border-slate-100 shadow-sm flex items-center gap-6">
                     <div className={`w-14 h-14 ${item.color} rounded-2xl flex items-center justify-center text-white shadow-lg`}>
                         {item.icon}
                     </div>
                     <div>
-                        <p className="text-slate-500 dark:text-slate-400 text-sm font-bold uppercase tracking-wider">{item.label}</p>
-                        <p className="text-3xl font-black text-slate-800 dark:text-white">{item.value.toLocaleString()}</p>
+                        <p className="text-slate-500 text-sm font-bold uppercase tracking-wider">{item.label}</p>
+                        <p className="text-3xl font-black text-slate-800">{item.value.toLocaleString()}</p>
                     </div>
                 </div>
             ))}
@@ -478,34 +478,34 @@ const UserTable: React.FC<{ users: User[], onRefresh: () => void }> = ({ users, 
             ) : (
                 <table className="w-full text-left">
                     <thead>
-                        <tr className="text-slate-400 text-xs font-black uppercase tracking-widest border-b border-slate-100 dark:border-slate-700">
+                        <tr className="text-slate-400 text-xs font-black uppercase tracking-widest border-b border-slate-100">
                             <th className="pb-4 pl-2">User Identity</th>
                             <th className="pb-4">Affiliation / Role</th>
                             <th className="pb-4">Operational Status</th>
                             <th className="pb-4 text-right pr-2">Actions</th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
+                    <tbody className="divide-y divide-slate-100">
                         {users.map(user => (
-                            <tr key={user.id} className="group hover:bg-slate-50/50 dark:hover:bg-slate-700/20 transition-colors">
+                            <tr key={user.id} className="group hover:bg-slate-50/50 transition-colors">
                                 <td className="py-5 pl-2">
                                     <div className="flex items-center gap-4">
-                                        <img src={user.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=random`} className="w-11 h-11 rounded-2xl border-2 border-white dark:border-slate-700 shadow-md" alt="" />
+                                        <img src={user.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=random`} className="w-11 h-11 rounded-2xl border-2 border-white shadow-md" alt="" />
                                         <div>
-                                            <p className="font-black text-slate-800 dark:text-white">{user.name}</p>
+                                            <p className="font-black text-slate-800">{user.name}</p>
                                             <p className="text-xs text-slate-500 font-medium">{user.email}</p>
                                         </div>
                                     </div>
                                 </td>
                                 <td className="py-5">
                                     <div className="space-y-1">
-                                        <span className="text-sm font-bold text-slate-700 dark:text-slate-200 block">
+                                        <span className="text-sm font-bold text-slate-700 block">
                                             {typeof user.team === 'object' ? user.team?.name : (user.team || 'Unassigned')}
                                         </span>
                                         <select
                                             value={user.role}
                                             onChange={(e) => handleUpdate(user.id, { role: e.target.value })}
-                                            className="text-[10px] font-black tracking-widest bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded-lg border-none focus:ring-2 focus:ring-indigo-500"
+                                            className="text-[10px] font-black tracking-widest bg-slate-100 px-2 py-1 rounded-lg border-none focus:ring-2 focus:ring-indigo-500"
                                         >
                                             <option value="MEMBER">MEMBER</option>
                                             <option value="LEADER">LEADER</option>
@@ -541,7 +541,7 @@ const MissionsList: React.FC<{ missions: any[], onRefresh: () => void, onEdit: (
     return (
         <div className="space-y-4">
             <div className="flex justify-between items-center mb-6">
-                <h3 className="text-xl font-black text-slate-800 dark:text-white">{t('management.missions')}</h3>
+                <h3 className="text-xl font-black text-slate-800">{t('management.missions')}</h3>
                 <button
                     onClick={onAdd}
                     className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-xl text-sm font-bold shadow-lg shadow-indigo-200 hover:bg-indigo-700 transition-all"
@@ -563,9 +563,9 @@ const MissionsList: React.FC<{ missions: any[], onRefresh: () => void, onEdit: (
             ) : (
                 <div className="grid grid-cols-1 gap-4">
                     {missions.map(m => (
-                        <div key={m.id} className={`p-5 rounded-2xl border transition-all flex justify-between items-center group ${m.isActive ? 'bg-slate-50 dark:bg-slate-700/50 border-slate-100 dark:border-slate-600' : 'bg-slate-200/50 dark:bg-slate-800/50 border-slate-300 dark:border-slate-700 opacity-60'}`}>
+                        <div key={m.id} className={`p-5 rounded-2xl border transition-all flex justify-between items-center group ${m.isActive ? 'bg-slate-50 border-slate-100' : 'bg-slate-200/50 border-slate-300 opacity-60'}`}>
                             <div>
-                                <h4 className="font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                                <h4 className="font-bold text-slate-800 flex items-center gap-2">
                                     {m.name}
                                     {!m.isActive && <span className="text-[8px] font-black px-1.5 py-0.5 bg-slate-400 text-white rounded uppercase">{t('management.inactive')}</span>}
                                 </h4>
@@ -578,13 +578,13 @@ const MissionsList: React.FC<{ missions: any[], onRefresh: () => void, onEdit: (
                             <div className="flex gap-2">
                                 <button
                                     onClick={() => onEdit(m)}
-                                    className="p-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-600 text-slate-400 hover:text-indigo-600 shadow-sm transition-all"
+                                    className="p-3 bg-white rounded-xl border border-slate-200 text-slate-400 hover:text-indigo-600 shadow-sm transition-all"
                                 >
                                     <Edit2 size={16} />
                                 </button>
                                 <button
                                     onClick={async () => { if (confirm(t('management.confirmDelete'))) { await adminDeleteMission(m.id); onRefresh(); } }}
-                                    className="p-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-600 text-slate-400 hover:text-red-600 shadow-sm transition-all"
+                                    className="p-3 bg-white rounded-xl border border-slate-200 text-slate-400 hover:text-red-600 shadow-sm transition-all"
                                 >
                                     <Trash2 size={16} />
                                 </button>
@@ -602,7 +602,7 @@ const RewardsList: React.FC<{ rewards: any[], onRefresh: () => void, onEdit: (r:
     return (
         <div className="space-y-4">
             <div className="flex justify-between items-center mb-6">
-                <h3 className="text-xl font-black text-slate-800 dark:text-white">{t('management.rewards')}</h3>
+                <h3 className="text-xl font-black text-slate-800">{t('management.rewards')}</h3>
                 <button
                     onClick={onAdd}
                     className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-xl text-sm font-bold shadow-lg shadow-indigo-200 hover:bg-indigo-700 transition-all"
@@ -624,13 +624,13 @@ const RewardsList: React.FC<{ rewards: any[], onRefresh: () => void, onEdit: (r:
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {rewards.map(r => (
-                        <div key={r.id} className={`p-4 rounded-2xl border flex gap-4 group transition-all ${r.isActive ? 'bg-slate-50 dark:bg-slate-700/50 border-slate-100 dark:border-slate-600' : 'bg-slate-200/50 dark:bg-slate-800/50 border-slate-300 dark:border-slate-700 opacity-60'}`}>
+                        <div key={r.id} className={`p-4 rounded-2xl border flex gap-4 group transition-all ${r.isActive ? 'bg-slate-50 border-slate-100' : 'bg-slate-200/50 border-slate-300 opacity-60'}`}>
                             <div className="relative">
                                 <img src={r.imageUrl || 'https://via.placeholder.com/100'} className="w-16 h-16 rounded-xl object-cover" alt="" />
                                 {!r.isActive && <div className="absolute inset-0 bg-slate-900/40 rounded-xl flex items-center justify-center"><X className="text-white" size={24} /></div>}
                             </div>
                             <div className="flex-1">
-                                <h4 className="font-bold text-slate-800 dark:text-white">{r.name}</h4>
+                                <h4 className="font-bold text-slate-800">{r.name}</h4>
                                 <p className="text-xs text-slate-500 line-clamp-1">{r.description}</p>
                                 <p className="text-sm font-black text-indigo-600 mt-1">
                                     {r.pointsCost} PTS
@@ -679,7 +679,7 @@ const RequestsList: React.FC<{ requests: any[], onRefresh: () => void }> = ({ re
     return (
         <div className="space-y-4">
             <div className="flex justify-between items-center mb-6">
-                <h3 className="text-xl font-black text-slate-800 dark:text-white">Member Requests</h3>
+                <h3 className="text-xl font-black text-slate-800">Member Requests</h3>
             </div>
             {requests.length === 0 ? (
                 <EmptyState
@@ -690,13 +690,13 @@ const RequestsList: React.FC<{ requests: any[], onRefresh: () => void }> = ({ re
             ) : (
                 <div className="grid grid-cols-1 gap-4">
                     {requests.map(req => (
-                        <div key={req.id} className="p-5 rounded-2xl border border-slate-100 dark:border-slate-600 bg-slate-50 dark:bg-slate-700/50 flex flex-col md:flex-row justify-between items-center gap-4">
+                        <div key={req.id} className="p-5 rounded-2xl border border-slate-100 bg-slate-50 flex flex-col md:flex-row justify-between items-center gap-4">
                             <div className="flex items-center gap-4">
                                 <div className="w-12 h-12 rounded-xl bg-orange-100 flex items-center justify-center text-orange-600">
                                     <UserPlus size={24} />
                                 </div>
                                 <div>
-                                    <h4 className="font-bold text-slate-800 dark:text-white">{req.name}</h4>
+                                    <h4 className="font-bold text-slate-800">{req.name}</h4>
                                     <p className="text-sm text-slate-500">{req.email}</p>
                                     <p className="text-xs font-bold text-slate-400 mt-1">
                                         Requested: {new Date(req.createdAt).toLocaleDateString()}
@@ -712,7 +712,7 @@ const RequestsList: React.FC<{ requests: any[], onRefresh: () => void }> = ({ re
                                 </button>
                                 <button
                                     onClick={() => handleAction(req.id, 'reject')}
-                                    className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 text-rose-500 border border-rose-200 dark:border-rose-900/30 rounded-xl text-sm font-bold hover:bg-rose-50 transition-all"
+                                    className="flex items-center gap-2 px-4 py-2 bg-white text-rose-500 border border-rose-200 rounded-xl text-sm font-bold hover:bg-rose-50 transition-all"
                                 >
                                     <XCircle size={18} /> Reject
                                 </button>
@@ -745,7 +745,7 @@ const BadgesList: React.FC<{ badges: Badge[], onRefresh: () => void, onEdit: (ba
     return (
         <div>
             <div className="flex justify-between items-center mb-6">
-                <h3 className="text-xl font-black text-slate-800 dark:text-white">Badge Configuration</h3>
+                <h3 className="text-xl font-black text-slate-800">Badge Configuration</h3>
                 <button
                     onClick={onAdd}
                     className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-xl text-sm font-bold shadow-lg shadow-indigo-200 hover:bg-indigo-700 transition-all"
@@ -763,28 +763,28 @@ const BadgesList: React.FC<{ badges: Badge[], onRefresh: () => void, onEdit: (ba
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {badges.map((badge) => (
-                        <div key={badge.id} className="p-4 bg-slate-50/80 dark:bg-slate-700/50 rounded-2xl border border-slate-100 dark:border-slate-600 hover:shadow-lg transition-all">
+                        <div key={badge.id} className="p-4 bg-slate-50/80 rounded-2xl border border-slate-100 hover:shadow-lg transition-all">
                             <div className="flex items-start gap-4">
-                                <div className="w-14 h-14 rounded-2xl bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center text-3xl flex-shrink-0">
+                                <div className="w-14 h-14 rounded-2xl bg-indigo-100 flex items-center justify-center text-3xl flex-shrink-0">
                                     {badge.icon || '🏆'}
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                    <h4 className="font-bold text-slate-800 dark:text-white truncate">{badge.name}</h4>
-                                    <p className="text-xs font-mono text-indigo-600 dark:text-indigo-400">{badge.code || 'N/A'}</p>
-                                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">{badge.description}</p>
+                                    <h4 className="font-bold text-slate-800 truncate">{badge.name}</h4>
+                                    <p className="text-xs font-mono text-indigo-600">{badge.code || 'N/A'}</p>
+                                    <p className="text-sm text-slate-500 mt-1 line-clamp-2">{badge.description}</p>
                                 </div>
                             </div>
-                            <div className="flex justify-end gap-2 mt-4 pt-3 border-t border-slate-200 dark:border-slate-600">
+                            <div className="flex justify-end gap-2 mt-4 pt-3 border-t border-slate-200">
                                 <button
                                     onClick={() => onEdit(badge)}
-                                    className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold text-indigo-600 bg-indigo-50 dark:bg-indigo-900/30 dark:text-indigo-400 hover:bg-indigo-100 transition-all"
+                                    className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 transition-all"
                                 >
                                     <Edit2 size={14} /> Edit
                                 </button>
                                 <button
                                     onClick={() => handleDelete(badge.id)}
                                     disabled={deleting === badge.id}
-                                    className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold text-rose-600 bg-rose-50 dark:bg-rose-900/30 dark:text-rose-400 hover:bg-rose-100 transition-all disabled:opacity-50"
+                                    className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 transition-all disabled:opacity-50"
                                 >
                                     {deleting === badge.id ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />} Delete
                                 </button>
@@ -826,8 +826,8 @@ const RolesManager: React.FC<{
         <div className="space-y-6">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div className="space-y-1">
-                    <h3 className="text-xl font-black text-slate-800 dark:text-white">Role Management</h3>
-                    <p className="text-sm text-slate-500 dark:text-slate-400">Manage organization-specific roles for team members.</p>
+                    <h3 className="text-xl font-black text-slate-800">Role Management</h3>
+                    <p className="text-sm text-slate-500">Manage organization-specific roles for team members.</p>
                 </div>
                 <button
                     onClick={onAdd}
@@ -837,12 +837,12 @@ const RolesManager: React.FC<{
                 </button>
             </div>
 
-            <div className="bg-slate-50 dark:bg-slate-700/30 p-4 rounded-2xl border border-slate-100 dark:border-slate-600 flex flex-col md:flex-row items-center gap-4">
-                <label className="text-sm font-bold text-slate-600 dark:text-slate-300 shrink-0">Select Organization:</label>
+            <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 flex flex-col md:flex-row items-center gap-4">
+                <label className="text-sm font-bold text-slate-600 shrink-0">Select Organization:</label>
                 <select
                     value={selectedOrgId}
                     onChange={(e) => onOrgChange(e.target.value)}
-                    className="flex-1 min-w-[200px] bg-white dark:bg-slate-800 border-none rounded-xl px-4 py-2 focus:ring-2 focus:ring-indigo-500 font-bold transition-all shadow-sm"
+                    className="flex-1 min-w-[200px] bg-white border-none rounded-xl px-4 py-2 focus:ring-2 focus:ring-indigo-500 font-bold transition-all shadow-sm"
                 >
                     {orgs.map(org => (
                         <option key={org.id} value={org.id}>{org.name}</option>
@@ -859,29 +859,29 @@ const RolesManager: React.FC<{
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {roles.map((role) => (
-                        <div key={role.id} className="p-4 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 hover:shadow-lg transition-all">
+                        <div key={role.id} className="p-4 bg-white rounded-2xl border border-slate-100 hover:shadow-lg transition-all">
                             <div className="flex justify-between items-start">
                                 <div>
-                                    <h4 className="font-bold text-slate-800 dark:text-white">{role.name}</h4>
-                                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{role.description || 'No description provided.'}</p>
+                                    <h4 className="font-bold text-slate-800">{role.name}</h4>
+                                    <p className="text-sm text-slate-500 mt-1">{role.description || 'No description provided.'}</p>
                                     <div className="mt-2 flex items-center gap-2">
-                                        <span className="bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full">
+                                        <span className="bg-indigo-50 text-indigo-600 text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full">
                                             {role._count?.users || 0} Members
                                         </span>
                                     </div>
                                 </div>
                             </div>
-                            <div className="flex justify-end gap-2 mt-4 pt-4 border-t border-slate-50 dark:border-slate-700">
+                            <div className="flex justify-end gap-2 mt-4 pt-4 border-t border-slate-50">
                                 <button
                                     onClick={() => onEdit(role)}
-                                    className="p-2 rounded-lg text-indigo-600 bg-indigo-50 dark:bg-indigo-900/30 dark:text-indigo-400 hover:bg-indigo-100 transition-all"
+                                    className="p-2 rounded-lg text-indigo-600 bg-indigo-50 hover:bg-indigo-100 transition-all"
                                 >
                                     <Edit2 size={16} />
                                 </button>
                                 <button
                                     onClick={() => handleDelete(role.id)}
                                     disabled={deleting === role.id}
-                                    className="p-2 rounded-lg text-rose-600 bg-rose-50 dark:bg-rose-900/30 dark:text-rose-400 hover:bg-rose-100 transition-all shadow-sm"
+                                    className="p-2 rounded-lg text-rose-600 bg-rose-50 hover:bg-rose-100 transition-all shadow-sm"
                                 >
                                     {deleting === role.id ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}
                                 </button>

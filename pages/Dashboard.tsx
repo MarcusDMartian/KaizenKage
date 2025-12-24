@@ -84,29 +84,29 @@ const Dashboard: React.FC = () => {
          {/* Welcome Section */}
          <div className="flex flex-col gap-2">
             <div className="flex items-center justify-between">
-               <h2 className="text-2xl font-bold text-slate-800 dark:text-white tracking-tight">
+               <h2 className="text-2xl font-bold text-slate-800 tracking-tight">
                   {t('dashboard.welcome')}, {(currentUser.name || 'User').split(' ')[0]}!
                </h2>
-               <div className="flex items-center gap-2 bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-900/30 dark:to-red-900/30 text-orange-600 dark:text-orange-400 px-3 py-1.5 rounded-full border border-orange-100 dark:border-orange-800/50 shadow-sm">
+               <div className="flex items-center gap-2 bg-gradient-to-r from-orange-50 to-red-50 text-orange-600 px-3 py-1.5 rounded-full border border-orange-100 shadow-sm">
                   <Flame size={16} className="fill-orange-500 text-orange-500" />
                   <span className="font-bold text-sm">{currentUser.streak || 0} {t('dashboard.streak')}</span>
                </div>
             </div>
-            <p className="text-slate-500 dark:text-slate-400 text-sm">{t('dashboard.quote')}</p>
+            <p className="text-slate-500 text-sm">{t('dashboard.quote')}</p>
          </div>
 
          {/* Horizontal Scroll Stats */}
          <div className="flex overflow-x-auto gap-4 pb-4 -mx-4 px-4 snap-x no-scrollbar">
             {/* Main Stats Card - Glass */}
-            <div className="min-w-[85vw] md:min-w-0 md:w-full bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl p-5 rounded-3xl border border-white/60 dark:border-slate-700/60 shadow-xl shadow-indigo-100/40 dark:shadow-none relative overflow-hidden snap-center group">
+            <div className="min-w-[85vw] md:min-w-0 md:w-full bg-white/60 backdrop-blur-xl p-5 rounded-3xl border border-white/60 shadow-xl shadow-indigo-100/40 relative overflow-hidden snap-center group">
                <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
 
                <div className="flex justify-between items-start mb-4 relative z-10">
                   <div>
-                     <p className="text-xs text-indigo-600 dark:text-indigo-400 font-bold uppercase tracking-wider mb-1 flex items-center gap-1">
+                     <p className="text-xs text-indigo-600 font-bold uppercase tracking-wider mb-1 flex items-center gap-1">
                         <Zap size={12} /> Rank Level
                      </p>
-                     <h3 className="text-4xl font-extrabold text-slate-800 dark:text-white tracking-tighter">{(currentUser.points || 0).toLocaleString()} <span className="text-sm font-bold text-slate-400">XP</span></h3>
+                     <h3 className="text-4xl font-extrabold text-slate-800 tracking-tighter">{(currentUser.points || 0).toLocaleString()} <span className="text-sm font-bold text-slate-400">XP</span></h3>
                   </div>
                   <div className="w-20 h-20 relative">
                      <ResponsiveContainer width="100%" height="100%">
@@ -127,54 +127,54 @@ const Dashboard: React.FC = () => {
                         </PieChart>
                      </ResponsiveContainer>
                      <div className="absolute inset-0 flex items-center justify-center">
-                        <span className="text-lg font-extrabold text-indigo-600 dark:text-indigo-400">{currentUser.level || 1}</span>
+                        <span className="text-lg font-extrabold text-indigo-600">{currentUser.level || 1}</span>
                      </div>
                   </div>
                </div>
 
                <div className="space-y-2 relative z-10">
-                  <div className="flex justify-between text-xs text-slate-500 dark:text-slate-400 font-medium">
+                  <div className="flex justify-between text-xs text-slate-500 font-medium">
                      <span>Progress to Level {(currentUser.level || 1) + 1}</span>
-                     <span className="text-indigo-600 dark:text-indigo-400 font-bold">{Math.round(progressToNextLevel)}%</span>
+                     <span className="text-indigo-600 font-bold">{Math.round(progressToNextLevel)}%</span>
                   </div>
-                  <div className="bg-slate-100 dark:bg-slate-700 h-2.5 rounded-full overflow-hidden">
+                  <div className="bg-slate-100 h-2.5 rounded-full overflow-hidden">
                      <div
                         className="bg-gradient-to-r from-indigo-500 to-purple-500 h-full rounded-full transition-all duration-500"
                         style={{ width: `${Math.min(100, progressToNextLevel)}%` }}
                      />
                   </div>
-                  <p className="text-xs text-slate-400 dark:text-slate-500">{(currentUser.nextLevelPoints || 1000) - (currentUser.points || 0)} XP needed</p>
+                  <p className="text-xs text-slate-400">{(currentUser.nextLevelPoints || 1000) - (currentUser.points || 0)} XP needed</p>
                </div>
             </div>
          </div>
 
          {/* Quick Stats Grid */}
          <div className="grid grid-cols-3 gap-3">
-            <div className="bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/30 dark:to-teal-900/30 p-4 rounded-2xl border border-emerald-100 dark:border-emerald-800/50">
-               <Target size={20} className="text-emerald-600 dark:text-emerald-400 mb-2" />
-               <p className="text-2xl font-bold text-emerald-700 dark:text-emerald-300">{completedMissions}</p>
-               <p className="text-xs text-emerald-600/70 dark:text-emerald-400/70">Missions Ready</p>
+            <div className="bg-gradient-to-br from-emerald-50 to-teal-50 p-4 rounded-2xl border border-emerald-100">
+               <Target size={20} className="text-emerald-600 mb-2" />
+               <p className="text-2xl font-bold text-emerald-700">{completedMissions}</p>
+               <p className="text-xs text-emerald-600/70">Missions Ready</p>
             </div>
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 p-4 rounded-2xl border border-blue-100 dark:border-blue-800/50">
-               <TrendingUp size={20} className="text-blue-600 dark:text-blue-400 mb-2" />
-               <p className="text-2xl font-bold text-blue-700 dark:text-blue-300">{totalIdeas}</p>
-               <p className="text-xs text-blue-600/70 dark:text-blue-400/70">Ideas Posted</p>
+            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-4 rounded-2xl border border-blue-100">
+               <TrendingUp size={20} className="text-blue-600 mb-2" />
+               <p className="text-2xl font-bold text-blue-700">{totalIdeas}</p>
+               <p className="text-xs text-blue-600/70">Ideas Posted</p>
             </div>
-            <div className="bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/30 dark:to-orange-900/30 p-4 rounded-2xl border border-amber-100 dark:border-amber-800/50">
-               <Award size={20} className="text-amber-600 dark:text-amber-400 mb-2" />
-               <p className="text-2xl font-bold text-amber-700 dark:text-amber-300">{totalKudosReceived}</p>
-               <p className="text-xs text-amber-600/70 dark:text-amber-400/70">Kudos Received</p>
+            <div className="bg-gradient-to-br from-amber-50 to-orange-50 p-4 rounded-2xl border border-amber-100">
+               <Award size={20} className="text-amber-600 mb-2" />
+               <p className="text-2xl font-bold text-amber-700">{totalKudosReceived}</p>
+               <p className="text-xs text-amber-600/70">Kudos Received</p>
             </div>
          </div>
 
          {/* Daily Operations */}
-         <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm border border-slate-100 dark:border-slate-700">
+         <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100">
             <div className="flex items-center justify-between mb-4">
-               <h3 className="font-bold text-lg text-slate-800 dark:text-white flex items-center gap-2">
-                  <CheckCircle2 size={20} className="text-indigo-600 dark:text-indigo-400" />
+               <h3 className="font-bold text-lg text-slate-800 flex items-center gap-2">
+                  <CheckCircle2 size={20} className="text-indigo-600" />
                   Daily Operations
                </h3>
-               <span className="text-sm text-slate-500 dark:text-slate-400">{missions.filter(m => m.claimed).length}/{missions.length}</span>
+               <span className="text-sm text-slate-500">{missions.filter(m => m.claimed).length}/{missions.length}</span>
             </div>
 
             <div className="space-y-3">
@@ -189,27 +189,27 @@ const Dashboard: React.FC = () => {
                      <div
                         key={mission.id}
                         className={`p-4 rounded-xl border transition-all ${mission.completed
-                           ? 'bg-emerald-50/50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800/50'
-                           : 'bg-slate-50/50 dark:bg-slate-700/50 border-slate-100 dark:border-slate-700'
+                           ? 'bg-emerald-50/50 border-emerald-200'
+                           : 'bg-slate-50/50 border-slate-100'
                            }`}
                      >
                         <div className="flex items-start justify-between mb-2">
                            <div className="flex items-center gap-3">
                               <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${mission.completed
                                  ? 'bg-emerald-500 text-white'
-                                 : 'bg-slate-100 dark:bg-slate-600 text-slate-400 dark:text-slate-300'
+                                 : 'bg-slate-100 text-slate-400'
                                  }`}>
                                  {mission.completed ? <Check size={16} /> : <Target size={16} />}
                               </div>
                               <div>
-                                 <p className={`font-medium ${mission.completed ? 'text-emerald-700 dark:text-emerald-300' : 'text-slate-700 dark:text-slate-200'}`}>
+                                 <p className={`font-medium ${mission.completed ? 'text-emerald-700' : 'text-slate-700'}`}>
                                     {mission.name}
                                  </p>
-                                 <p className="text-xs text-slate-500 dark:text-slate-400">{mission.description}</p>
+                                 <p className="text-xs text-slate-500">{mission.description}</p>
                               </div>
                            </div>
                            <div className="flex items-center gap-2">
-                              <span className="text-sm font-bold text-indigo-600 dark:text-indigo-400">+{mission.reward}</span>
+                              <span className="text-sm font-bold text-indigo-600">+{mission.reward}</span>
                               {mission.completed && !mission.claimed && (
                                  <button
                                     onClick={() => handleClaimReward(mission.id)}
@@ -220,11 +220,11 @@ const Dashboard: React.FC = () => {
                                  </button>
                               )}
                               {mission.claimed && (
-                                 <span className="text-xs text-slate-400 dark:text-slate-500">Claimed</span>
+                                 <span className="text-xs text-slate-400">Claimed</span>
                               )}
                            </div>
                         </div>
-                        <div className="bg-slate-100 dark:bg-slate-700 h-1.5 rounded-full overflow-hidden">
+                        <div className="bg-slate-100 h-1.5 rounded-full overflow-hidden">
                            <div
                               className={`h-full rounded-full transition-all ${mission.completed
                                  ? 'bg-emerald-500'
@@ -233,7 +233,7 @@ const Dashboard: React.FC = () => {
                               style={{ width: `${Math.min(100, (mission.progress / mission.target) * 100)}%` }}
                            />
                         </div>
-                        <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">{mission.progress}/{mission.target}</p>
+                        <p className="text-xs text-slate-400 mt-1">{mission.progress}/{mission.target}</p>
                      </div>
                   ))
                )}
@@ -241,13 +241,13 @@ const Dashboard: React.FC = () => {
          </div>
 
          {/* Recent Field Activity */}
-         <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm border border-slate-100 dark:border-slate-700">
+         <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100">
             <div className="flex items-center justify-between mb-4">
-               <h3 className="font-bold text-lg text-slate-800 dark:text-white flex items-center gap-2">
+               <h3 className="font-bold text-lg text-slate-800 flex items-center gap-2">
                   <Lightbulb size={20} className="text-amber-500" />
                   Recent Ideas
                </h3>
-               <Link to="/ideas" className="text-indigo-600 dark:text-indigo-400 text-sm font-medium flex items-center gap-1 hover:gap-2 transition-all">
+               <Link to="/ideas" className="text-indigo-600 text-sm font-medium flex items-center gap-1 hover:gap-2 transition-all">
                   View All <ChevronRight size={16} />
                </Link>
             </div>
@@ -269,7 +269,7 @@ const Dashboard: React.FC = () => {
                      <div
                         key={idea.id}
                         onClick={() => navigate(`/ideas/${idea.id}`)}
-                        className="p-4 bg-slate-50/50 dark:bg-slate-700/50 rounded-xl border border-slate-100 dark:border-slate-600 hover:border-indigo-200 dark:hover:border-indigo-700 transition-all cursor-pointer"
+                        className="p-4 bg-slate-50/50 rounded-xl border border-slate-100 hover:border-indigo-200 transition-all cursor-pointer"
                      >
                         <div className="flex items-start gap-3">
                            <img
@@ -278,10 +278,10 @@ const Dashboard: React.FC = () => {
                               className="w-10 h-10 rounded-full object-cover"
                            />
                            <div className="flex-1 min-w-0">
-                              <p className="font-medium text-slate-800 dark:text-white truncate">{idea.title}</p>
-                              <p className="text-xs text-slate-500 dark:text-slate-400">{idea.author.name} · {idea.createdAt}</p>
+                              <p className="font-medium text-slate-800 truncate">{idea.title}</p>
+                              <p className="text-xs text-slate-500">{idea.author.name} · {idea.createdAt}</p>
                            </div>
-                           <div className="flex items-center gap-1 text-indigo-600 dark:text-indigo-400">
+                           <div className="flex items-center gap-1 text-indigo-600">
                               <span className="text-sm font-bold">{idea.votes}</span>
                               <TrendingUp size={14} />
                            </div>

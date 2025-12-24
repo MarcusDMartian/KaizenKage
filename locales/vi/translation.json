@@ -47,8 +47,6 @@
     },
     "settings": {
         "appearance": "Giao diện",
-        "darkMode": "Chế độ tối",
-        "darkModeDesc": "Chuyển đổi giữa giao diện sáng và tối",
         "language": "Ngôn ngữ",
         "languageDesc": "Chọn ngôn ngữ ưu tiên của bạn",
         "notifications": "Thông báo",

@@ -88,8 +88,8 @@ const Badges: React.FC = () => {
                      <div
                         key={badge.id}
                         className={`relative group rounded-xl p-6 border transition-all duration-300 ${isUnlocked
-                           ? 'bg-white dark:bg-slate-800 border-slate-100 dark:border-slate-700 shadow-sm hover:shadow-md hover:-translate-y-1'
-                           : 'bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 opacity-70 hover:opacity-100'
+                           ? 'bg-white border-slate-100 shadow-sm hover:shadow-md hover:-translate-y-1'
+                           : 'bg-slate-50 border-slate-200 opacity-70 hover:opacity-100'
                            }`}
                      >
                         {!isUnlocked && (
@@ -101,25 +101,25 @@ const Badges: React.FC = () => {
                         <div className="flex justify-center mb-4">
                            <div className={`w-20 h-20 rounded-2xl flex items-center justify-center text-4xl shadow-sm transition-transform duration-300 ${isUnlocked
                               ? `${badge.color || 'bg-indigo-100'} group-hover:scale-110`
-                              : 'bg-slate-200 dark:bg-slate-700 text-slate-400 grayscale'
+                              : 'bg-slate-200 text-slate-400 grayscale'
                               }`}>
                               {badge.icon}
                            </div>
                         </div>
 
                         <div className="text-center">
-                           <h3 className={`font-bold mb-1 ${isUnlocked ? 'text-slate-800 dark:text-white' : 'text-slate-500 dark:text-slate-400'}`}>
+                           <h3 className={`font-bold mb-1 ${isUnlocked ? 'text-slate-800' : 'text-slate-500'}`}>
                               {badge.name}
                            </h3>
-                           <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
+                           <p className="text-xs text-slate-500 leading-relaxed font-medium">
                               {badge.description}
                            </p>
                         </div>
 
                         <div className="mt-4 flex justify-center">
                            <span className={`text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-full ${isUnlocked
-                              ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
-                              : 'bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400'
+                              ? 'bg-green-100 text-green-700'
+                              : 'bg-slate-200 text-slate-500'
                               }`}>
                               {isUnlocked ? t('badges.unlocked') : t('badges.locked')}
                            </span>
