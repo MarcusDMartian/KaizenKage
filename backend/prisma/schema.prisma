@@ -107,6 +107,7 @@ enum Role {
   LEADER
   ADMIN
   SUPERADMIN
+  SYSTEM_ADMIN  // Platform-level admin, not tied to any organization
 }
 
 // ============================================

@@ -35,6 +35,7 @@ const Login: React.FC = () => {
 
     const handleLoginSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        console.log('[Login] handleLoginSubmit triggered', { email, password, isLogin });
         setError('');
         setLoading(true);
         try {

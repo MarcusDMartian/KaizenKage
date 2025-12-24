@@ -60,11 +60,13 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     { path: '/profile', label: t('nav.profile'), icon: User },
   ];
 
+  // Management: only Org Owner (SUPERADMIN) and Org Admin (ADMIN)
   if (currentUser?.role === 'ADMIN' || currentUser?.role === 'SUPERADMIN') {
     navItems.splice(navItems.length - 1, 0, { path: '/management', label: t('nav.management'), icon: ShieldCheck });
   }
 
-  if (currentUser?.role === 'SUPERADMIN') {
+  // Console: only System Admin (platform-level)
+  if (currentUser?.role === 'SYSTEM_ADMIN') {
     navItems.splice(navItems.length - 1, 0, { path: '/console', label: 'Console', icon: ShieldAlert });
   }
 

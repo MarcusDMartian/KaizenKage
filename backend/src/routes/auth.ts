@@ -44,6 +44,7 @@ router.post('/register', async (req, res) => {
                 name: user.name,
                 avatarUrl: user.avatarUrl,
                 role: user.role,
+                isActive: user.isActive,
             },
         });
     } catch (error) {
@@ -84,6 +85,7 @@ router.post('/login', async (req, res) => {
                 name: user.name,
                 avatarUrl: user.avatarUrl,
                 role: user.role,
+                isActive: user.isActive,
             },
         });
     } catch (error) {
@@ -180,7 +182,8 @@ router.post('/register-org', async (req, res) => {
                 name: result.user.name,
                 avatarUrl: result.user.avatarUrl,
                 role: result.user.role,
-                organizationId: result.org.id
+                organizationId: result.org.id,
+                isActive: result.user.isActive,
             },
             organization: result.org
         });

@@ -179,6 +179,7 @@ export interface Transaction {
 // ============================================
 
 export async function login(email: string, password: string): Promise<{ token: string; user: User }> {
+    console.log('[apiService] login called', { email, password, API_BASE });
     const response = await fetch(`${API_BASE}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
