@@ -83,12 +83,18 @@ function App() {
   const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
-    // Initialize localStorage with mock data
-    initializeStorage();
-    setIsReady(true);
+    console.log('App: Initializing...');
+    try {
+      initializeStorage();
+      console.log('App: Storage initialized');
+      setIsReady(true);
+    } catch (e) {
+      console.error('App: Initialization failed', e);
+    }
   }, []);
 
   if (!isReady) {
+    console.log('App: Not ready, showing spinner');
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
         <div className="w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />
@@ -96,6 +102,7 @@ function App() {
     );
   }
 
+  console.log('App: Rendering Router');
   return (
     <Router>
       <Routes>
