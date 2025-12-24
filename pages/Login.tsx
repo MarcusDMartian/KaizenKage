@@ -302,7 +302,7 @@ const Login: React.FC = () => {
                                 <button
                                     type="submit"
                                     disabled={loading}
-                                    className={`w-full ${foundOrg ? 'bg-emerald-500 hover:bg-emerald-600' : 'bg-white hover:bg-white/90 text-indigo-600'} text-white font-bold py-3 rounded-xl shadow-lg transition-all disabled:opacity-70 flex items-center justify-center gap-2`}
+                                    className={`w-full ${foundOrgs.length > 0 && selectedOrgId && !wantsNewOrg ? 'bg-emerald-500 hover:bg-emerald-600' : 'bg-white hover:bg-white/90 text-indigo-600'} text-white font-bold py-3 rounded-xl shadow-lg transition-all disabled:opacity-70 flex items-center justify-center gap-2`}
                                 >
                                     {loading ? (
                                         <Loader2 size={20} className="animate-spin" />
