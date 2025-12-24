@@ -23,65 +23,59 @@ import { getSavedUser } from './services/apiService';
 
 // Wrapper component to handle routing logic
 const AppRoutes: React.FC = () => {
-  const location = useLocation();
   const authenticated = isLoggedIn();
-
-  // Start inactivity timer for session management (15 mins)
   useIdleTimer(authenticated);
 
-  // Read onboarding status and active status
   const user = getSavedUser();
   const onboardingComplete = isOnboardingCompleted();
-  const isActive = user?.isActive !== false; // Active by default (for old users) or if explicitly true
+  const isActive = user?.isActive !== false;
 
-  // Public routes (no auth required)
-  if (location.pathname === '/login') {
-    // Redirect to home if already logged in
-    if (isLoggedIn()) {
-      return <Navigate to="/" replace />;
-    }
-    return <Login />;
-  }
-
-  // Onboarding route
-  if (location.pathname === '/onboarding') {
-    return <Onboarding />;
-  }
-
-  // Check authentication for protected routes
-  if (!isLoggedIn()) {
-    return <Navigate to="/login" replace />;
-  }
-
-  // Handle inactive users (pending approval)
-  if (!isActive) {
-    return <WaitingApproval />;
-  }
-
-  // If onboarding not complete, show it first
-  if (!onboardingComplete) {
-    return <Navigate to="/onboarding" replace />;
-  }
-
-  // Show main app with layout
   return (
-    <Layout>
-      <Routes>
-        <Route path="/" element={<Dashboard />} />
-        <Route path="/ideas" element={<KaizenIdeas />} />
-        <Route path="/ideas/:id" element={<IdeaDetail />} />
-        <Route path="/kudos" element={<Kudos />} />
-        <Route path="/leaderboard" element={<LeaderboardPage />} />
-        <Route path="/badges" element={<Badges />} />
-        <Route path="/rewards" element={<Rewards />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/settings" element={<Settings />} />
-        <Route path="/feedback" element={<Feedback />} />
-        <Route path="/management" element={<Management />} />
-        <Route path="/console" element={<SuperadminConsole />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </Layout>
+    <Routes>
+      {/* Public Route */}
+      <Route
+        path="/login"
+        element={authenticated ? <Navigate to="/" replace /> : <Login />}
+      />
+
+      {/* Onboarding Route */}
+      <Route
+        path="/onboarding"
+        element={authenticated ? <Onboarding /> : <Navigate to="/login" replace />}
+      />
+
+      {/* Protected Routes */}
+      <Route
+        path="/*"
+        element={
+          !authenticated ? (
+            <Navigate to="/login" replace />
+          ) : !isActive ? (
+            <WaitingApproval />
+          ) : !onboardingComplete ? (
+            <Navigate to="/onboarding" replace />
+          ) : (
+            <Layout>
+              <Routes>
+                <Route path="/" element={<Dashboard />} />
+                <Route path="/ideas" element={<KaizenIdeas />} />
+                <Route path="/ideas/:id" element={<IdeaDetail />} />
+                <Route path="/kudos" element={<Kudos />} />
+                <Route path="/leaderboard" element={<LeaderboardPage />} />
+                <Route path="/badges" element={<Badges />} />
+                <Route path="/rewards" element={<Rewards />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/settings" element={<Settings />} />
+                <Route path="/feedback" element={<Feedback />} />
+                <Route path="/management" element={<Management />} />
+                <Route path="/console" element={<SuperadminConsole />} />
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </Layout>
+          )
+        }
+      />
+    </Routes>
   );
 };
 
